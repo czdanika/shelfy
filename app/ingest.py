@@ -78,22 +78,35 @@ class Ingest:
                 self._set(uid, status="error", message=f"{e.__class__.__name__}: {e}"[:500])
 
     async def _watch(self, folder: Path) -> None:
-        """Figyelt mappa: az új fájlokat (ha 10 mp-ig nem változtak) felveszi és áthelyezi."""
+        """Figyelt mappa (almappákkal együtt): az e-könyv fájlokat, ha 10 mp-ig nem változtak, felveszi és
+        áthelyezi a feldolgozásra. Más fájlokat (képek, .opf stb.) nem bánt; a kiürült almappákat törli."""
         sizes: dict[Path, int] = {}
         while True:
             try:
-                for p in sorted(folder.iterdir()):
-                    if not p.is_file() or p.name.startswith("."):
-                        continue
-                    size = p.stat().st_size
-                    if sizes.get(p) == size and size > 0:
-                        sizes.pop(p, None)
-                        self.add_file(p, p.name, user_id=None, source="folder", move=True)
-                    else:
-                        sizes[p] = size
+                await asyncio.to_thread(self._scan, folder, sizes)
             except OSError:
                 pass
             await asyncio.sleep(10)
+
+    def _scan(self, folder: Path, sizes: dict[Path, int]) -> None:
+        for p in sorted(folder.rglob("*")):
+            if not p.is_file() or any(part.startswith(".") for part in p.relative_to(folder).parts):
+                continue
+            if p.suffix.lower().lstrip(".") not in FORMATS:
+                continue
+            size = p.stat().st_size
+            if sizes.get(p) == size and size > 0:
+                sizes.pop(p, None)
+                self.add_file(p, p.name, user_id=None, source="folder", move=True)
+            else:
+                sizes[p] = size
+        for d in sorted((x for x in folder.rglob("*") if x.is_dir()), key=lambda x: -len(x.parts)):
+            try:
+                if not any(f.suffix.lower().lstrip(".") in FORMATS for f in d.rglob("*") if f.is_file()):
+                    if not any(d.iterdir()):
+                        d.rmdir()
+            except OSError:
+                pass
 
     # ------------------------------------------------------------------ felvétel
     def add_file(self, src: Path, filename: str, user_id: int | None, source: str = "web", move: bool = False) -> int:

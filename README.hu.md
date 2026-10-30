@@ -63,7 +63,7 @@ Az első megnyitáskor létrehozod az admin fiókot. Utána:
 |---|---|---|
 | `DATA_DIR` | `/data` | adatbázis, gyorsítótár, titkosító kulcs |
 | `LIBRARY_DIR` | `/data/library` | a könyvek fájljai (Szerző/Cím (id)/…) |
-| `INGEST_DIR` | – | figyelt mappa: az ide tett fájlokat magától feldolgozza |
+| `INGEST_DIR` | – | figyelt mappa almappákkal együtt: az ide másolt e-könyveket magától felveszi (és kiveszi innen) |
 | `DEFAULT_LANGUAGE` | `hu` | a felület alapnyelve |
 | `ONLINE_LOOKUP` | `true` | online adatkeresés be/ki |
 | `METADATA_PROVIDERS` | `moly,google,openlibrary` | adatforrások sorrendben |

@@ -9,12 +9,13 @@ services:
     image: ghcr.io/czdanika/shelfy:latest
     container_name: shelfy
     restart: unless-stopped
+    # user: "1026:100"                           # optional: run as the NAS user that owns the folders below (id <user>)
     ports:
       - "18200:8080"
     volumes:
       - shelfy-data:/data                        # database, library, caches
       # - /srv/books/shelfy:/data/library         # keep the book files in a separate folder (optional)
-      # - /srv/books/inbox:/ingest                # watched folder: files dropped here are processed automatically
+      # - /srv/books/inbox:/ingest                # watched folder (with subfolders): ebooks copied here are imported, then removed from here
     environment:
       - DEFAULT_LANGUAGE=en                      # en | hu
       # - INGEST_DIR=/ingest

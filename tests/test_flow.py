@@ -123,3 +123,21 @@ def test_book_page_points_to_waiting_uploads(admin, tmp_path):
     r = admin.post(f"/upload/{last}/approve", data={"title": "x", "next": "book"}, follow_redirects=False)
     html = admin.get(r.headers["location"]).text
     assert "1 feltöltés vár még átnézésre" in html
+
+
+def test_watched_folder_recursive(admin, tmp_path):
+    ing = admin.app.state.ingest
+    inbox = tmp_path / "inbox"
+    (inbox / "Szerző A" / "Sorozat").mkdir(parents=True)
+    make_epub(inbox / "Szerző A" / "Sorozat" / "egy.epub", title="Egy")
+    make_epub(inbox / "ketto.epub", title="Kettő")
+    (inbox / "Szerző A" / "cover.jpg").write_bytes(b"jpg")
+    (inbox / ".rejtett.epub").write_bytes(b"x")
+    sizes = {}
+    ing._scan(inbox, sizes)      # első kör: méret feljegyzése
+    assert admin.app.state.db.val("SELECT COUNT(*) FROM uploads") == 0
+    ing._scan(inbox, sizes)      # második kör: változatlan → felvétel
+    names = {r["filename"] for r in admin.app.state.db.q("SELECT filename FROM uploads")}
+    assert names == {"egy.epub", "ketto.epub"}
+    assert (inbox / "Szerző A" / "cover.jpg").exists()           # nem e-könyv: marad
+    assert not (inbox / "Szerző A" / "Sorozat").exists()          # kiürült almappa törölve

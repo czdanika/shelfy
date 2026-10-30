@@ -66,7 +66,7 @@ The image is built for `linux/amd64` and `linux/arm64`, with the conversion tool
 |---|---|---|
 | `DATA_DIR` | `/data` | database, caches, secret key |
 | `LIBRARY_DIR` | `/data/library` | book files (`Author/Title (id)/…`) |
-| `INGEST_DIR` | – | watched folder; files put here are processed automatically |
+| `INGEST_DIR` | – | watched folder, including subfolders: ebook files copied here are imported automatically (and moved out of it) |
 | `DEFAULT_LANGUAGE` | `en` | default interface language; also the language of category tags |
 | `ONLINE_LOOKUP` | `true` | enable or disable online metadata lookup |
 | `METADATA_PROVIDERS` | `moly,google,openlibrary` | metadata sources, in order |
