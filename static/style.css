@@ -5,16 +5,16 @@
   --text:#18202E; --muted:#4B5563; --accent:#0F766E; --accent-d:#0B5A54; --accent-l:#CCFBF1;
   --amber:#F59E0B; --amber-l:#FEF3C7; --danger:#B91C1C; --danger-l:#FEE2E2; --ok:#166534; --ok-l:#DCFCE7;
   --warn:#92400E; --warn-l:#FEF3C7; --radius:12px;
-  --serif:"Fraunces", Georgia, serif; --sans:"Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --serif:"Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif; --sans:"Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
 }
 *{box-sizing:border-box}
 html,body{margin:0}
-body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:15px;line-height:1.45}
+body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14px;line-height:1.5}
 a{color:var(--accent);text-decoration:none}
 a:hover{color:var(--accent-d);text-decoration:underline}
 h1,h2,h3{margin:0}
-h1{font-family:var(--serif);font-size:32px;font-weight:700}
-h2{font-family:var(--serif);font-size:22px;font-weight:700}
+h1{font-family:var(--serif);font-size:26px;font-weight:700;letter-spacing:-.2px}
+h2{font-family:var(--serif);font-size:19px;font-weight:700}
 .sr{position:absolute;left:-9999px}
 
 /* elrendezés */
@@ -47,7 +47,7 @@ h2{font-family:var(--serif);font-size:22px;font-weight:700}
 .btn.small{min-height:34px;padding:0 12px;font-size:13px}
 .field{display:flex;flex-direction:column;gap:5px}
 .field label,.lbl{font-size:13px;font-weight:600;color:var(--muted)}
-input[type=text],input[type=password],input[type=email],input[type=number],input[type=search],select,textarea{font:inherit;font-size:15px;padding:9px 12px;border:1px solid var(--line-2);border-radius:9px;background:#fff;color:var(--text);width:100%}
+input[type=text],input[type=password],input[type=email],input[type=number],input[type=search],select,textarea{font:inherit;font-size:14px;padding:9px 12px;border:1px solid var(--line-2);border-radius:9px;background:#fff;color:var(--text);width:100%}
 textarea{min-height:140px;resize:vertical}
 input:focus,select:focus,textarea:focus{outline:2px solid var(--accent-l);border-color:var(--accent)}
 .check{display:flex;gap:9px;align-items:center}
@@ -107,7 +107,8 @@ input:focus,select:focus,textarea:focus{outline:2px solid var(--accent-l);border
 table.meta{border-collapse:collapse}
 table.meta th{text-align:left;padding:6px 18px 6px 0;color:var(--muted);font-weight:600;font-size:14px;vertical-align:top;white-space:nowrap}
 table.meta td{padding:6px 0}
-.desc{font-size:16px;line-height:1.65;max-width:72ch;white-space:pre-line}
+.desc{font-size:15px;line-height:1.7;max-width:75ch}
+.desc p{margin:0 0 .8em} .desc ul,.desc ol{margin:0 0 .8em;padding-left:1.4em} .desc blockquote{margin:0 0 .8em;padding-left:12px;border-left:3px solid var(--line-2);color:var(--muted)}
 details.menu{position:relative}
 details.menu summary{list-style:none}
 details.menu summary::-webkit-details-marker{display:none}
@@ -184,3 +185,9 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
 .check{display:flex;align-items:center;gap:8px;font-weight:500}
 table.list td input[type=text], table.list td textarea{width:100%}
 .mono{font-family:ui-monospace,Menlo,monospace;font-size:12px}
+
+.sidestats{margin-top:auto;padding:12px 10px 0;border-top:1px solid var(--side-2);font-size:12px;color:var(--side-muted)}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px}
+.stats div{background:var(--bg);border-radius:10px;padding:10px 12px}
+.stats b{display:block;font-size:20px;line-height:1.2}
+.stats span{font-size:12px;color:var(--muted)}

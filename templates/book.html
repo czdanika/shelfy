@@ -20,7 +20,7 @@
       {% if user.can('can_download') and b.formats %}
       <details class="menu">
         <summary class="btn primary">{{ icon('download', 16) }} {{ t('action.download') }} {{ icon('chev', 14) }}</summary>
-        <div class="pop">{% for f in b.files %}<a href="/book/{{ b.id }}/download/{{ f.format }}">{{ f.format|upper }} · {{ '%.1f' % (f.size / 1048576) }} MB</a>{% endfor %}
+        <div class="pop">{% for f in b.files %}<a href="/book/{{ b.id }}/download/{{ f.format }}">{{ f.format|upper }} · {{ f.size|filesize }}</a>{% endfor %}
           {% if can_convert %}{% for f in ['azw3', 'mobi', 'epub'] if f not in b.formats %}<a href="/book/{{ b.id }}/download/{{ f }}">{{ f|upper }} <span class="small muted">· {{ t('book.dl_' ~ f) }}</span></a>{% endfor %}{% endif %}</div>
       </details>
       {% endif %}
@@ -46,7 +46,7 @@
       {% if b.language %}<tr><th>{{ t('book.language') }}</th><td><a href="/books?lang={{ b.language }}">{{ langname(b.language) }}</a></td></tr>{% endif %}
       {% if b.isbn %}<tr><th>ISBN</th><td>{{ b.isbn }}</td></tr>{% endif %}
       {% if b.tags %}<tr><th>{{ t('book.tags') }}</th><td><div class="row" style="gap: 6px">{% for tg in b.tags %}<a class="pill" href="/books?tag={{ tg.id }}">{{ tg.name }}</a>{% endfor %}</div></td></tr>{% endif %}
-      <tr><th>{{ t('book.formats') }}</th><td><div class="row" style="gap: 6px">{% for f in b.files %}<span class="fmt">{{ f.format|upper }} · {{ '%.1f' % (f.size / 1048576) }} MB</span>{% endfor %}</div></td></tr>
+      <tr><th>{{ t('book.formats') }}</th><td><div class="row" style="gap: 6px">{% for f in b.files %}<span class="fmt">{{ f.format|upper }} · {{ f.size|filesize }}</span>{% endfor %}</div></td></tr>
       <tr><th>{{ t('book.added') }}</th><td>{{ b.added_at|int|datetime }}</td></tr>
       {% if b.source %}<tr><th>{{ t('book.source') }}</th><td>{% if b.source_url %}<a href="{{ b.source_url }}" rel="noopener" target="_blank">{{ t('source.' ~ b.source) }}</a>{% else %}{{ t('source.' ~ b.source) }}{% endif %}</td></tr>{% endif %}
     </table>
@@ -67,7 +67,7 @@
     </div>
 
     {% if b.description %}
-    <section><h2 style="margin-bottom: 6px">{{ t('book.description') }}</h2><div class="desc">{{ b.description }}</div></section>
+    <section><h2 style="margin-bottom: 6px">{{ t('book.description') }}</h2><div class="desc">{{ b.description|richtext }}</div></section>
     {% endif %}
   </div>
 </div>

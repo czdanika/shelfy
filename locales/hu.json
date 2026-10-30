@@ -361,7 +361,18 @@
   "import_running": "Átvétel folyamatban…",
   "import_result": "{done} / {total} feldolgozva · {added} felvéve · {skipped} kihagyva (már megvolt)",
   "import_errors": "Hibák",
-  "import_done": "Kész."
+  "import_done": "Kész.",
+  "stats": "Könyvtár statisztika",
+  "st_books": "könyv",
+  "st_size": "összesen",
+  "st_files": "fájl",
+  "st_authors": "szerző",
+  "st_series": "sorozat",
+  "st_no_cover": "borító nélkül",
+  "st_cache": "Gyorsítótár (borítók, konvertált fájlok)",
+  "st_disk": "Szabad hely",
+  "st_disk_val": "{free} / {total}",
+  "st_duplicates": "Lehetséges duplikátum"
  },
  "msg": {
   "saved": "Mentve.",

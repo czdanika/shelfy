@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import asyncio
 import hashlib
+import shutil
 import json
 import math
 import re
@@ -76,6 +77,16 @@ def create_app(cfg: Config | None = None, transport=None) -> FastAPI:
     app.mount("/static", StaticFiles(directory=str(BASE / "static")), name="static")
     tpl = Jinja2Templates(directory=str(BASE / "templates"))
     import datetime as _dt
+    from markupsafe import Markup
+    from .richtext import richtext
+    tpl.env.filters["richtext"] = lambda v: Markup(richtext(v))
+    def filesize(n):
+        n = float(n or 0)
+        for unit in ("B", "KB", "MB", "GB", "TB"):
+            if n < 1024 or unit == "TB":
+                return f"{n:.0f} {unit}" if unit in ("B", "KB") else f"{n:.1f} {unit}".replace(".0 ", " ")
+            n /= 1024
+    tpl.env.filters["filesize"] = filesize
     tpl.env.filters["num"] = lambda x: (int(x) if isinstance(x, float) and x.is_integer() else x) if x not in (None, "") else ""
     tpl.env.filters["datetime"] = lambda ts: _dt.datetime.fromtimestamp(ts).strftime("%Y.%m.%d %H:%M") if ts else "–"
     app.state.db, app.state.lib, app.state.ingest = db, lib, ingest
@@ -743,7 +754,12 @@ def create_app(cfg: Config | None = None, transport=None) -> FastAPI:
 
     @app.get("/admin/settings", response_class=HTMLResponse)
     async def admin_settings(request: Request):
-        return render(request, "admin_settings.html", s=settings_dict(), calibre=calibre, cfg=cfg,
+        def dir_size(d: Path) -> int:
+            return sum(f.stat().st_size for f in d.rglob("*") if f.is_file()) if d.exists() else 0
+        disk = shutil.disk_usage(cfg.library_dir)
+        st = lib.stats()
+        st.update(cache=dir_size(cfg.data_dir / "cache"), disk_free=disk.free, disk_total=disk.total)
+        return render(request, "admin_settings.html", s=settings_dict(), calibre=calibre, cfg=cfg, stats=st,
                       msg=request.query_params.get("msg"), section="settings")
 
     @app.post("/admin/settings")

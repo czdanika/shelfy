@@ -4,8 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>{% block title %}{{ t('app.name') }}{% endblock %} · {{ t('app.name') }}</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/static/fonts.css?v={{ version }}">
 <link rel="stylesheet" href="/static/style.css?v={{ version }}">
 <link rel="icon" href="/static/icon.svg" type="image/svg+xml">
 </head>
@@ -44,6 +43,7 @@
       <a class="item {% if v == 'archived' %}on{% endif %}" href="/books?view=archived">{{ t('view.archived') }}</a>
       {% if user.is_admin %}<a class="item {% if path.startswith('/admin') %}on{% endif %}" href="/admin">{{ t('nav.admin') }}</a>{% endif %}
     </div>
+    <div class="sidestats">{{ t('library.count', n=nav_counts.books) }} · {{ nav_counts.size|filesize }}</div>
   </nav>
 
   <div class="main">

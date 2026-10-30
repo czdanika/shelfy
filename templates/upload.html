@@ -39,7 +39,7 @@
     <div style="flex: 999 1 340px; min-width: 0; display: flex; flex-direction: column; gap: 8px">
       <div class="row between" style="align-items: flex-start">
         <div style="min-width: 0">
-          <div class="small muted">{{ it.filename }} · {{ '%.1f' % (it.size / 1048576) }} MB · {{ t('upload.src_' ~ it.source) }}</div>
+          <div class="small muted">{{ it.filename }} · {{ it.size|filesize }} · {{ t('upload.src_' ~ it.source) }}</div>
           <div style="font-weight: 700; font-size: 17px">{{ it.extracted.title or it.filename }}</div>
           {% if it.extracted.authors %}<div>{{ it.extracted.authors|join(', ') }}</div>{% endif %}
         </div>

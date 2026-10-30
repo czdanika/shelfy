@@ -6,7 +6,7 @@
 <div class="row between" style="align-items: flex-end">
   <div style="min-width: 0">
     <h1>{{ t('review.title') }}</h1>
-    <div class="muted small">{{ up.filename }} · {{ up.format|upper }} · {{ '%.1f' % (up.size / 1048576) }} MB · {{ t('upload.src_' ~ up.source) }}</div>
+    <div class="muted small">{{ up.filename }} · {{ up.format|upper }} · {{ up.size|filesize }} · {{ t('upload.src_' ~ up.source) }}</div>
   </div>
   {% if up.status == 'review' %}
   <form method="post" action="/upload/{{ up.id }}/reject"><button class="btn" type="submit">{{ icon('x', 16) }} {{ t('upload.reject') }}</button></form>

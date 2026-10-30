@@ -30,5 +30,5 @@
   <div class="muted">{{ t('kindle.device_old') if device == 'old' else t('kindle.device_new') }} · <a href="/kindle/settings">{{ t('kindle.change') }}</a></div>
 </div>
 {% endif %}
-{% if b.description %}<div class="desc">{{ b.description|replace('\n', '<br>'|safe) }}</div>{% endif %}
+{% if b.description %}<div class="desc">{{ b.description|richtext }}</div>{% endif %}
 {% endblock %}

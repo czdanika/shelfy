@@ -361,7 +361,18 @@
   "import_running": "Importing…",
   "import_result": "{done} / {total} processed · {added} added · {skipped} skipped (already present)",
   "import_errors": "Errors",
-  "import_done": "Finished."
+  "import_done": "Finished.",
+  "stats": "Library statistics",
+  "st_books": "books",
+  "st_size": "total size",
+  "st_files": "files",
+  "st_authors": "authors",
+  "st_series": "series",
+  "st_no_cover": "without cover",
+  "st_cache": "Cache (covers, converted files)",
+  "st_disk": "Free space",
+  "st_disk_val": "{free} of {total}",
+  "st_duplicates": "Possible duplicates"
  },
  "msg": {
   "saved": "Saved.",

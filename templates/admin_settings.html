@@ -30,6 +30,24 @@
       <div class="field"><label for="to">{{ t('admin.test_to') }}</label><input id="to" name="to" type="email" required value="{{ user.kindle_email or '' }}"></div>
       <button class="btn" type="submit">{{ icon('send', 16) }} {{ t('admin.test_send') }}</button>
     </form>
+    <section class="card" style="display: flex; flex-direction: column; gap: 12px">
+      <h2 style="font-size: 17px">{{ t('admin.stats') }}</h2>
+      <div class="stats">
+        <div><b>{{ stats.books }}</b><span>{{ t('admin.st_books') }}</span></div>
+        <div><b>{{ stats.size|filesize }}</b><span>{{ t('admin.st_size') }}</span></div>
+        <div><b>{{ stats.files }}</b><span>{{ t('admin.st_files') }}</span></div>
+        <div><b>{{ stats.authors }}</b><span>{{ t('admin.st_authors') }}</span></div>
+        <div><b>{{ stats.series }}</b><span>{{ t('admin.st_series') }}</span></div>
+        <div><b>{{ stats.no_cover }}</b><span>{{ t('admin.st_no_cover') }}</span></div>
+      </div>
+      {% if stats.formats %}<div class="small">{% for f in stats.formats %}<span class="fmt">{{ f.format|upper }} · {{ f.n }} · {{ f.size|filesize }}</span> {% endfor %}</div>{% endif %}
+      <dl class="small" style="margin: 0; display: grid; grid-template-columns: auto 1fr; gap: 4px 12px">
+        <dt class="muted">{{ t('admin.st_cache') }}</dt><dd style="margin: 0">{{ stats.cache|filesize }}</dd>
+        <dt class="muted">{{ t('admin.st_disk') }}</dt><dd style="margin: 0">{{ t('admin.st_disk_val', free=stats.disk_free|filesize, total=stats.disk_total|filesize) }}</dd>
+        {% if stats.archived %}<dt class="muted">{{ t('view.archived') }}</dt><dd style="margin: 0">{{ stats.archived }}</dd>{% endif %}
+        {% if stats.duplicates %}<dt class="muted">{{ t('admin.st_duplicates') }}</dt><dd style="margin: 0">{{ stats.duplicates }}</dd>{% endif %}
+      </dl>
+    </section>
     <section class="card" style="display: flex; flex-direction: column; gap: 10px">
       <h2 style="font-size: 17px">{{ t('admin.system') }}</h2>
       <ul class="checks small">

@@ -346,6 +346,21 @@ class Library:
     def counts(self) -> dict:
         return {
             "books": self.db.val("SELECT COUNT(*) FROM books WHERE archived = 0"),
+            "size": self.db.val("SELECT COALESCE(SUM(size), 0) FROM files") or 0,
+        }
+
+    def stats(self) -> dict:
+        """Részletes statisztika az admin oldalra."""
+        q = self.db.val
+        return {
+            "books": q("SELECT COUNT(*) FROM books WHERE archived = 0"),
+            "archived": q("SELECT COUNT(*) FROM books WHERE archived = 1"),
+            "files": q("SELECT COUNT(*) FROM files"),
+            "size": q("SELECT COALESCE(SUM(size), 0) FROM files") or 0,
+            "authors": q("SELECT COUNT(DISTINCT author_id) FROM book_authors"),
+            "series": q("SELECT COUNT(DISTINCT series_id) FROM books WHERE series_id IS NOT NULL"),
+            "no_cover": q("SELECT COUNT(*) FROM books WHERE has_cover = 0 AND archived = 0"),
+            "formats": [dict(r) for r in self.db.q("SELECT format, COUNT(*) AS n, SUM(size) AS size FROM files GROUP BY format ORDER BY n DESC")],
             "duplicates": len(self.duplicate_groups()),
         }
 
