@@ -1,0 +1,36 @@
+{# Súgó az SMTP beállításhoz (Gmail + Amazon jóváhagyott feladó). Mindkét e-mail űrlapon megjelenik. #}
+<details class="hint">
+  <summary>{{ icon('info', 15) }} {{ t('mailhelp.title') }}</summary>
+  <div class="hint-body">
+    <h3>{{ t('mailhelp.gmail_title') }}</h3>
+    <ol>
+      <li>{{ t('mailhelp.gmail_1') }}</li>
+      <li>{{ t('mailhelp.gmail_2') }} <a href="https://myaccount.google.com/apppasswords" target="_blank" rel="noopener">myaccount.google.com/apppasswords ↗</a></li>
+      <li>{{ t('mailhelp.gmail_3') }}</li>
+      <li>{{ t('mailhelp.gmail_4') }}</li>
+    </ol>
+    <table class="hint-table">
+      <tr><th>{{ t('admin.smtp_host') }}</th><td><code>smtp.gmail.com</code></td></tr>
+      <tr><th>{{ t('admin.smtp_port') }}</th><td><code>587</code> · STARTTLS</td></tr>
+      <tr><th>{{ t('admin.smtp_user') }}</th><td>{{ t('mailhelp.your_gmail') }}</td></tr>
+      <tr><th>{{ t('admin.smtp_password') }}</th><td>{{ t('mailhelp.app_password') }}</td></tr>
+      <tr><th>{{ t('admin.smtp_from') }}</th><td>{{ t('mailhelp.your_gmail') }}</td></tr>
+    </table>
+    <button class="btn small" type="button" data-gmail>{{ t('mailhelp.fill_gmail') }}</button>
+    <p class="small muted" style="margin: 0">{{ t('mailhelp.gmail_note') }}</p>
+    <h3>{{ t('mailhelp.amazon_title') }}</h3>
+    <p style="margin: 0">{{ t('mailhelp.amazon_text') }} <a href="https://www.amazon.com/mycd" target="_blank" rel="noopener">amazon.com/mycd ↗</a></p>
+  </div>
+</details>
+<script>
+(function () {
+  var s = document.currentScript, d = s.previousElementSibling, f = s.closest('form');
+  var b = d && d.querySelector('[data-gmail]');
+  if (!b || !f) return;
+  b.addEventListener('click', function () {
+    var set = function (n, v) { var el = f.querySelector('[name="' + n + '"]'); if (el) el.value = v; };
+    set('smtp_host', 'smtp.gmail.com'); set('smtp_port', '587'); set('smtp_security', 'starttls');
+    var u = f.querySelector('[name="smtp_user"]'); if (u) u.focus();
+  });
+})();
+</script>

@@ -5,6 +5,7 @@
     <h2 style="font-size: 18px">{{ t('mail.title') }}</h2>
     <p class="small muted" style="margin: 4px 0 0">{{ t('mail.help') }}</p>
   </div>
+  {% include "_mailhelp.html" %}
   {% if mail_src is defined %}
   <div class="small"><span class="badge {{ 'ok' if mail_src == 'own' else ('info' if mail_src == 'global' else 'warn') }}">{{ t('mail.src_' ~ mail_src) }}</span></div>
   {% endif %}

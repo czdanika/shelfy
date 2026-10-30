@@ -7,6 +7,7 @@
   <form class="card" method="post" action="/admin/settings" style="flex: 999 1 460px; display: flex; flex-direction: column; gap: 16px">
     <h2 style="font-size: 18px">{{ t('admin.mail_title') }}</h2>
     <p class="small muted" style="margin: -8px 0 0">{{ t('admin.mail_help') }}</p>
+    {% include "_mailhelp.html" %}
     <div class="grid2">
       <div class="field"><label for="sh">{{ t('admin.smtp_host') }}</label><input id="sh" name="smtp_host" type="text" value="{{ s.smtp_host or '' }}" placeholder="smtp.gmail.com"></div>
       <div class="field"><label for="sp">{{ t('admin.smtp_port') }}</label><input id="sp" name="smtp_port" type="number" value="{{ s.smtp_port or '' }}" placeholder="587"></div>
@@ -41,9 +42,9 @@
         <div><b>{{ stats.no_cover }}</b><span>{{ t('admin.st_no_cover') }}</span></div>
       </div>
       {% if stats.formats %}<div class="small">{% for f in stats.formats %}<span class="fmt">{{ f.format|upper }} · {{ f.n }} · {{ f.size|filesize }}</span> {% endfor %}</div>{% endif %}
-      <dl class="small" style="margin: 0; display: grid; grid-template-columns: auto 1fr; gap: 4px 12px">
+      <dl class="small" style="margin: 0; display: grid; grid-template-columns: 1fr auto; gap: 4px 12px">
         <dt class="muted">{{ t('admin.st_cache') }}</dt><dd style="margin: 0">{{ stats.cache|filesize }}</dd>
-        <dt class="muted">{{ t('admin.st_disk') }}</dt><dd style="margin: 0">{{ t('admin.st_disk_val', free=stats.disk_free|filesize, total=stats.disk_total|filesize) }}</dd>
+        <dt class="muted">{{ t('admin.st_disk') }}</dt><dd style="margin: 0; white-space: nowrap">{{ t('admin.st_disk_val', free=stats.disk_free|filesize, total=stats.disk_total|filesize) }}</dd>
         {% if stats.archived %}<dt class="muted">{{ t('view.archived') }}</dt><dd style="margin: 0">{{ stats.archived }}</dd>{% endif %}
         {% if stats.duplicates %}<dt class="muted">{{ t('admin.st_duplicates') }}</dt><dd style="margin: 0">{{ stats.duplicates }}</dd>{% endif %}
       </dl>

@@ -494,5 +494,19 @@
   "same": "Megegyezik",
   "tags_add": "hozzáadás a meglévőkhöz",
   "apply": "Kijelöltek átvétele"
+ },
+ "mailhelp": {
+  "title": "Segítség: Gmail beállítása és Kindle-engedély",
+  "gmail_title": "Gmail fiókkal",
+  "gmail_1": "A Google-fiókodban kapcsold be a kétlépcsős azonosítást (Biztonság menü) – enélkül nem lehet alkalmazásjelszót létrehozni.",
+  "gmail_2": "Hozz létre egy alkalmazásjelszót, pl. „Shelfy” néven:",
+  "gmail_3": "A kapott 16 karakteres kódot írd a Jelszó mezőbe (a szóközök nem számítanak). Ez nem a Google-jelszavad.",
+  "gmail_4": "Mentés után küldj próba e-mailt.",
+  "your_gmail": "a teljes Gmail-címed",
+  "app_password": "az alkalmazásjelszó (16 karakter)",
+  "fill_gmail": "Gmail adatok kitöltése",
+  "gmail_note": "Ha nem látod az alkalmazásjelszó menüpontot: nincs bekapcsolva a kétlépcsős azonosítás, vagy céges fiókról van szó, ahol a rendszergazda letiltotta.",
+  "amazon_title": "Engedély az Amazonnál",
+  "amazon_text": "A feladó címét fel kell venni a jóváhagyott feladók közé: Manage Your Content and Devices → Preferences → Personal Document Settings → Approved Personal Document E-mail List. Ugyanitt látod a Kindle e-mail címedet is (…@kindle.com)."
  }
 }

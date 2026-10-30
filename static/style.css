@@ -284,3 +284,21 @@ input[type=text],input[type=password],input[type=email],input[type=number],input
 .btn:not(.primary):not(.dark):not(.danger):hover{border-color:transparent;text-decoration:underline;text-underline-offset:4px}
 .btn.danger{border-color:transparent;background:none}
 .cand,.covopt,.drop,.flash,table.list{border-radius:2px}
+
+/* súgó (összecsukható tipp) */
+.hint{border-left:2px solid var(--accent);background:#F6FAF9;padding:8px 14px}
+.hint summary{cursor:pointer;font-weight:600;color:var(--accent);display:flex;align-items:center;gap:6px;list-style:none}
+.hint summary::-webkit-details-marker{display:none}
+.hint summary::after{content:"›";margin-left:4px;transition:transform .15s}
+.hint[open] summary::after{transform:rotate(90deg)}
+.hint-body{display:flex;flex-direction:column;gap:10px;padding:10px 0 4px;font-size:14px}
+.hint-body h3{font-size:15px;font-weight:600;margin:4px 0 0}
+.hint-body ol{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:4px}
+.hint-table{border-collapse:collapse;font-size:14px}
+.hint-table th{text-align:left;font-weight:400;color:var(--muted);padding:2px 18px 2px 0;white-space:nowrap}
+.hint-table td{padding:2px 0}
+.hint .btn{align-self:flex-start}
+.hint-table{width:auto} .hint-table th{width:1%}
+.hint .btn{border:1px solid var(--accent)!important;color:var(--accent);padding:0 12px!important}
+.hint .btn:hover{text-decoration:none!important;background:#fff}
+.stats div{border-radius:2px}

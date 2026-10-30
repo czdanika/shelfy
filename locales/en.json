@@ -494,5 +494,19 @@
   "same": "Identical",
   "tags_add": "added to existing ones",
   "apply": "Apply selected"
+ },
+ "mailhelp": {
+  "title": "Help: setting up Gmail and Kindle approval",
+  "gmail_title": "With a Gmail account",
+  "gmail_1": "Turn on 2-Step Verification in your Google Account (Security) – app passwords cannot be created without it.",
+  "gmail_2": "Create an app password, e.g. named “Shelfy”:",
+  "gmail_3": "Enter the 16-character code in the Password field (spaces do not matter). This is not your Google password.",
+  "gmail_4": "Save, then send a test e-mail.",
+  "your_gmail": "your full Gmail address",
+  "app_password": "the app password (16 characters)",
+  "fill_gmail": "Fill in Gmail settings",
+  "gmail_note": "If you cannot see app passwords: 2-Step Verification is off, or it is a work account where the administrator has disabled them.",
+  "amazon_title": "Approval at Amazon",
+  "amazon_text": "Add the sender address to your approved senders: Manage Your Content and Devices → Preferences → Personal Document Settings → Approved Personal Document E-mail List. Your Kindle e-mail address (…@kindle.com) is shown there too."
  }
 }
