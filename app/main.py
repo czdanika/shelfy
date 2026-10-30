@@ -24,6 +24,7 @@ from .categories import CATEGORIES
 from .auth import PERMS, ROLE_DEFAULTS, ROLES, Sessions, Throttle, User, hash_password, verify_password
 from .config import Config, load_config
 from .db import Database, now
+from .events import GROUPS, KINDS, Events
 from .i18n import REFERENCE, I18n
 from .images import thumbnail
 from .ingest import Ingest
@@ -35,6 +36,8 @@ BASE = Path(__file__).resolve().parent.parent
 COOKIE = "shelfy"
 YEAR = 60 * 60 * 24 * 365
 PER_PAGE = 60
+PER_PAGE_CHOICES = (30, 60, 120, 240)
+ZOOM_MIN, ZOOM_MAX, ZOOM_DEFAULT = 90, 260, 160  # könyvkártya szélessége px-ben
 # Kindle 1/2/DX és Kindle Keyboard ("Kindle/3.0" a "+" nélkül): csak MOBI-t tölt le
 OLD_KINDLE_UA = re.compile(r"Kindle/(?:[12]\.\d|3\.0(?!\+))")
 KINDLE_UA = re.compile(r"Kindle|Silk/")
@@ -55,7 +58,8 @@ def create_app(cfg: Config | None = None, transport=None) -> FastAPI:
     throttle = Throttle()
     converter = Converter(cfg)
     lookup = Lookup(cfg.providers, transport=transport)
-    ingest = Ingest(db, lib, converter, lookup, cfg.data_dir / "uploads",
+    events = Events(db)
+    ingest = Ingest(db, lib, converter, lookup, cfg.data_dir / "uploads", events=events,
                     online=cfg.online_lookup, default_lang=cfg.default_language, translate=i18n.t)
     covers_dir = cfg.data_dir / "cache" / "covers"
     covers_dir.mkdir(parents=True, exist_ok=True)
@@ -194,6 +198,7 @@ def create_app(cfg: Config | None = None, transport=None) -> FastAPI:
             "t": partial(i18n.t, lang), "lang": lang, "languages": [(c, i18n.names[c]) for c in i18n.languages],
             "user": user, "version": __version__, "path": request.url.path,
             "query": dict(request.query_params), "qs": qs, "now": now(),
+            "event_text": partial(event_text, lang),
         }
         if user:
             base["shelves"] = [dict(r) for r in db.q("SELECT id, name FROM shelves WHERE user_id = ? ORDER BY name", (user.id,))]
@@ -203,6 +208,24 @@ def create_app(cfg: Config | None = None, transport=None) -> FastAPI:
         resp = tpl.TemplateResponse(request, name, base, status_code=status)
         resp.headers["Cache-Control"] = "no-store"
         return resp
+
+    class _Safe(dict):
+        def __missing__(self, k):
+            return "–"
+
+    def event_text(lang: str, e: dict) -> str:
+        p = dict(e["params"])
+        if p.get("reason"):
+            p["reason"] = i18n.t(lang, "msg." + p["reason"])
+        if p.get("source") in ("moly", "google", "openlibrary"):
+            p["source"] = i18n.t(lang, "source." + p["source"])
+        if p.get("source") in ("web", "folder"):
+            p["source"] = i18n.t(lang, "upload.src_" + p["source"])
+        tmpl = i18n.t(lang, "log." + e["kind"])
+        try:
+            return tmpl.format_map(_Safe(p))
+        except (ValueError, IndexError):
+            return tmpl
 
     def qs(current: dict, **changes) -> str:
         d = {k: v for k, v in current.items() if v not in (None, "")}
@@ -239,6 +262,7 @@ def create_app(cfg: Config | None = None, transport=None) -> FastAPI:
                         can_delete, created_at) VALUES(?, ?, ?, 'admin', 1, 1, 1, 1, ?)""",
                      (username.strip(), username.strip(), hash_password(password), now()))
         u = User.from_row(db.one("SELECT * FROM users WHERE id = ?", (uid,)))
+        events.log("user_created", u, name=u.username, role="admin")
         return save(request, RedirectResponse("/", status_code=303), {"uid": u.id, "fp": u.fingerprint})
 
     @app.get("/login", response_class=HTMLResponse)
@@ -255,11 +279,13 @@ def create_app(cfg: Config | None = None, transport=None) -> FastAPI:
         r = db.one("SELECT * FROM users WHERE username = ?", (username.strip(),))
         if not r or not verify_password(password, r["password_hash"]):
             throttle.fail(ip)
+            events.log("login_failed", ok=False, user_id=r["id"] if r else None, name=username.strip()[:60], ip=ip)
             await asyncio.sleep(0.5)
             return render(request, "login.html", 401, next=next, error=tr(request, "login.error"))
         throttle.reset(ip)
         u = User.from_row(r)
         db.run("UPDATE users SET last_login = ? WHERE id = ?", (now(), u.id))
+        events.log("login", u, ip=ip)
         return save(request, RedirectResponse(next, status_code=303), {"uid": u.id, "fp": u.fingerprint})
 
     @app.get("/logout")
@@ -301,10 +327,16 @@ def create_app(cfg: Config | None = None, transport=None) -> FastAPI:
 
         page = max(1, num("page") or 1)
         view = p.get("view") or "all"
+        per_page = num("pp") if num("pp") in PER_PAGE_CHOICES else None
+        if per_page is None:
+            c = request.cookies.get("shelfy_pp", "")
+            per_page = int(c) if c.isdigit() and int(c) in PER_PAGE_CHOICES else PER_PAGE
+        zc = request.cookies.get("shelfy_zoom", "")
+        zoom = min(ZOOM_MAX, max(ZOOM_MIN, int(zc))) if zc.isdigit() else ZOOM_DEFAULT
         rows, total = lib.list_books(sort=sort, q=p.get("q"), author=num("author"), series=num("series"), tag=num("tag"),
                                      publisher=num("publisher"), language=p.get("lang"), fmt=p.get("fmt"),
                                      rating=num("rating"), view=view, user_id=user.id, shelf=num("shelf"),
-                                     page=page, per_page=PER_PAGE)
+                                     page=page, per_page=per_page)
         heading = tr(request, f"view.{view}") if view != "all" else tr(request, "view.all")
         for key, table in (("author", "authors"), ("series", "series"), ("tag", "tags"), ("publisher", "publishers")):
             if num(key):
@@ -318,8 +350,11 @@ def create_app(cfg: Config | None = None, transport=None) -> FastAPI:
         if p.get("fmt"):
             heading = p.get("fmt").upper()
         resp = render(request, "library.html", books=rows, total=total, page=page,
-                      pages=max(1, math.ceil(total / PER_PAGE)), sort=sort, sort_groups=SORT_GROUPS,
-                      heading=heading, view=view, msg=p.get("msg"))
+                      pages=max(1, math.ceil(total / per_page)), sort=sort, sort_groups=SORT_GROUPS,
+                      heading=heading, view=view, msg=p.get("msg"), zoom=zoom, zoom_min=ZOOM_MIN, zoom_max=ZOOM_MAX,
+                      per_page=per_page, per_page_choices=PER_PAGE_CHOICES)
+        if num("pp") in PER_PAGE_CHOICES:
+            resp.set_cookie("shelfy_pp", str(per_page), max_age=YEAR, samesite="lax")
         if p.get("sort") in SORTS:
             resp.set_cookie("shelfy_sort", sort, max_age=YEAR, samesite="lax")
         return resp
@@ -344,7 +379,8 @@ def create_app(cfg: Config | None = None, transport=None) -> FastAPI:
             more = [m for m in more if m["id"] != bid][:10]
         return render(request, "book.html", b=b, read_state=state, more=more, msg=request.query_params.get("msg"),
                       can_mail=mail_settings(request.state.user)[0] is not None,
-                      can_convert=converter.has_convert)
+                      can_convert=converter.has_convert,
+                      history=events.query(book_id=bid, per_page=15)[0] if request.state.user.can("can_edit") else [])
 
     @app.get("/book/{bid}/cover")
     async def cover(bid: int, w: int = 0, g: int = 0):
@@ -428,10 +464,12 @@ def create_app(cfg: Config | None = None, transport=None) -> FastAPI:
         try:
             p = await ensure_format(bid, fmt)
         except RuntimeError:
+            events.log("convert_failed", user, bid, ok=False, title=b["title"], fmt=fmt.upper())
             return flash(f"/book/{bid}", "convert_error")
         if not p:
             return Response(status_code=404)
         db.run("INSERT INTO downloads(user_id, book_id, at) VALUES(?, ?, ?)", (user.id, bid, now()))
+        events.log("downloaded", user, bid, title=b["title"], fmt=fmt.upper())
         name = f"{file_name(b)}.{fmt}"
         if fmt in ("azw3", "mobi", "azw") and p.parent != cfg.data_dir / "cache" / "convert":
             tmp = Path(tempfile.mkstemp(suffix="." + fmt, dir=cfg.data_dir)[1])
@@ -456,15 +494,27 @@ def create_app(cfg: Config | None = None, transport=None) -> FastAPI:
         try:
             await converter.convert(lib.file_path(bid, src_fmt), dst, convert_opts(b, target))
             lib.add_file(bid, dst, target, await asyncio.to_thread(sha256_file, dst))
+            events.log("converted", user, bid, title=b["title"], fmt=target.upper())
         except RuntimeError:
+            events.log("convert_failed", user, bid, ok=False, title=b["title"], fmt=target.upper())
             return flash(f"/book/{bid}", "convert_error")
         finally:
             dst.unlink(missing_ok=True)
         return flash(f"/book/{bid}", "converted")
 
     async def send_to_kindle(user: User, bid: int) -> str:
-        """Küldés a felhasználó Kindle címére; az eredmény egy üzenetkulcs."""
+        """Küldés + naplózás; az eredmény egy üzenetkulcs."""
+        info: dict = {}
+        res = await _send_to_kindle(user, bid, info)
+        b = lib.book(bid)
+        events.log("sent" if res == "mail_sent" else "send_failed", user, bid, ok=res == "mail_sent",
+                   title=b["title"] if b else None, to=user.kindle_email, fmt=info.get("fmt"),
+                   via=info.get("via"), reason=None if res == "mail_sent" else res, error=info.get("error"))
+        return res
+
+    async def _send_to_kindle(user: User, bid: int, info: dict) -> str:
         s, _src = mail_settings(user)
+        info["via"] = s["smtp_from"] if s else None
         if not s:
             return "mail_off"
         if not user.kindle_email:
@@ -479,12 +529,14 @@ def create_app(cfg: Config | None = None, transport=None) -> FastAPI:
         if not p:
             return "mail_nofmt"
         fmt = p.suffix.lstrip(".")
+        info["fmt"] = fmt.upper()
         if p.stat().st_size > 49 * 1024 * 1024:
             return "mail_toobig"
         try:
             await asyncio.to_thread(send_mail, s, user.kindle_email, s.get("kindle_subject") or "Shelfy",
                                     f"{file_name(b)}.{fmt}", p.read_bytes(), MIME[fmt])
-        except Exception:
+        except Exception as e:
+            info["error"] = f"{e.__class__.__name__}: {e}"[:200]
             return "mail_error"
         db.run("INSERT INTO downloads(user_id, book_id, at) VALUES(?, ?, ?)", (user.id, bid, now()))
         return "mail_sent"
@@ -533,6 +585,7 @@ def create_app(cfg: Config | None = None, transport=None) -> FastAPI:
         form = await request.form()
         meta = meta_from_form(form)
         lib.update_meta(bid, meta)
+        events.log("edited", user, bid, title=meta.title)
         cov = form.get("cover")
         if cov is not None and getattr(cov, "filename", ""):
             data = await cov.read()
@@ -544,7 +597,11 @@ def create_app(cfg: Config | None = None, transport=None) -> FastAPI:
     async def delete(request: Request, bid: int):
         if not request.state.user.can("can_delete"):
             return Response(status_code=403)
+        b = lib.book(bid)
         lib.delete_book(bid)
+        if b:
+            events.log("deleted", request.state.user, bid, title=b["title"],
+                       authors=", ".join(a["name"] for a in b["authors"]))
         return flash("/books", "deleted")
 
     # ------------------------------------------------------------------ online adatfrissítés meglévő könyvhöz
@@ -634,6 +691,8 @@ def create_app(cfg: Config | None = None, transport=None) -> FastAPI:
         m.tags = list(dict.fromkeys(m.tags + cat_names))
         m.source, m.source_url = cand["source"], cand["url"]
         lib.update_meta(bid, m)
+        events.log("metadata_refreshed", request.state.user, bid, title=m.title, source=cand["source"],
+                   fields=", ".join(sorted(take)) or "–")
         if "cover" in take and cand.get("cover_url"):
             data = await lookup.fetch_image(cand["cover_url"])
             if data:
@@ -792,13 +851,13 @@ def create_app(cfg: Config | None = None, transport=None) -> FastAPI:
         if not up or up["status"] != "review":
             return RedirectResponse("/upload", status_code=303)
         if form.get("action") == "add_format" and up["duplicate_of"]:
-            bid = await ingest.approve(uid, {}, add_to=up["duplicate_of"])
+            bid = await ingest.approve(uid, {}, add_to=up["duplicate_of"], user=user)
             return flash(f"/book/{bid}", "format_added")
         meta = meta_from_form(form)
         data = {**meta.__dict__, "categories": form.getlist("categories"),
                 "cover_url": form.get("cover_url") if form.get("cover_choice") == "online" else None}
         bid = await ingest.approve(uid, data, use_candidate_cover=form.get("cover_choice") == "online",
-                                   lang=lang_of(request, user))
+                                   lang=lang_of(request, user), user=user)
         return after_review(uid, "approved", bid, form.get("next"))
 
     @app.post("/upload/approve-all")
@@ -813,7 +872,7 @@ def create_app(cfg: Config | None = None, transport=None) -> FastAPI:
                 continue
             c = 0 if cands and cands[0]["score"] >= 0.75 else None
             await ingest.approve(r["id"], ingest.proposal(r["id"], c), use_candidate_cover=c is not None,
-                                 lang=lang_of(request, user))
+                                 lang=lang_of(request, user), user=user)
             n += 1
         return flash("/upload", "approved")
 
@@ -821,7 +880,7 @@ def create_app(cfg: Config | None = None, transport=None) -> FastAPI:
     async def reject(request: Request, uid: int):
         if not request.state.user.can("can_upload"):
             return Response(status_code=403)
-        ingest.reject(uid)
+        ingest.reject(uid, user=request.state.user)
         return after_review(uid, "rejected", None, "next")
 
     @app.post("/upload/{uid}/research")
@@ -837,7 +896,8 @@ def create_app(cfg: Config | None = None, transport=None) -> FastAPI:
     @app.get("/me", response_class=HTMLResponse)
     async def me(request: Request):
         return render(request, "me.html", msg=request.query_params.get("msg"), error=None,
-                      m=user_mail(request.state.user.id), mail_src=mail_settings(request.state.user)[1])
+                      m=user_mail(request.state.user.id), mail_src=mail_settings(request.state.user)[1],
+                      my_events=events.query(user_id=request.state.user.id, per_page=20)[0])
 
     @app.post("/me")
     async def me_save(request: Request, display_name: str = Form(""), kindle_email: str = Form(""), language: str = Form(""),
@@ -875,8 +935,10 @@ def create_app(cfg: Config | None = None, transport=None) -> FastAPI:
             return flash("/me", "mail_off")
         try:
             await asyncio.to_thread(send_mail, s, to.strip(), "Shelfy teszt", "shelfy.txt", b"Shelfy OK", "text/plain")
-        except Exception:
+        except Exception as e:
+            events.log("mail_test_failed", request.state.user, ok=False, to=to.strip(), error=f"{e.__class__.__name__}: {e}"[:200])
             return flash("/me", "mail_error")
+        events.log("mail_test", request.state.user, to=to.strip())
         return flash("/me", "mail_sent")
 
     # ------------------------------------------------------------------ admin
@@ -911,6 +973,7 @@ def create_app(cfg: Config | None = None, transport=None) -> FastAPI:
             db.run("""INSERT INTO users(username, display_name, role, can_upload, can_edit, can_download, can_delete,
                       kindle_email, language, password_hash, created_at) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
                    (username,) + common + (hash_password(pw), now()))
+            events.log("user_created", request.state.user, name=username, role=role)
         else:
             target = int(uid)
             me_ = request.state.user
@@ -923,6 +986,9 @@ def create_app(cfg: Config | None = None, transport=None) -> FastAPI:
                 if len(pw) < 8:
                     return flash(f"/admin/users/{uid}", "short_password")
                 db.run("UPDATE users SET password_hash = ? WHERE id = ?", (hash_password(pw), target))
+            events.log("user_updated", request.state.user,
+                       name=db.val("SELECT username FROM users WHERE id = ?", (target,)), role=role,
+                       password="1" if pw else None)
         return flash("/admin", "saved")
 
     @app.post("/admin/users/{uid}/mail")
@@ -938,8 +1004,27 @@ def create_app(cfg: Config | None = None, transport=None) -> FastAPI:
     async def admin_user_delete(request: Request, uid: int):
         if uid == request.state.user.id:
             return flash("/admin", "self_delete")
+        name = db.val("SELECT username FROM users WHERE id = ?", (uid,))
         db.run("DELETE FROM users WHERE id = ?", (uid,))
+        events.log("user_deleted", request.state.user, name=name)
         return flash("/admin", "deleted")
+
+    LOG_PER_PAGE = 50
+
+    @app.get("/admin/log", response_class=HTMLResponse)
+    async def admin_log(request: Request):
+        p = request.query_params
+        page = max(1, int(p["page"])) if p.get("page", "").isdigit() else 1
+        period = p.get("period") or "30"
+        since = None if period == "all" else now() - int(period) * 86400 if period.isdigit() else None
+        uid = int(p["user"]) if p.get("user", "").isdigit() else None
+        rows, total = events.query(group=p.get("group") or None, user_id=uid, errors=p.get("errors") == "1",
+                                   since=since, q=(p.get("q") or "").strip() or None, page=page, per_page=LOG_PER_PAGE)
+        existing = {r[0] for r in db.q("SELECT id FROM books")} if rows else set()
+        users = [dict(r) for r in db.q("SELECT id, COALESCE(display_name, username) AS name FROM users ORDER BY name")]
+        return render(request, "admin_log.html", rows=rows, total=total, page=page,
+                      pages=max(1, math.ceil(total / LOG_PER_PAGE)), groups=list(GROUPS), users=users,
+                      existing=existing, period=period, section="log")
 
     @app.get("/admin/settings", response_class=HTMLResponse)
     async def admin_settings(request: Request):
@@ -957,6 +1042,7 @@ def create_app(cfg: Config | None = None, transport=None) -> FastAPI:
         save_mail(form, "global")
         db.set_setting("kindle_subject", (form.get("kindle_subject") or "").strip() or None)
         db.set_setting("auto_approve", "1" if form.get("auto_approve") else "0")
+        events.log("settings_saved", request.state.user)
         return flash("/admin/settings", "saved")
 
     @app.post("/admin/settings/test-mail")
@@ -965,7 +1051,9 @@ def create_app(cfg: Config | None = None, transport=None) -> FastAPI:
         try:
             await asyncio.to_thread(send_mail, s, to, "Shelfy teszt", "shelfy.txt", b"Shelfy OK", "text/plain")
         except Exception as e:
+            events.log("mail_test_failed", request.state.user, ok=False, to=to, error=f"{e.__class__.__name__}: {e}"[:200])
             return flash("/admin/settings", "mail_error")
+        events.log("mail_test", request.state.user, to=to)
         return flash("/admin/settings", "mail_sent")
 
     @app.get("/admin/languages", response_class=HTMLResponse)

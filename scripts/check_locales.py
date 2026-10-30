@@ -40,9 +40,12 @@ def dynamic() -> set[str]:
             keys |= {short, title}
     keys |= {f"upload.src_{s}" for s in ("web", "folder")}
     keys |= {f"upload.status_{s}" for s in ("pending", "inspecting", "review", "done", "error", "rejected")}
-    keys |= {f"admin.nav_{s}" for s in ("users", "settings", "languages")}
+    keys |= {f"admin.nav_{s}" for s in ("users", "settings", "languages", "log")}
     keys |= {f"admin.sec_{s}" for s in ("starttls", "ssl", "none")}
     keys |= {f"book.dl_{f}" for f in ("mobi", "azw3", "epub")}
+    from app.events import GROUPS, KINDS
+    keys |= {f"log.{k}" for k in KINDS} | {f"log.group_{g}" for g in GROUPS}
+    keys |= {f"log.period_{p}" for p in ("1", "7", "30", "365", "all")}
     keys |= {f"mail.src_{s}" for s in ("own", "global", "none")}
     keys |= {f"insp.src_{s}" for s in ("ok", "empty", "error")}
     keys |= {f"book.{f}" for f in ("title", "authors", "language", "publisher", "year", "isbn", "series", "description",

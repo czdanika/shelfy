@@ -60,6 +60,8 @@ def main(argv: list[str] | None = None) -> int:
         flags = ROLE_DEFAULTS["admin"]
         db.run("UPDATE users SET role = 'admin', can_upload = ?, can_edit = ?, can_download = ?, can_delete = ? WHERE id = ?",
                (flags["can_upload"], flags["can_edit"], flags["can_download"], flags["can_delete"], row["id"]))
+    from .events import Events
+    Events(db).log("password_reset", user_id=row["id"], name=row["username"], admin="1" if args.admin else None)
     print(f"Kész: {row['username']} jelszava megváltozott" + (" és adminisztrátor lett." if args.admin else ".")
           + " Minden eszközön újra be kell jelentkeznie.")
     return 0

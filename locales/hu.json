@@ -79,7 +79,9 @@
  "library": {
   "count": "{n} könyv",
   "empty_title": "Nincs találat",
-  "empty_text": "Tölts fel könyveket, vagy próbálj más szűrést."
+  "empty_text": "Tölts fel könyveket, vagy próbálj más szűrést.",
+  "zoom": "Méret – mennyi könyv férjen el egy sorban",
+  "per_page": "Oldalanként"
  },
  "pager": {
   "label": "Lapozás",
@@ -367,7 +369,8 @@
   "st_cache": "Gyorsítótár (borítók, konvertált fájlok)",
   "st_disk": "Szabad hely",
   "st_disk_val": "{free} / {total}",
-  "st_duplicates": "Lehetséges duplikátum"
+  "st_duplicates": "Lehetséges duplikátum",
+  "nav_log": "Napló"
  },
  "msg": {
   "saved": "Mentve.",
@@ -508,5 +511,53 @@
   "gmail_note": "Ha nem látod az alkalmazásjelszó menüpontot: nincs bekapcsolva a kétlépcsős azonosítás, vagy céges fiókról van szó, ahol a rendszergazda letiltotta.",
   "amazon_title": "Engedély az Amazonnál",
   "amazon_text": "A feladó címét fel kell venni a jóváhagyott feladók közé: Manage Your Content and Devices → Preferences → Personal Document Settings → Approved Personal Document E-mail List. Ugyanitt látod a Kindle e-mail címedet is (…@kindle.com)."
+ },
+ "log": {
+  "system": "Rendszer",
+  "empty": "Még nincs bejegyzés.",
+  "my_title": "Tevékenységeim",
+  "book_history": "Előzmények",
+  "all": "Minden esemény",
+  "all_users": "Minden felhasználó",
+  "filter": "Szűrés",
+  "search": "Keresés (cím, fájl, név)…",
+  "only_errors": "Csak hibák",
+  "count": "{n} bejegyzés",
+  "filter_type": "Esemény típusa",
+  "filter_user": "Felhasználó",
+  "filter_period": "Időszak",
+  "group_books": "Könyvek",
+  "group_sending": "Küldések",
+  "group_downloads": "Letöltések",
+  "group_users": "Felhasználók, belépés",
+  "period_1": "Utolsó 24 óra",
+  "period_7": "Utolsó 7 nap",
+  "period_30": "Utolsó 30 nap",
+  "period_365": "Utolsó év",
+  "period_all": "Minden",
+  "upload": "Feltöltés: {file} ({source})",
+  "inspected": "Megvizsgálva: {file} – legjobb online egyezés {best}",
+  "inspect_error": "Vizsgálati hiba: {file}",
+  "added": "Felvéve a könyvtárba: {title} ({fmt})",
+  "auto_added": "Automatikusan felvéve: {title} ({fmt})",
+  "format_added": "Új formátum: {title} ({fmt})",
+  "rejected": "Elvetve: {file}",
+  "edited": "Adatok szerkesztve: {title}",
+  "metadata_refreshed": "Online adatok átvéve: {title} – {source} ({fields})",
+  "converted": "Konvertálva: {title} → {fmt}",
+  "convert_failed": "Konvertálás sikertelen: {title} → {fmt}",
+  "deleted": "Törölve: {title} ({authors})",
+  "sent": "Elküldve Kindle-re: {title} ({fmt}) → {to}",
+  "send_failed": "Küldés sikertelen: {title} – {reason}",
+  "mail_test": "Próba e-mail elküldve → {to}",
+  "mail_test_failed": "Próba e-mail sikertelen → {to}",
+  "downloaded": "Letöltve: {title} ({fmt})",
+  "login": "Bejelentkezés ({ip})",
+  "login_failed": "Sikertelen belépés: {name} ({ip})",
+  "user_created": "Új felhasználó: {name}",
+  "user_updated": "Felhasználó módosítva: {name}",
+  "user_deleted": "Felhasználó törölve: {name}",
+  "password_reset": "Jelszó visszaállítva parancssorból: {name}",
+  "settings_saved": "Beállítások mentve"
  }
 }

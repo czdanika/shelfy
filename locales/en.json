@@ -79,7 +79,9 @@
  "library": {
   "count": "{n} books",
   "empty_title": "No books found",
-  "empty_text": "Upload some books or try a different filter."
+  "empty_text": "Upload some books or try a different filter.",
+  "zoom": "Size – how many books fit in a row",
+  "per_page": "Per page"
  },
  "pager": {
   "label": "Pagination",
@@ -367,7 +369,8 @@
   "st_cache": "Cache (covers, converted files)",
   "st_disk": "Free space",
   "st_disk_val": "{free} of {total}",
-  "st_duplicates": "Possible duplicates"
+  "st_duplicates": "Possible duplicates",
+  "nav_log": "Activity log"
  },
  "msg": {
   "saved": "Saved.",
@@ -508,5 +511,53 @@
   "gmail_note": "If you cannot see app passwords: 2-Step Verification is off, or it is a work account where the administrator has disabled them.",
   "amazon_title": "Approval at Amazon",
   "amazon_text": "Add the sender address to your approved senders: Manage Your Content and Devices → Preferences → Personal Document Settings → Approved Personal Document E-mail List. Your Kindle e-mail address (…@kindle.com) is shown there too."
+ },
+ "log": {
+  "system": "System",
+  "empty": "No entries yet.",
+  "my_title": "My activity",
+  "book_history": "History",
+  "all": "All events",
+  "all_users": "All users",
+  "filter": "Filter",
+  "search": "Search (title, file, name)…",
+  "only_errors": "Errors only",
+  "count": "{n} entries",
+  "filter_type": "Event type",
+  "filter_user": "User",
+  "filter_period": "Period",
+  "group_books": "Books",
+  "group_sending": "Sending",
+  "group_downloads": "Downloads",
+  "group_users": "Users and sign-ins",
+  "period_1": "Last 24 hours",
+  "period_7": "Last 7 days",
+  "period_30": "Last 30 days",
+  "period_365": "Last year",
+  "period_all": "All",
+  "upload": "Uploaded: {file} ({source})",
+  "inspected": "Inspected: {file} – best online match {best}",
+  "inspect_error": "Inspection error: {file}",
+  "added": "Added to the library: {title} ({fmt})",
+  "auto_added": "Added automatically: {title} ({fmt})",
+  "format_added": "New format: {title} ({fmt})",
+  "rejected": "Discarded: {file}",
+  "edited": "Metadata edited: {title}",
+  "metadata_refreshed": "Online metadata applied: {title} – {source} ({fields})",
+  "converted": "Converted: {title} → {fmt}",
+  "convert_failed": "Conversion failed: {title} → {fmt}",
+  "deleted": "Deleted: {title} ({authors})",
+  "sent": "Sent to Kindle: {title} ({fmt}) → {to}",
+  "send_failed": "Sending failed: {title} – {reason}",
+  "mail_test": "Test e-mail sent → {to}",
+  "mail_test_failed": "Test e-mail failed → {to}",
+  "downloaded": "Downloaded: {title} ({fmt})",
+  "login": "Signed in ({ip})",
+  "login_failed": "Failed sign-in: {name} ({ip})",
+  "user_created": "New user: {name}",
+  "user_updated": "User changed: {name}",
+  "user_deleted": "User deleted: {name}",
+  "password_reset": "Password reset from the command line: {name}",
+  "settings_saved": "Settings saved"
  }
 }

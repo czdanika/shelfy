@@ -67,6 +67,13 @@
       </form>
     </div>
 
+    {% if history %}
+    <details class="hint" style="border-left-color: var(--line-2); background: none">
+      <summary>{{ t('log.book_history') }} ({{ history|length }})</summary>
+      {% set rows = history %}
+      {% include "_events.html" %}
+    </details>
+    {% endif %}
     {% if b.description %}
     <section><h2 style="margin-bottom: 6px">{{ t('book.description') }}</h2><div class="desc">{{ b.description|richtext }}</div></section>
     {% endif %}

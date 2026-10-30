@@ -10,6 +10,17 @@
   {% include "_pager.html" %}
 </div>
 
+<div class="viewbar">
+  <label class="zoom" title="{{ t('library.zoom') }}">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><rect x="4" y="4" width="7" height="7"/><rect x="13" y="4" width="7" height="7"/><rect x="4" y="13" width="7" height="7"/><rect x="13" y="13" width="7" height="7"/></svg>
+    <span class="sr">{{ t('library.zoom') }}</span>
+    <input id="zoom" type="range" min="{{ zoom_min }}" max="{{ zoom_max }}" step="10" value="{{ zoom }}">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><rect x="5" y="3" width="14" height="18"/></svg>
+  </label>
+  <span class="pp">{{ t('library.per_page') }}:
+    {% for n in per_page_choices %}<a href="{{ qs(query, pp=n) }}" class="{% if n == per_page %}on{% endif %}">{{ n }}</a>{% endfor %}</span>
+</div>
+
 {% if view not in ('hot', 'discover') %}
 <div class="sortbar" role="toolbar" aria-label="{{ t('sort.label') }}">
   {% for label, opts in sort_groups %}
@@ -22,7 +33,7 @@
 {% endif %}
 
 {% if books %}
-<div class="books">
+<div class="books {% if zoom <= 120 %}dense{% endif %}" id="books" style="--card: {{ zoom }}px">
   {% for b in books %}{{ bookcard(b, t, user, now) }}{% endfor %}
 </div>
 <div class="row" style="justify-content: center">{% include "_pager.html" %}</div>
@@ -33,4 +44,16 @@
   {% if user.can('can_upload') %}<p><a class="btn primary" href="/upload">{{ t('nav.upload') }}</a></p>{% endif %}
 </div>
 {% endif %}
+{% endblock %}
+{% block scripts %}
+<script>
+// nagyítás: a kártyák szélessége (és így a soronkénti könyvek száma); a választást sütiben megjegyzi
+(function () {
+  var r = document.getElementById('zoom'), g = document.getElementById('books');
+  if (!r || !g) return;
+  function apply() { g.style.setProperty('--card', r.value + 'px'); g.classList.toggle('dense', +r.value <= 120); }
+  r.addEventListener('input', apply);
+  r.addEventListener('change', function () { document.cookie = 'shelfy_zoom=' + r.value + ';path=/;max-age=31536000;samesite=lax'; });
+})();
+</script>
 {% endblock %}

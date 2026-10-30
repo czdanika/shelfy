@@ -302,3 +302,40 @@ input[type=text],input[type=password],input[type=email],input[type=number],input
 .hint .btn{border:1px solid var(--accent)!important;color:var(--accent);padding:0 12px!important}
 .hint .btn:hover{text-decoration:none!important;background:#fff}
 .stats div{border-radius:2px}
+
+/* eseménynapló */
+.events{list-style:none;margin:0;padding:0}
+.events li{display:grid;grid-template-columns:10px 130px 1fr;gap:10px;align-items:baseline;padding:9px 0;border-bottom:1px solid #EEF0F2;font-size:14px}
+.events li:last-child{border-bottom:0}
+.events li.muted{display:block}
+.events time{color:var(--muted);font-size:13px;white-space:nowrap;font-variant-numeric:tabular-nums}
+.ev-dot{width:7px;height:7px;border-radius:50%;background:var(--accent);align-self:center}
+.events li.bad .ev-dot{background:var(--danger)}
+.events li.bad .ev-text{color:var(--danger)}
+.ev-err{display:block;font-size:12px;color:var(--danger);font-family:ui-monospace,Menlo,monospace;overflow-wrap:anywhere}
+.ev-text a{color:inherit;text-decoration:underline;text-decoration-color:#C9CCD1;text-underline-offset:3px}
+.logfilter{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.logfilter select,.logfilter input[type=search]{width:auto;min-width:150px;padding:6px 10px}
+@media (max-width:640px){.events li{grid-template-columns:10px 1fr}.events time{grid-column:2}.ev-text{grid-column:2}}
+
+/* nagyítás csúszka, oldalanként */
+.books{grid-template-columns:repeat(auto-fill,minmax(var(--card,160px),1fr))}
+.books.dense{gap:18px 14px}
+.books.dense .book .title{font-size:13px;margin-top:5px}
+.books.dense .book .small,.books.dense .book .meta{display:none}
+.books.dense .quick{display:none}
+.viewbar{display:flex;flex-wrap:wrap;justify-content:flex-end;align-items:center;gap:8px 22px;margin-bottom:-10px;font-size:13px;color:var(--muted)}
+.zoom{display:flex;align-items:center;gap:8px;color:#575A5D}
+.zoom input{width:150px;accent-color:var(--accent)}
+.pp a{padding:0 5px;color:#575A5D;text-decoration:none}
+.pp a.on{color:var(--accent);font-weight:600;box-shadow:inset 0 -2px 0 var(--accent)}
+/* oldalsáv: tömörebb, mint a Calibre-Webben; nem görget az oldallal együtt */
+.side{position:sticky;top:0;height:100vh;overflow-y:auto;gap:12px;padding:16px 10px 16px;flex:0 0 220px;max-width:220px}
+.side .brand span{font-size:21px}
+.side .label{font-size:10px;padding:0 10px 3px;letter-spacing:1.4px}
+.side a.item{font-size:13px;padding:4px 10px;font-weight:400;color:#D1D5DB}
+.side a.item.on{font-weight:600;color:#fff}
+.side a.item .n{font-size:11px}
+.sidestats{padding-top:8px;font-size:11px}
+@media (max-width:900px){.side{position:static;height:auto;max-width:none;flex-basis:100%}}
+.zoom input:focus{outline:none}

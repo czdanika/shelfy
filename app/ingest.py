@@ -43,13 +43,14 @@ def check(key: str, status: str, **params) -> dict:
 
 class Ingest:
     def __init__(self, db: Database, lib: Library, converter: Converter, lookup: Lookup, upload_dir: Path,
-                 online: bool = True, default_lang: str = "en", translate=None) -> None:
+                 online: bool = True, default_lang: str = "en", translate=None, events=None) -> None:
         self.db, self.lib, self.converter, self.lookup = db, lib, converter, lookup
         self.dir = upload_dir
         self.dir.mkdir(parents=True, exist_ok=True)
         self.online = online
         self.default_lang = default_lang
         self.translate = translate or (lambda lang, key: key)
+        self.events = events
         self.queue: asyncio.Queue[int] = asyncio.Queue()
         self.worker: asyncio.Task | None = None
         self.watcher: asyncio.Task | None = None
@@ -76,6 +77,7 @@ class Ingest:
                 await self.inspect(uid)
             except Exception as e:  # ne álljon le a feldolgozó egy hibás fájl miatt
                 self._set(uid, status="error", message=f"{e.__class__.__name__}: {e}"[:500])
+                self._log_upload(uid, "inspect_error", ok=False, error=f"{e.__class__.__name__}: {e}"[:200])
 
     async def _watch(self, folder: Path) -> None:
         """Figyelt mappa (almappákkal együtt): az e-könyv fájlokat, ha 10 mp-ig nem változtak, felveszi és
@@ -121,6 +123,8 @@ class Ingest:
         else:
             shutil.copy2(src, dst)
         self.db.run("UPDATE uploads SET stored_path = ? WHERE id = ?", (str(dst), uid))
+        if self.events:
+            self.events.log("upload", user_id=user_id, file=filename, source=source)
         self.queue.put_nowait(uid)
         return uid
 
@@ -132,8 +136,8 @@ class Ingest:
     # ------------------------------------------------------------------ vizsgálat
     async def inspect(self, uid: int, query: dict | None = None) -> None:
         up = self.db.one("SELECT * FROM uploads WHERE id = ?", (uid,))
-        if not up:
-            return
+        if not up or (query is None and up["status"] not in ("pending", "inspecting")):
+            return  # már megvizsgálva (pl. kétszer került a sorba indításkor)
         self._set(uid, status="inspecting")
         path = Path(up["stored_path"])
         fmt = up["format"]
@@ -143,6 +147,7 @@ class Ingest:
         if fmt not in FORMATS:
             checks.append(check("format", "error", fmt=fmt.upper() or "?"))
             self._set(uid, status="error", inspection=json.dumps(checks), message="unsupported")
+            self._log_upload(uid, "inspect_error", ok=False, error=f"{fmt.upper() or '?'}: unsupported")
             return
         head = path.read_bytes()[:4096] if path.exists() else b""
         magic_ok = MAGIC.get(fmt, lambda b: True)(head)
@@ -217,8 +222,10 @@ class Ingest:
                   candidates=candidates_json(cands), inspection=json.dumps(checks, ensure_ascii=False),
                   duplicate_of=dup[0] if dup else None, message=None)
 
+        self._log_upload(uid, "inspected", title=meta.get("title"), best=f"{round(cands[0].score * 100)}%" if cands else "–",
+                         dup="1" if dup else None)
         if self.db.get_setting("auto_approve") == "1" and top and top.score >= 0.85 and not dup:
-            await self.approve(uid, self.proposal(uid, 0), use_candidate_cover=True)
+            await self.approve(uid, self.proposal(uid, 0), use_candidate_cover=True, auto=True)
 
     # ------------------------------------------------------------------ javaslat és jóváhagyás
     def proposal(self, uid: int, cand_index: int | None) -> dict:
@@ -253,8 +260,15 @@ class Ingest:
             p["categories"] = [k for k, _ in cats]
         return p
 
+    def _log_upload(self, uid: int, kind: str, ok: bool = True, user=None, book_id: int | None = None, **params) -> None:
+        if not self.events:
+            return
+        up = self.db.one("SELECT filename, user_id FROM uploads WHERE id = ?", (uid,))
+        self.events.log(kind, user=user, user_id=None if user else (up["user_id"] if up else None), book_id=book_id,
+                        ok=ok, file=up["filename"] if up else None, **params)
+
     async def approve(self, uid: int, data: dict, use_candidate_cover: bool = False, add_to: int | None = None,
-                      lang: str | None = None) -> int:
+                      lang: str | None = None, user=None, auto: bool = False) -> int:
         up = self.db.one("SELECT * FROM uploads WHERE id = ?", (uid,))
         path = Path(up["stored_path"])
         fmt, sha = up["format"], up["sha256"] or await asyncio.to_thread(sha256_file, path)
@@ -273,11 +287,15 @@ class Ingest:
                 cover = cf.read_bytes() if cf.exists() else None
             bid = self.lib.add_book(meta, [(path, fmt, sha)], cover)
         self._set(uid, status="done", book_id=bid)
+        title = self.db.val("SELECT title FROM books WHERE id = ?", (bid,))
+        self._log_upload(uid, "format_added" if add_to else ("auto_added" if auto else "added"), user=user, book_id=bid,
+                         title=title, fmt=fmt.upper())
         self.cleanup(uid)
         return bid
 
-    def reject(self, uid: int) -> None:
+    def reject(self, uid: int, user=None) -> None:
         self._set(uid, status="rejected")
+        self._log_upload(uid, "rejected", user=user)
         self.cleanup(uid)
 
     def cleanup(self, uid: int) -> None:

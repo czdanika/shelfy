@@ -1,0 +1,16 @@
+{# eseménylista: rows, opcionálisan existing (létező könyvek), show_user #}
+<ul class="events">
+  {% for e in rows %}
+  <li class="{{ 'bad' if not e.ok else '' }}">
+    <span class="ev-dot" aria-hidden="true"></span>
+    <time datetime="{{ e.at|int }}" title="{{ e.at|datetime }}">{{ e.at|datetime }}</time>
+    <span class="ev-text">
+      {% if show_user is not defined or show_user %}<strong>{{ e.user_name or t('log.system') }}</strong> · {% endif %}
+      {% if e.book_id and (existing is not defined or e.book_id in existing) %}<a href="/book/{{ e.book_id }}">{{ event_text(e) }}</a>{% else %}{{ event_text(e) }}{% endif %}
+      {% if e.params.error %}<span class="ev-err">{{ e.params.error }}</span>{% endif %}
+    </span>
+  </li>
+  {% else %}
+  <li class="muted">{{ t('log.empty') }}</li>
+  {% endfor %}
+</ul>

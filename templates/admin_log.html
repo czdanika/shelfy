@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% from "macros.html" import icon %}
+{% block title %}{{ t('admin.nav_log') }}{% endblock %}
+{% block content %}
+{% include "_adminnav.html" %}
+<form class="logfilter" method="get" action="/admin/log">
+  <select name="group" aria-label="{{ t('log.filter_type') }}">
+    <option value="">{{ t('log.all') }}</option>
+    {% for g in groups %}<option value="{{ g }}" {% if query.get('group') == g %}selected{% endif %}>{{ t('log.group_' ~ g) }}</option>{% endfor %}
+  </select>
+  <select name="user" aria-label="{{ t('log.filter_user') }}">
+    <option value="">{{ t('log.all_users') }}</option>
+    {% for u in users %}<option value="{{ u.id }}" {% if query.get('user') == u.id|string %}selected{% endif %}>{{ u.name }}</option>{% endfor %}
+  </select>
+  <select name="period" aria-label="{{ t('log.filter_period') }}">
+    {% for k in ('1', '7', '30', '365', 'all') %}<option value="{{ k }}" {% if period == k %}selected{% endif %}>{{ t('log.period_' ~ k) }}</option>{% endfor %}
+  </select>
+  <input type="search" name="q" value="{{ query.get('q', '') }}" placeholder="{{ t('log.search') }}">
+  <label class="check small"><input type="checkbox" name="errors" value="1" {% if query.get('errors') == '1' %}checked{% endif %}> {{ t('log.only_errors') }}</label>
+  <button class="btn primary small" type="submit">{{ t('log.filter') }}</button>
+</form>
+<div class="small muted">{{ t('log.count', n=total) }}</div>
+<section class="card" style="padding: 8px 20px">
+  {% set show_user = true %}
+  {% include "_events.html" %}
+</section>
+{% if pages > 1 %}
+<nav class="row" style="justify-content: center" aria-label="{{ t('pager.label') }}">
+  {% if page > 1 %}<a class="btn small" href="{{ qs(query, page=page - 1) }}">‹ {{ t('pager.prev') }}</a>{% endif %}
+  <span class="small muted">{{ page }} / {{ pages }}</span>
+  {% if page < pages %}<a class="btn small" href="{{ qs(query, page=page + 1) }}">{{ t('pager.next') }} ›</a>{% endif %}
+</nav>
+{% endif %}
+{% endblock %}
