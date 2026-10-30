@@ -115,3 +115,29 @@ def test_per_user_mail_settings(admin, book, monkeypatch):
     assert sent[-1][0] == "smtp.kozos.hu"
     r = admin.post("/me/mail/test", data={"to": "x@example.com"}, follow_redirects=False)
     assert "mail_sent" in r.headers["location"]
+
+
+def test_mobi_only_book_converts_to_epub_and_sends(admin, tmp_path, monkeypatch):
+    """Csak MOBI-ban meglévő könyv: küldéshez EPUB készül (régen --share-not-sync miatt elbukott)."""
+    import subprocess
+    from app.library import Meta
+    from app.tools import sha256_file
+    src = make_epub(tmp_path / "x.epub", title="Csak mobi", author="Teszt Elek")
+    mobi = tmp_path / "x.mobi"
+    subprocess.run(["ebook-convert", str(src), str(mobi)], check=True, capture_output=True)
+    lib = admin.app.state.lib
+    bid = lib.add_book(Meta(title="Csak mobi", authors=["Teszt Elek"]), [(mobi, "mobi", sha256_file(mobi))], None)
+    assert lib.book(bid)["formats"] == ["mobi"]
+    r = admin.get(f"/book/{bid}/download/epub")
+    assert r.status_code == 200 and r.content[:2] == b"PK"
+    sent = []
+    import app.main as m
+    monkeypatch.setattr(m, "send_mail", lambda s, to, subj, name, data, mime: sent.append((name, data[:2])))
+    admin.post("/admin/settings", data={"smtp_host": "smtp.example", "smtp_port": "587", "smtp_from": "a@example.com"})
+    admin.post("/me", data={"display_name": "A", "kindle_email": "a@kindle.com"})
+    r = admin.post(f"/book/{bid}/send", follow_redirects=False)
+    assert "mail_sent" in r.headers["location"]
+    assert sent and sent[0][0].endswith(".epub") and sent[0][1] == b"PK"
+    # tartós konvertálás MOBI → EPUB is működik
+    r = admin.post(f"/book/{bid}/convert", data={"target": "epub"}, follow_redirects=False)
+    assert "converted" in r.headers["location"] and "epub" in lib.book(bid)["formats"]

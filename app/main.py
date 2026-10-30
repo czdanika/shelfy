@@ -451,7 +451,9 @@ def create_app(cfg: Config | None = None, transport=None) -> FastAPI:
         return "old" if OLD_KINDLE_UA.search(request.headers.get("user-agent", "")) else "new"
 
     def convert_opts(b: dict, target: str) -> list[str]:
-        opts = ["--share-not-sync", "--title", b["title"]]  # nincs ál-ASIN → a Kindle a saját borítót mutatja
+        opts = ["--title", b["title"]]
+        if target in ("mobi", "azw3"):  # csak Kindle-kimenetnél létező kapcsoló: nincs ál-ASIN → a saját borító látszik
+            opts.insert(0, "--share-not-sync")
         if b["authors"]:
             opts += ["--authors", " & ".join(a["name"] for a in b["authors"])]
         if b.get("series"):
@@ -502,8 +504,8 @@ def create_app(cfg: Config | None = None, transport=None) -> FastAPI:
             return Response(status_code=404)
         try:
             p = await ensure_format(bid, fmt)
-        except RuntimeError:
-            events.log("convert_failed", user, bid, ok=False, title=b["title"], fmt=fmt.upper())
+        except RuntimeError as e:
+            events.log("convert_failed", user, bid, ok=False, title=b["title"], fmt=fmt.upper(), error=str(e)[-200:])
             return flash(f"/book/{bid}", "convert_error")
         if not p:
             return Response(status_code=404)
@@ -534,8 +536,8 @@ def create_app(cfg: Config | None = None, transport=None) -> FastAPI:
             await converter.convert(lib.file_path(bid, src_fmt), dst, convert_opts(b, target))
             lib.add_file(bid, dst, target, await asyncio.to_thread(sha256_file, dst))
             events.log("converted", user, bid, title=b["title"], fmt=target.upper())
-        except RuntimeError:
-            events.log("convert_failed", user, bid, ok=False, title=b["title"], fmt=target.upper())
+        except RuntimeError as e:
+            events.log("convert_failed", user, bid, ok=False, title=b["title"], fmt=target.upper(), error=str(e)[-200:])
             return flash(f"/book/{bid}", "convert_error")
         finally:
             dst.unlink(missing_ok=True)
@@ -563,7 +565,8 @@ def create_app(cfg: Config | None = None, transport=None) -> FastAPI:
         fmt = next((f for f in ("epub", "pdf", "docx", "txt") if f in b["formats"]), None)
         try:
             p = lib.file_path(bid, fmt) if fmt else await ensure_format(bid, "epub")
-        except RuntimeError:
+        except RuntimeError as e:
+            info["error"] = str(e)[-200:]
             return "convert_error"
         if not p:
             return "mail_nofmt"
