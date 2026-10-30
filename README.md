@@ -74,6 +74,18 @@ The image is built for `linux/amd64` and `linux/arm64`, with the conversion tool
 | `SECRET_KEY` | generated | key for the encrypted session cookie |
 | `CONVERT_TIMEOUT` | `300` | conversion timeout in seconds |
 
+### Forgotten password
+
+A user's password can be reset by an administrator under *Administration → Users*. If the administrator has forgotten their own password, run this on the server (it is not available from the web):
+
+```bash
+docker exec -it shelfy python -m app.reset_password            # list users
+docker exec -it shelfy python -m app.reset_password daniel     # set a new password
+docker exec -it shelfy python -m app.reset_password daniel --admin   # …and make the user an administrator
+```
+
+The user is signed out on every device afterwards.
+
 ## Translations
 
 Translations live in `locales/<code>.json`. English (`en.json`) is the reference: new languages are translated from it, and any missing text falls back to English. Hungarian (`hu.json`) is shipped as well.

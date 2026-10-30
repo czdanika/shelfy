@@ -71,6 +71,18 @@ Az első megnyitáskor létrehozod az admin fiókot. Utána:
 | `SECRET_KEY` | automatikus | a munkamenet-sütik titkosító kulcsa |
 | `CONVERT_TIMEOUT` | `300` | konvertálás időkorlátja másodpercben |
 
+### Elfelejtett jelszó
+
+Egy felhasználó jelszavát az admin az *Adminisztráció → Felhasználók* oldalon állíthatja vissza. Ha az admin a sajátját felejtette el, a szerveren futtasd ezt (a webes felületről nem érhető el):
+
+```bash
+docker exec -it shelfy python -m app.reset_password            # felhasználók listája
+docker exec -it shelfy python -m app.reset_password daniel     # új jelszó beállítása
+docker exec -it shelfy python -m app.reset_password daniel --admin   # …és adminná tétel
+```
+
+Utána a felhasználó minden eszközről kijelentkezik.
+
 ## Fordítás
 
 A szövegek a `locales/hu.json` (referencia) és a `locales/en.json` fájlban vannak. Új nyelvet az **Adminisztráció → Nyelvek** oldalon lehet felvenni és fordítani. A felületen végzett módosítások a `DATA_DIR/locales` mappába kerülnek, így frissítéskor sem vesznek el.
