@@ -1,4 +1,10 @@
-# Shelfy
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="branding/png/shelfy-logo-dark-1600.png">
+    <img alt="Shelfy" src="branding/png/shelfy-logo-light-1600.png" width="360">
+  </picture>
+</p>
+
 
 *[English](README.md) · Magyar*
 

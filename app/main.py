@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import asyncio
+import mimetypes
 import hashlib
 import hmac
 import shutil
@@ -35,6 +36,7 @@ from .tools import Converter, kindle_personal_doc, send_mail, sha256_file
 BASE = Path(__file__).resolve().parent.parent
 COOKIE = "shelfy"
 YEAR = 60 * 60 * 24 * 365
+mimetypes.add_type("application/manifest+json", ".webmanifest")
 PER_PAGE = 60
 PER_PAGE_CHOICES = (30, 60, 120, 240)
 ZOOM_MIN, ZOOM_MAX, ZOOM_DEFAULT = 90, 260, 160  # könyvkártya szélessége px-ben
