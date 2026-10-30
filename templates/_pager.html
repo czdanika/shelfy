@@ -1,0 +1,11 @@
+{% if pages > 1 %}
+<nav class="pager" aria-label="{{ t('pager.label') }}">
+  {% if page > 1 %}<a href="{{ qs(query, page=page - 1) }}" aria-label="{{ t('pager.prev') }}">‹</a>{% endif %}
+  {% for p in range(1, pages + 1) %}
+    {% if p == page %}<span class="cur" aria-current="page">{{ p }}</span>
+    {% elif p == 1 or p == pages or (p - page)|abs <= 2 %}<a href="{{ qs(query, page=p) }}">{{ p }}</a>
+    {% elif (p - page)|abs == 3 %}<span class="muted">…</span>{% endif %}
+  {% endfor %}
+  {% if page < pages %}<a href="{{ qs(query, page=page + 1) }}" aria-label="{{ t('pager.next') }}">›</a>{% endif %}
+</nav>
+{% endif %}

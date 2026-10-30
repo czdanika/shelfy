@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% from "macros.html" import icon %}
+{% block title %}{{ t('admin.nav_settings') }}{% endblock %}
+{% block content %}
+{% include "_adminnav.html" %}
+<div class="row" style="align-items: flex-start; gap: 18px">
+  <form class="card" method="post" action="/admin/settings" style="flex: 999 1 460px; display: flex; flex-direction: column; gap: 16px">
+    <h2 style="font-size: 18px">{{ t('admin.mail_title') }}</h2>
+    <p class="small muted" style="margin: -8px 0 0">{{ t('admin.mail_help') }}</p>
+    <div class="grid2">
+      <div class="field"><label for="sh">{{ t('admin.smtp_host') }}</label><input id="sh" name="smtp_host" type="text" value="{{ s.smtp_host or '' }}" placeholder="smtp.gmail.com"></div>
+      <div class="field"><label for="sp">{{ t('admin.smtp_port') }}</label><input id="sp" name="smtp_port" type="number" value="{{ s.smtp_port or '' }}" placeholder="587"></div>
+      <div class="field"><label for="ss">{{ t('admin.smtp_security') }}</label>
+        <select id="ss" name="smtp_security">{% for k in ('starttls', 'ssl', 'none') %}<option value="{{ k }}" {% if (s.smtp_security or 'starttls') == k %}selected{% endif %}>{{ t('admin.sec_' ~ k) }}</option>{% endfor %}</select></div>
+      <div class="field"><label for="su">{{ t('admin.smtp_user') }}</label><input id="su" name="smtp_user" type="text" value="{{ s.smtp_user or '' }}" autocomplete="off"></div>
+      <div class="field"><label for="spw">{{ t('admin.smtp_password') }}</label><input id="spw" name="smtp_password" type="password" autocomplete="new-password" placeholder="{{ '••••••••' if s.smtp_password else '' }}">
+        <span class="small muted">{{ t('admin.smtp_password_help') }}</span></div>
+      <div class="field"><label for="sf">{{ t('admin.smtp_from') }}</label><input id="sf" name="smtp_from" type="email" value="{{ s.smtp_from or '' }}"></div>
+      <div class="field" style="grid-column: 1 / -1"><label for="ks">{{ t('admin.kindle_subject') }}</label><input id="ks" name="kindle_subject" type="text" value="{{ s.kindle_subject or '' }}"></div>
+    </div>
+    <h2 style="font-size: 18px">{{ t('admin.ingest_title') }}</h2>
+    <label class="check"><input type="checkbox" name="auto_approve" value="1" {% if s.auto_approve == '1' %}checked{% endif %}> {{ t('admin.auto_approve') }}</label>
+    <span class="small muted" style="margin-top: -10px">{{ t('admin.auto_approve_help') }}</span>
+    <div class="row"><button class="btn primary" type="submit">{{ icon('check', 16) }} {{ t('action.save') }}</button></div>
+  </form>
+
+  <div style="flex: 1 1 300px; display: flex; flex-direction: column; gap: 18px">
+    <form class="card" method="post" action="/admin/settings/test-mail" style="display: flex; flex-direction: column; gap: 10px">
+      <h2 style="font-size: 17px">{{ t('admin.test_mail') }}</h2>
+      <div class="field"><label for="to">{{ t('admin.test_to') }}</label><input id="to" name="to" type="email" required value="{{ user.kindle_email or '' }}"></div>
+      <button class="btn" type="submit">{{ icon('send', 16) }} {{ t('admin.test_send') }}</button>
+    </form>
+    <section class="card" style="display: flex; flex-direction: column; gap: 10px">
+      <h2 style="font-size: 17px">{{ t('admin.system') }}</h2>
+      <ul class="checks small">
+        <li><span class="dot {{ 'ok' if calibre.has_meta else 'error' }}">{{ icon('check' if calibre.has_meta else 'x', 14) }}</span> ebook-meta</li>
+        <li><span class="dot {{ 'ok' if calibre.has_convert else 'error' }}">{{ icon('check' if calibre.has_convert else 'x', 14) }}</span> ebook-convert</li>
+        <li><span class="dot {{ 'ok' if cfg.online_lookup else 'info' }}">{{ icon('check' if cfg.online_lookup else 'info', 14) }}</span>
+          <span>{{ t('upload.online') }}: {% if cfg.online_lookup %}{% for pr in cfg.providers %}{{ t('source.' ~ pr) }}{% if not loop.last %}, {% endif %}{% endfor %}{% else %}{{ t('common.off') }}{% endif %}</span></li>
+      </ul>
+      <dl class="small" style="margin: 0; display: grid; grid-template-columns: auto 1fr; gap: 6px 12px">
+        <dt class="muted">{{ t('admin.library_dir') }}</dt><dd class="mono" style="margin: 0; overflow-wrap: anywhere">{{ cfg.library_dir }}</dd>
+        <dt class="muted">{{ t('upload.folder') }}</dt><dd class="mono" style="margin: 0; overflow-wrap: anywhere">{{ cfg.ingest_dir or '–' }}</dd>
+        <dt class="muted">{{ t('admin.data_dir') }}</dt><dd class="mono" style="margin: 0; overflow-wrap: anywhere">{{ cfg.data_dir }}</dd>
+        <dt class="muted">{{ t('admin.version') }}</dt><dd style="margin: 0">{{ version }}</dd>
+      </dl>
+    </section>
+  </div>
+</div>
+{% endblock %}

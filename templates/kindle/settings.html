@@ -1,0 +1,17 @@
+{% extends "kindle/base.html" %}
+{% block title %}{{ t('kindle.settings') }}{% endblock %}
+{% block content %}
+<h1>{{ t('kindle.settings') }}</h1>
+<form method="post" action="/kindle/settings">
+  <label>{{ t('kindle.device') }}</label>
+  <label class="radio"><input type="radio" name="device" value="new" {% if device == 'new' %}checked{% endif %}> {{ t('kindle.device_new') }}</label>
+  <label class="radio"><input type="radio" name="device" value="old" {% if device == 'old' %}checked{% endif %}> {{ t('kindle.device_old') }}</label>
+  <label for="ke">{{ t('me.kindle_email') }}</label>
+  <input class="mezo" id="ke" type="text" name="kindle_email" value="{{ user.kindle_email or '' }}" autocapitalize="off">
+  <p class="muted">{{ t('me.kindle_help') }}</p>
+  <label>{{ t('kindle.ui') }}</label>
+  <label class="radio"><input type="radio" name="ui" value="kindle" checked> {{ t('kindle.ui_kindle') }}</label>
+  <label class="radio"><input type="radio" name="ui" value="full"> {{ t('kindle.ui_full') }}</label>
+  <p><button class="btn fo" type="submit">{{ t('action.save') }}</button></p>
+</form>
+{% endblock %}

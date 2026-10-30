@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+{% from "macros.html" import icon, placeholder, stars, bookcard %}
+{% block title %}{{ b.title }}{% endblock %}
+{% block content %}
+<div class="small muted"><a href="/books">{{ t('view.all') }}</a>{% if b.authors %} › <a href="/books?author={{ b.authors[0].id }}">{{ b.authors[0].name }}</a>{% endif %} › {{ b.title }}</div>
+
+<div class="card detail">
+  <div class="big">
+    <div class="lift">{% if b.has_cover %}<img src="/book/{{ b.id }}/cover?w=520" alt="">{% else %}{{ placeholder(b) }}{% endif %}</div>
+  </div>
+  <div class="info">
+    <div>
+      <h1 style="line-height: 1.1">{{ b.title }}</h1>
+      <div style="margin-top: 6px; font-size: 18px">{% for a in b.authors %}<a href="/books?author={{ a.id }}">{{ a.name }}</a>{% if not loop.last %}, {% endif %}{% endfor %}</div>
+      {% if b.series %}<div class="muted" style="margin-top: 4px">{{ t('book.series') }}: <a href="/books?series={{ b.series_id }}&sort=series">{{ b.series }}</a>{% if b.series_index %} · {{ t('book.volume', n='%g' % b.series_index) }}{% endif %}</div>{% endif %}
+      {% if b.rating %}<div style="margin-top: 6px">{{ stars(b.rating) }}</div>{% endif %}
+    </div>
+
+    <div class="row">
+      {% if user.can('can_download') and b.formats %}
+      <details class="menu">
+        <summary class="btn primary">{{ icon('download', 16) }} {{ t('action.download') }} {{ icon('chev', 14) }}</summary>
+        <div class="pop">{% for f in b.files %}<a href="/book/{{ b.id }}/download/{{ f.format }}">{{ f.format|upper }} · {{ '%.1f' % (f.size / 1048576) }} MB</a>{% endfor %}
+          {% if can_convert %}{% for f in ['azw3', 'mobi', 'epub'] if f not in b.formats %}<a href="/book/{{ b.id }}/download/{{ f }}">{{ f|upper }} <span class="small muted">· {{ t('book.dl_' ~ f) }}</span></a>{% endfor %}{% endif %}</div>
+      </details>
+      {% endif %}
+      {% if can_mail and user.can('can_download') %}
+      <form method="post" action="/book/{{ b.id }}/send"><button class="btn" type="submit">{{ icon('send', 16) }} {{ t('action.send_kindle') }}</button></form>
+      {% endif %}
+      {% if can_convert and user.can('can_edit') %}
+      <details class="menu">
+        <summary class="btn">{{ icon('convert', 16) }} {{ t('action.convert') }} {{ icon('chev', 14) }}</summary>
+        <div class="pop">
+          {% for target in ['azw3', 'epub', 'mobi', 'pdf'] if target not in b.formats %}
+          <form method="post" action="/book/{{ b.id }}/convert"><input type="hidden" name="target" value="{{ target }}"><button type="submit">→ {{ target|upper }}</button></form>
+          {% endfor %}
+        </div>
+      </details>
+      {% endif %}
+      {% if user.can('can_edit') %}<a class="btn" href="/book/{{ b.id }}/edit">{{ icon('edit', 16) }} {{ t('action.edit') }}</a>{% endif %}
+    </div>
+
+    <table class="meta">
+      {% if b.publisher %}<tr><th>{{ t('book.publisher') }}</th><td><a href="/books?publisher={{ b.publisher_id }}">{{ b.publisher }}</a></td></tr>{% endif %}
+      {% if b.year %}<tr><th>{{ t('book.year') }}</th><td>{{ b.year }}</td></tr>{% endif %}
+      {% if b.language %}<tr><th>{{ t('book.language') }}</th><td><a href="/books?lang={{ b.language }}">{{ langname(b.language) }}</a></td></tr>{% endif %}
+      {% if b.isbn %}<tr><th>ISBN</th><td>{{ b.isbn }}</td></tr>{% endif %}
+      {% if b.tags %}<tr><th>{{ t('book.tags') }}</th><td><div class="row" style="gap: 6px">{% for tg in b.tags %}<a class="pill" href="/books?tag={{ tg.id }}">{{ tg.name }}</a>{% endfor %}</div></td></tr>{% endif %}
+      <tr><th>{{ t('book.formats') }}</th><td><div class="row" style="gap: 6px">{% for f in b.files %}<span class="fmt">{{ f.format|upper }} · {{ '%.1f' % (f.size / 1048576) }} MB</span>{% endfor %}</div></td></tr>
+      <tr><th>{{ t('book.added') }}</th><td>{{ b.added_at|int|datetime }}</td></tr>
+      {% if b.source %}<tr><th>{{ t('book.source') }}</th><td>{% if b.source_url %}<a href="{{ b.source_url }}" rel="noopener" target="_blank">{{ t('source.' ~ b.source) }}</a>{% else %}{{ t('source.' ~ b.source) }}{% endif %}</td></tr>{% endif %}
+    </table>
+
+    <div class="row">
+      <form method="post" action="/book/{{ b.id }}/read" class="row" style="gap: 6px">
+        <span class="lbl">{{ t('book.my_state') }}:</span>
+        {% for st in ['unread', 'reading', 'read'] %}
+        <button class="btn small {% if (read_state or 'unread') == st %}dark{% endif %}" name="status" value="{{ st }}" type="submit">{{ t('state.' ~ st) }}</button>
+        {% endfor %}
+      </form>
+      <form id="shelf" method="post" action="/book/{{ b.id }}/shelf" class="row" style="gap: 6px">
+        <label class="lbl" for="shelfsel">{{ t('action.shelf') }}:</label>
+        <select id="shelfsel" name="shelf" style="width: auto">{% for s in shelves %}<option value="{{ s.id }}">{{ s.name }}</option>{% endfor %}<option value="">{{ t('shelf.new') }}…</option></select>
+        <input type="text" name="new_shelf" placeholder="{{ t('shelf.new_name') }}" style="width: 160px">
+        <button class="btn small" type="submit">{{ icon('plus', 14) }}</button>
+      </form>
+    </div>
+
+    {% if b.description %}
+    <section><h2 style="margin-bottom: 6px">{{ t('book.description') }}</h2><div class="desc">{{ b.description }}</div></section>
+    {% endif %}
+  </div>
+</div>
+
+{% if more %}
+<section style="display: flex; flex-direction: column; gap: 14px">
+  <div class="row between"><h2>{{ t('book.more_by') }}</h2><a href="/books?author={{ b.authors[0].id }}">{{ t('book.see_all') }} ›</a></div>
+  <div class="books">{% for m in more %}{{ bookcard(m, t, user, now) }}{% endfor %}</div>
+</section>
+{% endif %}
+{% endblock %}

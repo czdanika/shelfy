@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% from "macros.html" import icon %}
+{% block title %}{{ t('me.title') }}{% endblock %}
+{% block content %}
+<h1>{{ t('me.title') }}</h1>
+{% if error %}<div class="flash err" role="alert">{{ error }}</div>{% endif %}
+<form class="card" method="post" action="/me" style="display: flex; flex-direction: column; gap: 16px; max-width: 720px">
+  <div class="grid2">
+    <div class="field"><label>{{ t('login.username') }}</label><input type="text" value="{{ user.username }}" disabled></div>
+    <div class="field"><label>{{ t('admin.role') }}</label><input type="text" value="{{ t('role.' ~ user.role) }}" disabled></div>
+    <div class="field"><label for="dn">{{ t('me.display_name') }}</label><input id="dn" name="display_name" type="text" value="{{ user.display_name }}"></div>
+    <div class="field"><label for="lg">{{ t('me.language') }}</label>
+      <select id="lg" name="language">{% for code, name in languages %}<option value="{{ code }}" {% if code == lang %}selected{% endif %}>{{ name }}</option>{% endfor %}</select></div>
+    <div class="field" style="grid-column: 1 / -1"><label for="ke">{{ t('me.kindle_email') }}</label>
+      <input id="ke" name="kindle_email" type="email" value="{{ user.kindle_email or '' }}" placeholder="valami@kindle.com">
+      <span class="small muted">{{ t('me.kindle_help') }}</span></div>
+  </div>
+  <h2 style="font-size: 18px">{{ t('me.password_title') }}</h2>
+  <div class="grid2">
+    <div class="field"><label for="op">{{ t('me.old_password') }}</label><input id="op" name="old_password" type="password" autocomplete="current-password"></div>
+    <div class="field"><label for="np">{{ t('me.new_password') }} <span class="muted">({{ t('setup.min8') }})</span></label><input id="np" name="new_password" type="password" autocomplete="new-password" minlength="8"></div>
+  </div>
+  <div class="row"><button class="btn primary" type="submit">{{ icon('check', 16) }} {{ t('action.save') }}</button></div>
+</form>
+{% endblock %}

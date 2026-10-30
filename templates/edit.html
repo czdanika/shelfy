@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% from "macros.html" import icon %}
+{% block title %}{{ t('action.edit') }}: {{ b.title }}{% endblock %}
+{% block content %}
+<div class="small muted"><a href="/book/{{ b.id }}">‹ {{ b.title }}</a></div>
+<h1>{{ t('edit.title') }}</h1>
+<form class="card" method="post" action="/book/{{ b.id }}/edit" enctype="multipart/form-data" style="display: flex; flex-direction: column; gap: 16px">
+  {% include "_metaform.html" %}
+  <div class="field" style="max-width: 420px">
+    <label for="cover">{{ t('edit.cover') }}</label>
+    <input id="cover" name="cover" type="file" accept="image/*">
+  </div>
+  <div class="row between">
+    <div class="row">
+      <button class="btn primary" type="submit">{{ icon('check', 16) }} {{ t('action.save') }}</button>
+      <a class="btn" href="/book/{{ b.id }}">{{ t('action.cancel') }}</a>
+    </div>
+  </div>
+</form>
+{% if user.can('can_delete') %}
+<form method="post" action="/book/{{ b.id }}/delete" onsubmit="return confirm('{{ t('edit.delete_confirm') }}')">
+  <button class="btn danger" type="submit">{{ icon('trash', 16) }} {{ t('action.delete') }}</button>
+</form>
+{% endif %}
+{% endblock %}

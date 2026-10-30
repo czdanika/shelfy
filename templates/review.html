@@ -1,0 +1,144 @@
+{% extends "base.html" %}
+{% from "macros.html" import icon %}
+{% block title %}{{ t('review.title') }}: {{ up.filename }}{% endblock %}
+{% block content %}
+<div class="small muted"><a href="/upload">‹ {{ t('upload.title') }}</a></div>
+<div class="row between" style="align-items: flex-end">
+  <div style="min-width: 0">
+    <h1>{{ t('review.title') }}</h1>
+    <div class="muted small">{{ up.filename }} · {{ up.format|upper }} · {{ '%.1f' % (up.size / 1048576) }} MB · {{ t('upload.src_' ~ up.source) }}</div>
+  </div>
+  {% if up.status == 'review' %}
+  <form method="post" action="/upload/{{ up.id }}/reject"><button class="btn" type="submit">{{ icon('x', 16) }} {{ t('upload.reject') }}</button></form>
+  {% endif %}
+</div>
+
+{% if up.status in ('pending', 'inspecting') %}
+<div class="card row"><span class="spin"></span> {{ t('upload.status_' ~ up.status) }}…</div>
+<script>setTimeout(function () { location.reload(); }, 3000);</script>
+{% elif up.status != 'review' %}
+<div class="flash {% if up.status == 'error' %}err{% endif %}">{{ t('upload.status_' ~ up.status) }}{% if up.message %} – {{ up.message }}{% endif %}
+  {% if up.book_id %} · <a href="/book/{{ up.book_id }}">{{ t('review.open_book') }}</a>{% endif %}</div>
+{% endif %}
+
+<div class="review">
+  {# ---------- bal oszlop: a vizsgálat jegyzőkönyve ---------- #}
+  <aside style="display: flex; flex-direction: column; gap: 18px">
+    <section class="card" style="display: flex; flex-direction: column; gap: 12px">
+      <h2 style="font-size: 18px">{{ t('review.inspection') }}</h2>
+      <ul class="checks">
+        {% for c in up.inspection %}
+        <li>
+          <span class="dot {{ c.status }}">{{ icon({'ok': 'check', 'warn': 'warn', 'error': 'x'}.get(c.status, 'info'), 14) }}</span>
+          <div style="min-width: 0"><strong>{{ t('insp.' ~ c.key) }}</strong>
+            <div class="small muted" style="overflow-wrap: anywhere">{{ t('insp.' ~ c.key ~ '_' ~ c.status, **c.params) }}</div></div>
+        </li>
+        {% else %}
+        <li class="muted">{{ t('review.no_checks') }}</li>
+        {% endfor %}
+      </ul>
+    </section>
+
+    {% if dup %}
+    <section class="card warnbox" style="display: flex; flex-direction: column; gap: 10px">
+      <h2 style="font-size: 17px">{{ icon('warn', 18) }} {{ t('review.dup_title') }}</h2>
+      <a class="row" href="/book/{{ dup.id }}" style="gap: 12px; align-items: flex-start; color: inherit">
+        {% if dup.has_cover %}<img src="/book/{{ dup.id }}/cover?w=120" alt="" style="width: 54px; border-radius: 4px">{% endif %}
+        <span><strong>{{ dup.title }}</strong><br><span class="small">{{ dup.authors|map(attribute='name')|join(', ') }}</span><br>
+          <span class="small muted">{{ dup.formats|map('upper')|join(' · ') }}</span></span>
+      </a>
+      <p class="small" style="margin: 0">{{ t('review.dup_help') }}</p>
+      {% if up.status == 'review' %}
+      <form method="post" action="/upload/{{ up.id }}/approve">
+        <input type="hidden" name="action" value="add_format">
+        <button class="btn dark small" type="submit" {% if up.format in dup.formats %}disabled title="{{ t('review.dup_same_format') }}"{% endif %}>{{ icon('plus', 14) }} {{ t('review.add_format', fmt=up.format|upper) }}</button>
+      </form>
+      {% endif %}
+    </section>
+    {% endif %}
+
+    {% if up.status == 'review' %}
+    <section class="card" style="display: flex; flex-direction: column; gap: 10px">
+      <h2 style="font-size: 17px">{{ t('review.research') }}</h2>
+      <p class="small muted" style="margin: 0">{{ t('review.research_help') }}</p>
+      <form method="post" action="/upload/{{ up.id }}/research" style="display: flex; flex-direction: column; gap: 10px">
+        <div class="field"><label for="r-title">{{ t('book.title') }}</label><input id="r-title" name="title" type="text" value="{{ up.extracted.title or '' }}"></div>
+        <div class="field"><label for="r-author">{{ t('book.author') }}</label><input id="r-author" name="author" type="text" value="{{ (up.extracted.authors or [])|first or '' }}"></div>
+        <div class="field"><label for="r-isbn">ISBN</label><input id="r-isbn" name="isbn" type="text" value="{{ up.extracted.isbn or '' }}"></div>
+        <div class="field"><label for="r-only">{{ t('review.source') }}</label>
+          <select id="r-only" name="only"><option value="">{{ t('review.all_sources') }}</option>
+            {% for s in ('moly', 'google', 'openlibrary') %}<option value="{{ s }}">{{ t('source.' ~ s) }}</option>{% endfor %}</select></div>
+        <button class="btn" type="submit">{{ icon('search', 16) }} {{ t('review.search_again') }}</button>
+      </form>
+    </section>
+    {% endif %}
+  </aside>
+
+  {# ---------- jobb oszlop: találatok + szerkeszthető javaslat ---------- #}
+  <div style="display: flex; flex-direction: column; gap: 18px; min-width: 0">
+    <section class="card" style="display: flex; flex-direction: column; gap: 10px">
+      <div class="row between"><h2 style="font-size: 18px">{{ t('review.candidates') }}</h2>
+        <span class="small muted">{{ t('review.candidates_help') }}</span></div>
+      <a class="cand {% if chosen == -1 %}on{% endif %}" href="?c=-1">
+        {% if has_cover %}<img src="/upload/{{ up.id }}/cover" alt="">{% else %}<span class="mini"></span>{% endif %}
+        <span style="min-width: 0"><strong>{{ t('review.file_only') }}</strong><br>
+          <span class="small">{{ up.extracted.title or up.filename }}{% if up.extracted.authors %} – {{ up.extracted.authors|join(', ') }}{% endif %}</span><br>
+          <span class="small muted">{{ t('review.file_only_help') }}</span></span>
+      </a>
+      {% for c in up.candidates %}
+      <a class="cand {% if chosen == loop.index0 %}on{% endif %}" href="?c={{ loop.index0 }}">
+        {% if c.cover_url %}<img src="/upload/{{ up.id }}/cand/{{ loop.index0 }}/cover" alt="" loading="lazy">{% else %}<span class="mini"></span>{% endif %}
+        <span style="flex: 1; min-width: 0">
+          <span class="row between" style="gap: 8px"><strong>{{ c.title }}</strong>
+            <span class="badge {% if c.score >= 0.8 %}ok{% elif c.score >= 0.6 %}warn{% else %}info{% endif %}">{{ (c.score * 100)|round|int }}%</span></span>
+          <span class="small">{{ c.authors|join(', ') }}</span><br>
+          <span class="small muted">{{ t('source.' ~ c.source) }}{% if c.publisher %} · {{ c.publisher }}{% endif %}{% if c.year %} · {{ c.year }}{% endif %}{% if c.series %} · {{ c.series }}{% if c.series_index %} #{{ c.series_index|num }}{% endif %}{% endif %}</span>
+          {% if c.genres or c.tags %}<span class="tags">{% for g in (c.genres + c.tags)[:6] %}<span class="pill">{{ g }}</span>{% endfor %}</span>{% endif %}
+        </span>
+      </a>
+      {% else %}
+      <p class="small muted" style="margin: 0">{{ t('review.no_candidates') }}</p>
+      {% endfor %}
+    </section>
+
+    {% if p %}
+    <form class="card" method="post" action="/upload/{{ up.id }}/approve" style="display: flex; flex-direction: column; gap: 16px">
+      <h2 style="font-size: 18px">{{ t('review.proposal') }}</h2>
+      {% if p.source %}<p class="small muted" style="margin: -6px 0 0">{{ t('review.from_source', source=t('source.' ~ p.source)) }}{% if p.source_url %} · <a href="{{ p.source_url }}" target="_blank" rel="noopener">{{ t('review.open_source') }} ↗</a>{% endif %}</p>{% endif %}
+
+      <div class="row" style="align-items: flex-start; gap: 18px">
+        <fieldset class="covers">
+          <legend class="lbl">{{ t('review.cover') }}</legend>
+          {% if has_cover %}
+          <label class="covopt"><input type="radio" name="cover_choice" value="file" {% if not p.cover_url %}checked{% endif %}>
+            <img src="/upload/{{ up.id }}/cover" alt=""><span class="small">{{ t('review.cover_file') }}</span></label>
+          {% endif %}
+          {% if p.cover_url %}
+          <label class="covopt"><input type="radio" name="cover_choice" value="online" checked>
+            <img src="/upload/{{ up.id }}/cand/{{ chosen }}/cover" alt=""><span class="small">{{ t('review.cover_online') }}</span></label>
+          <input type="hidden" name="cover_url" value="{{ p.cover_url }}">
+          {% endif %}
+          {% if not has_cover and not p.cover_url %}<span class="small muted">{{ t('review.no_cover') }}</span>{% endif %}
+        </fieldset>
+        <div style="flex: 1 1 320px; min-width: 0">
+          {% set m = p %}
+          {% include "_metaform.html" %}
+        </div>
+      </div>
+
+      <fieldset class="cats">
+        <legend class="lbl">{{ t('review.categories') }} <span class="muted">({{ t('review.categories_help') }})</span></legend>
+        {% for k in categories %}
+        <label class="chip"><input type="checkbox" name="categories" value="{{ k }}" {% if k in p.categories %}checked{% endif %}><span>{{ t('cat.' ~ k) }}</span></label>
+        {% endfor %}
+      </fieldset>
+
+      <div class="row">
+        <button class="btn primary" type="submit">{{ icon('check', 16) }} {{ t('review.approve') }}</button>
+        <button class="btn" type="submit" name="next" value="queue">{{ t('review.approve_next') }}</button>
+      </div>
+    </form>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

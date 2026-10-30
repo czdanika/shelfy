@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% from "macros.html" import icon %}
+{% block title %}{{ lang_name }}{% endblock %}
+{% block content %}
+{% include "_adminnav.html" %}
+<div class="small muted"><a href="/admin/languages">‹ {{ t('admin.nav_languages') }}</a></div>
+<form method="post" action="/admin/languages/{{ code }}" style="display: flex; flex-direction: column; gap: 14px">
+  <div class="row between">
+    <h2>{{ lang_name }} <span class="mono muted">{{ code }}.json</span></h2>
+    <div class="row">
+      <label class="check small"><input type="checkbox" id="only-missing"> {{ t('admin.lang_only_missing') }}</label>
+      <button class="btn primary" type="submit">{{ icon('check', 16) }} {{ t('action.save') }}</button>
+    </div>
+  </div>
+  {% if is_ref %}<p class="small muted" style="margin: 0">{{ t('admin.lang_ref_help') }}</p>{% endif %}
+  <section class="card" style="padding: 0; overflow-x: auto">
+    <table class="list" id="tr">
+      <thead><tr><th style="width: 22%">{{ t('admin.lang_key') }}</th><th style="width: 36%">{{ t('admin.lang_reference') }} ({{ ref_name }})</th><th>{{ t('admin.lang_value') }}</th></tr></thead>
+      <tbody>
+      {% for r in rows %}
+      <tr {% if not r.value %}class="missing"{% endif %}>
+        <td class="mono" style="overflow-wrap: anywhere">{{ r.key }}</td>
+        <td class="small">{{ r.ref }}</td>
+        <td><input type="text" name="k:{{ r.key }}" value="{{ r.value }}" aria-label="{{ r.key }}"></td>
+      </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </section>
+  <div class="row"><button class="btn primary" type="submit">{{ icon('check', 16) }} {{ t('action.save') }}</button></div>
+</form>
+<script>
+document.getElementById('only-missing').addEventListener('change', function () {
+  var on = this.checked;
+  document.querySelectorAll('#tr tbody tr').forEach(function (tr) { tr.style.display = on && !tr.classList.contains('missing') ? 'none' : ''; });
+});
+</script>
+{% endblock %}

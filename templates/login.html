@@ -1,0 +1,12 @@
+{% extends "_auth.html" %}
+{% block title %}{{ t('login.title') }}{% endblock %}
+{% block form %}
+<h1 style="font-size: 24px">{{ t('login.title') }}</h1>
+{% if error %}<div class="flash err" role="alert">{{ error }}</div>{% endif %}
+<form method="post" action="/login" style="display: flex; flex-direction: column; gap: 14px">
+  <input type="hidden" name="next" value="{{ next }}">
+  <div class="field"><label for="u">{{ t('login.username') }}</label><input id="u" name="username" type="text" autocomplete="username" autocapitalize="none" required autofocus></div>
+  <div class="field"><label for="p">{{ t('login.password') }}</label><input id="p" name="password" type="password" autocomplete="current-password" required></div>
+  <button class="btn primary" type="submit">{{ t('login.submit') }}</button>
+</form>
+{% endblock %}

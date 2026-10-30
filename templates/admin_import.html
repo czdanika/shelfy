@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% from "macros.html" import icon %}
+{% block title %}{{ t('admin.nav_import') }}{% endblock %}
+{% block content %}
+{% include "_adminnav.html" %}
+<section class="card" style="display: flex; flex-direction: column; gap: 14px; max-width: 820px">
+  <h2 style="font-size: 20px">{{ t('admin.import_title') }}</h2>
+  <p class="muted" style="margin: 0">{{ t('admin.import_help') }}</p>
+  {% if p.running %}
+  <div class="row"><span class="spin"></span> <strong>{{ t('admin.import_running') }}</strong></div>
+  <div class="bar"><i style="width: {{ (p.done * 100 / p.total)|round|int if p.total else 0 }}%"></i></div>
+  <div class="small">{{ t('admin.import_result', done=p.done, total=p.total, added=p.added, skipped=p.skipped) }}</div>
+  <script>setTimeout(function () { location.reload(); }, 3000);</script>
+  {% else %}
+  {% if p.finished_at %}
+  <div class="flash">{{ t('admin.import_done') }} {{ t('admin.import_result', done=p.done, total=p.total, added=p.added, skipped=p.skipped) }}</div>
+  {% endif %}
+  <form method="post" action="/admin/import" class="row" style="align-items: flex-end">
+    <div class="field" style="flex: 1 1 360px"><label for="path">{{ t('admin.import_path') }}</label>
+      <input id="path" name="path" type="text" value="{{ default }}" placeholder="/calibre" class="mono"></div>
+    <button class="btn primary" type="submit">{{ icon('upload', 16) }} {{ t('admin.import_start') }}</button>
+  </form>
+  {% endif %}
+  {% if p.errors %}
+  <details><summary>{{ t('admin.import_errors') }} ({{ p.errors|length }})</summary>
+    <ul class="small mono">{% for e in p.errors %}<li>{{ e }}</li>{% endfor %}</ul></details>
+  {% endif %}
+</section>
+{% endblock %}

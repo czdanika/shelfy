@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% from "macros.html" import icon %}
+{% block title %}{{ t('admin.new_user') if not u else u.username }}{% endblock %}
+{% block content %}
+{% include "_adminnav.html" %}
+<div class="small muted"><a href="/admin">‹ {{ t('admin.users') }}</a></div>
+{% if error %}<div class="flash err" role="alert">{{ error }}</div>{% endif %}
+<form class="card" method="post" action="/admin/users/{{ u.id if u else 'new' }}" style="display: flex; flex-direction: column; gap: 16px; max-width: 760px">
+  <h2 style="font-size: 20px">{{ t('admin.new_user') if not u else (u.display_name or u.username) }}</h2>
+  <div class="grid2">
+    <div class="field"><label for="un">{{ t('login.username') }}</label>
+      <input id="un" name="username" type="text" autocapitalize="none" {% if u %}value="{{ u.username }}" disabled{% else %}required{% endif %}></div>
+    <div class="field"><label for="dn">{{ t('me.display_name') }}</label><input id="dn" name="display_name" type="text" value="{{ u.display_name if u else '' }}"></div>
+    <div class="field"><label for="pw">{{ t('login.password') }} <span class="muted">({{ t('admin.password_help') if u else t('setup.min8') }})</span></label>
+      <input id="pw" name="password" type="password" autocomplete="new-password" minlength="8" {% if not u %}required{% endif %}></div>
+    <div class="field"><label for="lg">{{ t('me.language') }}</label>
+      <select id="lg" name="language"><option value="">{{ t('admin.lang_default') }}</option>
+        {% for code, name in languages %}<option value="{{ code }}" {% if u and u.language == code %}selected{% endif %}>{{ name }}</option>{% endfor %}</select></div>
+    <div class="field" style="grid-column: 1 / -1"><label for="ke">{{ t('me.kindle_email') }}</label><input id="ke" name="kindle_email" type="email" value="{{ (u.kindle_email if u else '') or '' }}"></div>
+    <div class="field"><label for="role">{{ t('admin.role') }}</label>
+      <select id="role" name="role">{% for r in roles %}<option value="{{ r }}" {% if (u.role if u else 'reader') == r %}selected{% endif %}>{{ t('role.' ~ r) }}</option>{% endfor %}</select>
+      <span class="small muted">{{ t('admin.role_help') }}</span></div>
+    <fieldset class="field"><legend class="lbl">{{ t('admin.perms') }}</legend>
+      {% for p in perms %}
+      <label class="check"><input type="checkbox" name="{{ p }}" value="1" {% if (u[p] if u else role_defaults['reader'][p]) %}checked{% endif %}> {{ t('perm.' ~ p) }}</label>
+      {% endfor %}
+    </fieldset>
+  </div>
+  <div class="row"><button class="btn primary" type="submit">{{ icon('check', 16) }} {{ t('action.save') }}</button><a class="btn" href="/admin">{{ t('action.cancel') }}</a></div>
+</form>
+<script>
+// szerepkör váltásakor az alapértelmezett jogosultságok bejelölése
+(function () {
+  var d = {{ role_defaults|tojson }};
+  document.getElementById('role').addEventListener('change', function () {
+    var r = d[this.value]; if (!r) return;
+    Object.keys(r).forEach(function (k) { var el = document.querySelector('input[name="' + k + '"]'); if (el) el.checked = !!r[k]; });
+  });
+})();
+</script>
+{% endblock %}

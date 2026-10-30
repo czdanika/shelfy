@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% from "macros.html" import icon %}
+{% block title %}{{ t('admin.nav_languages') }}{% endblock %}
+{% block content %}
+{% include "_adminnav.html" %}
+<p class="muted" style="margin: 0">{{ t('admin.lang_intro') }}</p>
+<section class="card" style="padding: 0; overflow-x: auto">
+  <table class="list">
+    <thead><tr><th>{{ t('admin.lang') }}</th><th>{{ t('admin.lang_code') }}</th><th style="width: 40%">{{ t('admin.lang_done') }}</th><th></th></tr></thead>
+    <tbody>
+    {% for l in langs %}
+    <tr>
+      <td><strong>{{ l.name }}</strong>{% if loop.first %} <span class="badge info">{{ t('admin.lang_reference') }}</span>{% endif %}</td>
+      <td class="mono">{{ l.code }}.json</td>
+      <td><div class="row" style="gap: 10px; flex-wrap: nowrap"><div class="bar" style="flex: 1"><i style="width: {{ l.pct }}%"></i></div>
+        <span class="small" style="white-space: nowrap">{{ l.pct }}% · {{ l.done }}/{{ l.total }}</span></div></td>
+      <td style="text-align: right"><a class="btn small" href="/admin/languages/{{ l.code }}">{{ icon('edit', 14) }} {{ t('admin.lang_edit') }}</a></td>
+    </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</section>
+<form class="card row" method="post" action="/admin/languages/new" style="align-items: flex-end">
+  <div class="field" style="flex: 0 1 140px"><label for="lc">{{ t('admin.lang_code') }}</label><input id="lc" name="code" type="text" pattern="[a-z]{2,3}" maxlength="3" placeholder="de" required></div>
+  <div class="field" style="flex: 1 1 220px"><label for="ln">{{ t('admin.lang_name') }}</label><input id="ln" name="name" type="text" placeholder="Deutsch" required></div>
+  <button class="btn primary" type="submit">{{ icon('plus', 16) }} {{ t('admin.lang_new') }}</button>
+</form>
+{% endblock %}

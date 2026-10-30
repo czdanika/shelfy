@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="{{ lang }}">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no">
+<title>{% block title %}{% endblock %} – {{ t('app.name') }}</title>
+<style>
+/* E-ink barát: fekete-fehér, nincs flexbox, nincs JavaScript, nagy érintési felületek */
+* { -webkit-box-sizing: border-box; box-sizing: border-box; }
+html, body { margin: 0; padding: 0; background: #fff; color: #000; overflow-x: hidden; -webkit-text-size-adjust: 100%; }
+body { font-family: Georgia, "Times New Roman", serif; font-size: 20px; line-height: 1.35; }
+a { color: #000; }
+.wrap { padding: 10px 14px 30px 14px; }
+.top { border-bottom: 3px solid #000; padding: 8px 14px; }
+.top table { width: 100%; border-collapse: collapse; }
+.top td { vertical-align: middle; }
+.brand { font-size: 26px; font-weight: bold; text-decoration: none; letter-spacing: 1px; }
+.toplinks { text-align: right; white-space: nowrap; }
+.toplinks a { display: inline-block; padding: 8px 10px; font-size: 18px; text-decoration: none; border: 2px solid #000; margin-left: 6px; }
+.search { margin: 12px 0 6px 0; }
+.search input { display: block; width: 100%; margin: 0; -webkit-appearance: none; font-size: 22px; padding: 10px; border: 2px solid #000; border-radius: 0; font-family: inherit; }
+.search button { display: block; width: 100%; margin: 6px 0 0 0; -webkit-appearance: none; font-size: 20px; padding: 10px 4px; border: 2px solid #000; background: #000; color: #fff; font-family: inherit; }
+h1 { font-size: 26px; margin: 14px 0 6px 0; }
+.muted { color: #333; font-size: 17px; }
+.btn { display: inline-block; padding: 12px 16px; margin: 4px 6px 4px 0; border: 2px solid #000; text-decoration: none; font-size: 19px; background: #fff; color: #000; font-family: inherit; cursor: pointer; -webkit-appearance: none; border-radius: 0; }
+.btn.fo { background: #000; color: #fff; font-weight: bold; }
+.views { margin: 6px 0 12px 0; font-size: 17px; }
+.views a, .views b { display: inline-block; padding: 6px 10px; border: 2px solid #000; margin: 0 4px 4px 0; text-decoration: none; }
+.views b { background: #000; color: #fff; }
+table.books { width: 100%; border-collapse: collapse; }
+table.books td { border-bottom: 1px solid #000; padding: 10px 6px; vertical-align: top; }
+table.books td.c { width: 84px; }
+table.books img { width: 76px; border: 1px solid #000; display: block; }
+.bt { font-size: 21px; font-weight: bold; text-decoration: none; display: block; }
+.ba { font-size: 18px; margin-top: 2px; }
+.fmt { display: inline-block; font-size: 13px; border: 1px solid #000; padding: 1px 5px; margin: 4px 4px 0 0; font-family: Arial, sans-serif; }
+table.detail { width: 100%; border-collapse: collapse; }
+table.detail td { vertical-align: top; }
+table.detail td.c { width: 40%; padding-right: 14px; }
+table.detail img { width: 100%; border: 1px solid #000; }
+.meta { font-size: 17px; margin: 8px 0; }
+.meta td { padding: 3px 10px 3px 0; vertical-align: top; }
+.desc { font-size: 19px; margin-top: 14px; }
+.box { border: 3px solid #000; padding: 12px; margin: 12px 0; }
+.pager { margin: 18px 0; text-align: center; }
+.pager .btn { min-width: 40%; text-align: center; }
+form.inline { display: inline; margin: 0; }
+label { display: block; margin: 12px 0 4px 0; }
+input.mezo, select.mezo { width: 100%; font-size: 21px; padding: 10px; border: 2px solid #000; border-radius: 0; font-family: inherit; background: #fff; }
+.radio { display: block; margin: 8px 0; font-size: 20px; }
+.foot { margin-top: 30px; border-top: 1px solid #000; padding-top: 8px; font-size: 14px; color: #333; }
+</style>
+</head>
+<body>
+<div class="top"><table><tr>
+  <td><a class="brand" href="/kindle">{{ t('app.name') }}</a></td>
+  <td class="toplinks"><a href="/kindle/settings">{{ t('kindle.settings') }}</a></td>
+</tr></table></div>
+<div class="wrap">
+{% if msg %}<div class="box">{{ t('msg.' ~ msg) }}</div>{% endif %}
+{% block content %}{% endblock %}
+<div class="foot">{{ t('app.name') }} {{ version }} · {{ user.display_name }} · <a href="/logout">{{ t('nav.logout') }}</a></div>
+</div>
+</body>
+</html>

@@ -1,0 +1,34 @@
+{% extends "kindle/base.html" %}
+{% block title %}{{ b.title }}{% endblock %}
+{% block content %}
+<p class="muted"><a href="/kindle">‹ {{ t('kindle.back') }}</a></p>
+<table class="detail"><tr>
+  <td class="c">{% if b.has_cover %}<img src="/book/{{ b.id }}/cover?w=360&g=1" alt="">{% endif %}</td>
+  <td>
+    <h1 style="margin-top: 0">{{ b.title }}</h1>
+    <div class="ba">{% for a in b.authors %}<a href="/kindle?q={{ a.name|urlencode }}">{{ a.name }}</a>{% if not loop.last %}, {% endif %}{% endfor %}</div>
+    <table class="meta">
+      {% if b.series %}<tr><td>{{ t('book.series') }}:</td><td><a href="/kindle?q={{ b.series|urlencode }}&sort=series">{{ b.series }}</a>{% if b.series_index %} ({{ '%g' % b.series_index }}){% endif %}</td></tr>{% endif %}
+      {% if b.publisher %}<tr><td>{{ t('book.publisher') }}:</td><td>{{ b.publisher }}</td></tr>{% endif %}
+      {% if b.year %}<tr><td>{{ t('book.year') }}:</td><td>{{ b.year }}</td></tr>{% endif %}
+      {% if b.tags %}<tr><td>{{ t('book.tags') }}:</td><td>{{ b.tags|map(attribute='name')|join(', ') }}</td></tr>{% endif %}
+    </table>
+  </td>
+</tr></table>
+
+{% if user.can('can_download') %}
+<div class="box">
+  {% if kfmt in b.formats or (can_convert and b.formats) %}
+  <a class="btn fo" href="/book/{{ b.id }}/download/{{ kfmt }}">{{ t('kindle.download', fmt=kfmt|upper) }}</a>
+  {% endif %}
+  {% for f in b.formats if f != kfmt and (device == 'new' or f in ('mobi', 'azw', 'prc', 'txt')) %}
+  <a class="btn" href="/book/{{ b.id }}/download/{{ f }}">{{ f|upper }}</a>
+  {% endfor %}
+  {% if can_mail %}
+  <form class="inline" method="post" action="/book/{{ b.id }}/send"><button class="btn" type="submit">{{ t('action.send_kindle') }}</button></form>
+  {% endif %}
+  <div class="muted">{{ t('kindle.device_old') if device == 'old' else t('kindle.device_new') }} · <a href="/kindle/settings">{{ t('kindle.change') }}</a></div>
+</div>
+{% endif %}
+{% if b.description %}<div class="desc">{{ b.description|replace('\n', '<br>'|safe) }}</div>{% endif %}
+{% endblock %}

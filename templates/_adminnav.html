@@ -1,0 +1,6 @@
+<h1>{{ t('admin.title') }}</h1>
+<nav class="adminnav" aria-label="{{ t('admin.title') }}">
+  {% for key, href in [('users', '/admin'), ('settings', '/admin/settings'), ('languages', '/admin/languages'), ('import', '/admin/import')] %}
+  <a href="{{ href }}" {% if section == key %}class="on" aria-current="page"{% endif %}>{{ t('admin.nav_' ~ key) }}</a>
+  {% endfor %}
+</nav>

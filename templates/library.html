@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% from "macros.html" import bookcard %}
+{% block title %}{{ heading }}{% endblock %}
+{% block content %}
+<div class="row between" style="align-items: flex-end">
+  <div>
+    <h1>{{ heading }}</h1>
+    <div class="small muted" style="margin-top: 4px">{{ t('library.count', n=total) }} · {{ t('sort.current') }}: <strong style="color: var(--text)">{{ t('sort.' ~ sort) }}</strong></div>
+  </div>
+  {% include "_pager.html" %}
+</div>
+
+{% if view not in ('hot', 'discover') %}
+<div class="sortbar" role="toolbar" aria-label="{{ t('sort.label') }}">
+  {% for label, opts in sort_groups %}
+  <div class="sortgrp">
+    <span>{{ t(label) }}</span>
+    {% for key, short, title in opts %}<a href="{{ qs(query, sort=key) }}" class="{% if key == sort %}on{% endif %}" title="{{ t(title) }}" {% if key == sort %}aria-current="true"{% endif %}>{{ t(short) }}</a>{% endfor %}
+  </div>
+  {% endfor %}
+</div>
+{% endif %}
+
+{% if books %}
+<div class="books">
+  {% for b in books %}{{ bookcard(b, t, user, now) }}{% endfor %}
+</div>
+<div class="row" style="justify-content: center">{% include "_pager.html" %}</div>
+{% else %}
+<div class="card" style="text-align: center; padding: 48px">
+  <h2>{{ t('library.empty_title') }}</h2>
+  <p class="muted">{{ t('library.empty_text') }}</p>
+  {% if user.can('can_upload') %}<p><a class="btn primary" href="/upload">{{ t('nav.upload') }}</a></p>{% endif %}
+</div>
+{% endif %}
+{% endblock %}

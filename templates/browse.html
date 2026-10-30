@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% from "macros.html" import stars %}
+{% block title %}{{ t('browse.' ~ kind) }}{% endblock %}
+{% block content %}
+<h1>{{ t('browse.' ~ kind) }}</h1>
+{% if items %}
+<div class="card facets">
+  {% for it in items %}
+  <a href="/books?{{ param }}={{ it.id }}{% if kind == 'series' %}&sort=series{% endif %}">
+    {% if kind == 'ratings' %}{{ stars(it.name) }}{% elif kind == 'languages' %}{{ langname(it.name) }}{% else %}{{ it.name }}{% endif %}
+    <span>{{ it.n }}</span>
+  </a>
+  {% endfor %}
+</div>
+{% else %}
+<p class="muted">{{ t('browse.empty') }}</p>
+{% endif %}
+{% endblock %}

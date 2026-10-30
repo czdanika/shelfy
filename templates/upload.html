@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+{% from "macros.html" import icon %}
+{% block title %}{{ t('upload.title') }}{% endblock %}
+{% block content %}
+<div>
+  <h1>{{ t('upload.title') }}</h1>
+  <p class="muted" style="margin: 6px 0 0">{{ t('upload.intro') }}</p>
+</div>
+
+<div class="row" style="align-items: stretch; gap: 18px">
+  <form id="upform" class="drop" style="flex: 999 1 480px" method="post" action="/upload" enctype="multipart/form-data">
+    <span style="color: var(--accent)">{{ icon('upload', 40) }}</span>
+    <strong style="font-family: var(--serif); font-size: 20px">{{ t('upload.drop') }}</strong>
+    <label class="muted">{{ t('upload.or') }} <span style="color: var(--accent); font-weight: 700; text-decoration: underline; cursor: pointer">{{ t('upload.choose') }}</span>
+      <input id="files" class="sr" type="file" name="files" multiple></label>
+    <span class="small muted">{{ t('upload.formats') }}</span>
+    <noscript><button class="btn primary" type="submit">{{ t('upload.send') }}</button></noscript>
+    <div id="progress" class="small" style="font-weight: 600" role="status"></div>
+  </form>
+  <div class="card" style="flex: 1 1 280px; display: flex; flex-direction: column; gap: 10px">
+    <h2 style="font-size: 18px">{{ t('upload.auto_title') }}</h2>
+    <div class="small">{{ t('upload.folder') }}: {% if ingest_dir %}<code>{{ ingest_dir }}</code>{% else %}<span class="muted">{{ t('upload.folder_off') }}</span>{% endif %}</div>
+    <div class="small">{{ t('upload.online') }}: <strong>{{ t('common.on') if online else t('common.off') }}</strong></div>
+    <div class="small">{{ t('upload.auto_approve') }}: <strong>{{ t('common.on') if auto_approve else t('common.off') }}</strong></div>
+    {% if user.is_admin %}<a class="small" href="/admin/settings">{{ t('upload.settings_link') }} ›</a>{% endif %}
+  </div>
+</div>
+
+<section class="queue" aria-live="polite">
+  <div class="row between">
+    <h2>{{ t('upload.queue') }}</h2>
+    {% if items|selectattr('status', 'equalto', 'review')|list %}
+    <form method="post" action="/upload/approve-all"><button class="btn primary" type="submit">{{ icon('check', 16) }} {{ t('upload.approve_all') }}</button></form>
+    {% endif %}
+  </div>
+  {% for it in items %}
+  <article class="qitem" data-id="{{ it.id }}" data-status="{{ it.status }}">
+    <div class="mini">{% if it.status == 'review' %}<img src="/upload/{{ it.id }}/cover" alt="" onerror="this.remove()">{% endif %}</div>
+    <div style="flex: 999 1 340px; min-width: 0; display: flex; flex-direction: column; gap: 8px">
+      <div class="row between" style="align-items: flex-start">
+        <div style="min-width: 0">
+          <div class="small muted">{{ it.filename }} · {{ '%.1f' % (it.size / 1048576) }} MB · {{ t('upload.src_' ~ it.source) }}</div>
+          <div style="font-weight: 700; font-size: 17px">{{ it.extracted.title or it.filename }}</div>
+          {% if it.extracted.authors %}<div>{{ it.extracted.authors|join(', ') }}</div>{% endif %}
+        </div>
+        {% if it.status in ('pending', 'inspecting') %}<span class="badge info"><span class="spin"></span> {{ t('upload.status_' ~ it.status) }}</span>
+        {% elif it.status == 'error' %}<span class="badge err">{{ t('upload.status_error') }}</span>
+        {% elif it.duplicate_of %}<span class="badge warn">{{ t('upload.dup_badge') }}</span>
+        {% elif it.best and it.best.score >= 0.8 %}<span class="badge ok">{{ t('source.' ~ it.best.source) }} · {{ (it.best.score * 100)|round|int }}%</span>
+        {% elif it.best %}<span class="badge warn">{{ t('upload.uncertain') }}</span>
+        {% else %}<span class="badge info">{{ t('upload.no_match') }}</span>{% endif %}
+      </div>
+      {% if it.inspection %}
+      <ul class="steps">{% for c in it.inspection %}<li class="{{ c.status }}">{{ t('insp.' ~ c.key) }}</li>{% endfor %}</ul>
+      {% endif %}
+      {% if it.status == 'error' and it.message %}<div class="small" style="color: var(--danger)">{{ it.message }}</div>{% endif %}
+      <div class="row">
+        {% if it.status == 'review' %}<a class="btn dark small" href="/upload/{{ it.id }}">{{ t('upload.review') }}</a>{% endif %}
+        {% if it.status in ('review', 'error') %}<form method="post" action="/upload/{{ it.id }}/reject"><button class="btn small" type="submit">{{ t('upload.reject') }}</button></form>{% endif %}
+      </div>
+    </div>
+  </article>
+  {% else %}
+  <p class="muted">{{ t('upload.queue_empty') }}</p>
+  {% endfor %}
+</section>
+
+{% if done %}
+<section class="card">
+  <h2 style="font-size: 18px; margin-bottom: 10px">{{ t('upload.recent') }}</h2>
+  <ul style="margin: 0; padding-left: 18px">
+    {% for d in done %}<li>{% if d.status == 'done' and d.book_id %}<a href="/book/{{ d.book_id }}">{{ d.title or d.filename }}</a>{% else %}<span class="muted">{{ d.filename }} – {{ t('upload.status_rejected') }}</span>{% endif %}</li>{% endfor %}
+  </ul>
+</section>
+{% endif %}
+{% endblock %}
+{% block scripts %}
+<script src="/static/upload.js?v={{ version }}"></script>
+{% endblock %}

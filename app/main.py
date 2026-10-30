@@ -1,0 +1,867 @@
+"""Shelfy – saját e-könyvtár: webes felület, feltöltés vizsgálattal, admin."""
+from __future__ import annotations
+
+import asyncio
+import hashlib
+import json
+import math
+import re
+import tempfile
+from contextlib import asynccontextmanager
+from functools import partial
+from pathlib import Path
+from urllib.parse import urlencode, urlsplit
+
+from fastapi import FastAPI, File, Form, Request, UploadFile
+from fastapi.responses import FileResponse, HTMLResponse, JSONResponse, RedirectResponse, Response
+from fastapi.staticfiles import StaticFiles
+from fastapi.templating import Jinja2Templates
+
+from . import __version__
+from .calibre_import import Progress, import_async
+from .categories import CATEGORIES
+from .auth import PERMS, ROLE_DEFAULTS, ROLES, Sessions, Throttle, User, hash_password, verify_password
+from .config import Config, load_config
+from .db import Database, now
+from .i18n import REFERENCE, I18n
+from .images import thumbnail
+from .ingest import Ingest
+from .library import MIME, SORT_GROUPS, SORTS, Library, Meta, ascii_name
+from .providers import Lookup
+from .tools import Calibre, kindle_personal_doc, send_mail, sha256_file
+
+BASE = Path(__file__).resolve().parent.parent
+COOKIE = "shelfy"
+YEAR = 60 * 60 * 24 * 365
+PER_PAGE = 60
+# Kindle 1/2/DX és Kindle Keyboard ("Kindle/3.0" a "+" nélkül): csak MOBI-t tölt le
+OLD_KINDLE_UA = re.compile(r"Kindle/(?:[12]\.\d|3\.0(?!\+))")
+KINDLE_UA = re.compile(r"Kindle|Silk/")
+PUBLIC = ("/login", "/setup", "/static/", "/lang/", "/health")
+SMTP_KEYS = ("smtp_host", "smtp_port", "smtp_security", "smtp_user", "smtp_password", "smtp_from")
+FACETS = {"authors": "author", "series": "series", "tags": "tag", "publishers": "publisher",
+          "languages": "lang", "formats": "fmt", "ratings": "rating"}
+
+
+def create_app(cfg: Config | None = None, transport=None) -> FastAPI:
+    cfg = cfg or load_config()
+    for d in (cfg.data_dir, cfg.library_dir):
+        d.mkdir(parents=True, exist_ok=True)
+    db = Database(cfg.data_dir / "shelfy.db")
+    lib = Library(db, cfg.library_dir)
+    i18n = I18n(override_dir=cfg.data_dir / "locales")
+    sessions = Sessions(cfg.secret_key)
+    throttle = Throttle()
+    calibre = Calibre(cfg)
+    lookup = Lookup(cfg.providers, transport=transport)
+    ingest = Ingest(db, lib, calibre, lookup, cfg.data_dir / "uploads",
+                    online=cfg.online_lookup, default_lang=cfg.default_language, translate=i18n.t)
+    covers_dir = cfg.data_dir / "cache" / "covers"
+    covers_dir.mkdir(parents=True, exist_ok=True)
+
+    # első admin környezeti változóból
+    if cfg.admin_user and cfg.admin_password and not db.val("SELECT COUNT(*) FROM users"):
+        db.run("""INSERT INTO users(username, display_name, password_hash, role, can_upload, can_edit, can_download,
+                  can_delete, created_at) VALUES(?, ?, ?, 'admin', 1, 1, 1, 1, ?)""",
+               (cfg.admin_user, cfg.admin_user, hash_password(cfg.admin_password), now()))
+
+    @asynccontextmanager
+    async def lifespan(_app):
+        ingest.start(cfg.ingest_dir)
+        yield
+        await ingest.stop()
+        await lookup.close()
+
+    app = FastAPI(title="Shelfy", lifespan=lifespan, docs_url=None, redoc_url=None, openapi_url=None)
+    app.mount("/static", StaticFiles(directory=str(BASE / "static")), name="static")
+    tpl = Jinja2Templates(directory=str(BASE / "templates"))
+    import datetime as _dt
+    tpl.env.filters["num"] = lambda x: (int(x) if isinstance(x, float) and x.is_integer() else x) if x not in (None, "") else ""
+    tpl.env.filters["datetime"] = lambda ts: _dt.datetime.fromtimestamp(ts).strftime("%Y.%m.%d %H:%M") if ts else "–"
+    app.state.db, app.state.lib, app.state.ingest = db, lib, ingest
+
+    # ------------------------------------------------------------------ munkamenet, nyelv
+    def session(request: Request) -> dict:
+        return sessions.load(request.cookies.get(COOKIE))
+
+    def current_user(request: Request) -> User | None:
+        s = session(request)
+        if not s.get("uid"):
+            return None
+        r = db.one("SELECT * FROM users WHERE id = ?", (s["uid"],))
+        if not r:
+            return None
+        u = User.from_row(r)
+        return u if s.get("fp") == u.fingerprint else None
+
+    def lang_of(request: Request, user: User | None = None) -> str:
+        for cand in (request.cookies.get("shelfy_lang"), user.language if user else None, cfg.default_language):
+            if i18n.has(cand):
+                return cand
+        return REFERENCE
+
+    def save(request: Request, resp: Response, data: dict) -> Response:
+        resp.set_cookie(COOKIE, sessions.dump(data), max_age=YEAR, httponly=True, samesite="lax",
+                        secure=request.url.scheme == "https")
+        return resp
+
+    def settings_dict() -> dict:
+        return {k: db.get_setting(k) for k in SMTP_KEYS + ("auto_approve", "kindle_subject")}
+
+    @app.middleware("http")
+    async def gate(request: Request, call_next):
+        path = request.url.path
+        # CSRF: POST csak a saját oldalunkról jöhet
+        if request.method == "POST":
+            origin = request.headers.get("origin") or request.headers.get("referer")
+            if origin and urlsplit(origin).netloc != request.url.netloc:
+                return Response("CSRF", status_code=403)
+        if path.startswith(PUBLIC):
+            return await call_next(request)
+        if not db.val("SELECT COUNT(*) FROM users"):
+            return RedirectResponse("/setup", status_code=303)
+        # Kindle böngészőből a főoldal helyett az egyszerű Kindle-nézet (a teljes felület választható)
+        if path == "/" and request.method == "GET" and KINDLE_UA.search(request.headers.get("user-agent", "")) \
+                and request.cookies.get("shelfy_ui") != "full":
+            return RedirectResponse("/kindle", status_code=303)
+        user = current_user(request)
+        if not user:
+            nxt = path + (f"?{request.url.query}" if request.url.query else "")
+            return RedirectResponse("/login?" + urlencode({"next": nxt if request.method == "GET" else "/"}), status_code=303)
+        if path.startswith("/admin") and not user.is_admin:
+            return Response("403", status_code=403)
+        request.state.user = user
+        return await call_next(request)
+
+    def render(request: Request, name: str, status: int = 200, **ctx) -> HTMLResponse:
+        user = getattr(request.state, "user", None)
+        lang = lang_of(request, user)
+        def langname(code):
+            k = f"langname.{(code or '')[:3]}"
+            v = i18n.t(lang, k)
+            return code if v == k else v
+
+        base = {
+            "langname": langname,
+            "t": partial(i18n.t, lang), "lang": lang, "languages": [(c, i18n.names[c]) for c in i18n.languages],
+            "user": user, "version": __version__, "path": request.url.path,
+            "query": dict(request.query_params), "qs": qs, "now": now(),
+        }
+        if user:
+            base["shelves"] = [dict(r) for r in db.q("SELECT id, name FROM shelves WHERE user_id = ? ORDER BY name", (user.id,))]
+            base["nav_counts"] = lib.counts()
+            base["pending"] = db.val("SELECT COUNT(*) FROM uploads WHERE status IN ('pending','inspecting','review')")
+        base.update(ctx)
+        resp = tpl.TemplateResponse(request, name, base, status_code=status)
+        resp.headers["Cache-Control"] = "no-store"
+        return resp
+
+    def qs(current: dict, **changes) -> str:
+        d = {k: v for k, v in current.items() if v not in (None, "")}
+        for k, v in changes.items():
+            if v in (None, ""):
+                d.pop(k, None)
+            else:
+                d[k] = v
+        if "page" not in changes:
+            d.pop("page", None)
+        return "?" + urlencode(d) if d else "?"
+
+    def tr(request: Request, key: str, **kw) -> str:
+        return i18n.t(lang_of(request, getattr(request.state, "user", None)), key, **kw)
+
+    def flash(url: str, msg: str) -> RedirectResponse:
+        sep = "&" if "?" in url else "?"
+        return RedirectResponse(f"{url}{sep}msg={msg}", status_code=303)
+
+    # ------------------------------------------------------------------ belépés, első indítás
+    @app.get("/setup", response_class=HTMLResponse)
+    async def setup_form(request: Request):
+        if db.val("SELECT COUNT(*) FROM users"):
+            return RedirectResponse("/", status_code=303)
+        return render(request, "setup.html", error=None)
+
+    @app.post("/setup")
+    async def setup(request: Request, username: str = Form(...), password: str = Form(...), password2: str = Form(...)):
+        if db.val("SELECT COUNT(*) FROM users"):
+            return RedirectResponse("/", status_code=303)
+        if len(password) < 8 or password != password2 or not username.strip():
+            return render(request, "setup.html", 400, error=tr(request, "setup.error"))
+        uid = db.run("""INSERT INTO users(username, display_name, password_hash, role, can_upload, can_edit, can_download,
+                        can_delete, created_at) VALUES(?, ?, ?, 'admin', 1, 1, 1, 1, ?)""",
+                     (username.strip(), username.strip(), hash_password(password), now()))
+        u = User.from_row(db.one("SELECT * FROM users WHERE id = ?", (uid,)))
+        return save(request, RedirectResponse("/", status_code=303), {"uid": u.id, "fp": u.fingerprint})
+
+    @app.get("/login", response_class=HTMLResponse)
+    async def login_form(request: Request, next: str = "/"):
+        return render(request, "login.html", next=next, error=None)
+
+    @app.post("/login")
+    async def login(request: Request, username: str = Form(""), password: str = Form(""), next: str = Form("/")):
+        if not next.startswith("/") or next.startswith("//"):
+            next = "/"
+        ip = request.headers.get("cf-connecting-ip") or (request.client.host if request.client else "?")
+        if throttle.blocked(ip):
+            return render(request, "login.html", 429, next=next, error=tr(request, "login.blocked"))
+        r = db.one("SELECT * FROM users WHERE username = ?", (username.strip(),))
+        if not r or not verify_password(password, r["password_hash"]):
+            throttle.fail(ip)
+            await asyncio.sleep(0.5)
+            return render(request, "login.html", 401, next=next, error=tr(request, "login.error"))
+        throttle.reset(ip)
+        u = User.from_row(r)
+        db.run("UPDATE users SET last_login = ? WHERE id = ?", (now(), u.id))
+        return save(request, RedirectResponse(next, status_code=303), {"uid": u.id, "fp": u.fingerprint})
+
+    @app.get("/logout")
+    async def logout(request: Request):
+        resp = RedirectResponse("/login", status_code=303)
+        resp.delete_cookie(COOKIE)
+        return resp
+
+    @app.get("/lang/{code}")
+    async def set_lang(request: Request, code: str):
+        back = request.headers.get("referer") or "/"
+        if urlsplit(back).netloc not in ("", request.url.netloc):
+            back = "/"
+        resp = RedirectResponse(back, status_code=303)
+        if i18n.has(code):
+            resp.set_cookie("shelfy_lang", code, max_age=YEAR, samesite="lax")
+        return resp
+
+    @app.get("/health")
+    async def health():
+        return {"ok": True, "version": __version__, "books": lib.counts()["books"], "calibre": calibre.has_convert}
+
+    # ------------------------------------------------------------------ könyvtár
+    @app.get("/", response_class=HTMLResponse)
+    async def home(request: Request):
+        return await books(request)
+
+    @app.get("/books", response_class=HTMLResponse)
+    async def books(request: Request):
+        p = request.query_params
+        user: User = request.state.user
+        sort = p.get("sort") if p.get("sort") in SORTS else request.cookies.get("shelfy_sort", "added_new")
+        if sort not in SORTS:
+            sort = "added_new"
+
+        def num(k):
+            v = p.get(k)
+            return int(v) if v and v.lstrip("-").isdigit() else None
+
+        page = max(1, num("page") or 1)
+        view = p.get("view") or "all"
+        rows, total = lib.list_books(sort=sort, q=p.get("q"), author=num("author"), series=num("series"), tag=num("tag"),
+                                     publisher=num("publisher"), language=p.get("lang"), fmt=p.get("fmt"),
+                                     rating=num("rating"), view=view, user_id=user.id, shelf=num("shelf"),
+                                     page=page, per_page=PER_PAGE)
+        heading = tr(request, f"view.{view}") if view != "all" else tr(request, "view.all")
+        for key, table in (("author", "authors"), ("series", "series"), ("tag", "tags"), ("publisher", "publishers")):
+            if num(key):
+                heading = db.val(f"SELECT name FROM {table} WHERE id = ?", (num(key),)) or heading
+        if num("shelf"):
+            heading = db.val("SELECT name FROM shelves WHERE id = ? AND user_id = ?", (num("shelf"), user.id)) or heading
+        if p.get("q"):
+            heading = tr(request, "search.results", q=p.get("q"))
+        if p.get("lang"):
+            heading = tr(request, "browse.languages") + ": " + p.get("lang")
+        if p.get("fmt"):
+            heading = p.get("fmt").upper()
+        resp = render(request, "library.html", books=rows, total=total, page=page,
+                      pages=max(1, math.ceil(total / PER_PAGE)), sort=sort, sort_groups=SORT_GROUPS,
+                      heading=heading, view=view, msg=p.get("msg"))
+        if p.get("sort") in SORTS:
+            resp.set_cookie("shelfy_sort", sort, max_age=YEAR, samesite="lax")
+        return resp
+
+    @app.get("/browse/{kind}", response_class=HTMLResponse)
+    async def browse(request: Request, kind: str):
+        if kind not in FACETS:
+            return Response(status_code=404)
+        items = lib.facet(kind)
+        return render(request, "browse.html", kind=kind, items=items, param=FACETS[kind])
+
+    @app.get("/book/{bid}", response_class=HTMLResponse)
+    async def book(request: Request, bid: int):
+        b = lib.book(bid)
+        if not b:
+            return Response(status_code=404)
+        user: User = request.state.user
+        state = db.val("SELECT status FROM read_state WHERE user_id = ? AND book_id = ?", (user.id, bid))
+        more = []
+        if b["authors"]:
+            more, _ = lib.list_books(author=b["authors"][0]["id"], per_page=12)
+            more = [m for m in more if m["id"] != bid][:10]
+        return render(request, "book.html", b=b, read_state=state, more=more, msg=request.query_params.get("msg"),
+                      can_mail=bool(db.get_setting("smtp_host") and db.get_setting("smtp_from")),
+                      can_convert=calibre.has_convert)
+
+    @app.get("/book/{bid}/cover")
+    async def cover(bid: int, w: int = 0, g: int = 0):
+        p = lib.cover_path(bid) if db.val("SELECT has_cover FROM books WHERE id = ?", (bid,)) else None
+        if not p or not p.exists():
+            return Response(status_code=404)
+        headers = {"Cache-Control": "public, max-age=86400"}
+        if not w:
+            return FileResponse(p, media_type="image/jpeg", headers=headers)
+        w = max(60, min(w, 900))
+        cached = covers_dir / f"{bid}_{w}{'g' if g else ''}_{int(p.stat().st_mtime)}.jpg"
+        if not cached.exists():  # g=1: szürkeárnyalatos (e-ink kijelzőre kisebb és élesebb)
+            cached.write_bytes(await asyncio.to_thread(thumbnail, p.read_bytes(), w, bool(g)))
+        return FileResponse(cached, media_type="image/jpeg", headers=headers)
+
+    def disposition(name: str) -> dict:
+        return {"Content-Disposition": f'attachment; filename="{name}"'}
+
+    # ------------------------------------------------------------------ formátumok, Kindle
+    KINDLE_FORMATS = ("mobi", "azw3", "epub")
+    SOURCE_ORDER = ("epub", "azw3", "mobi", "docx", "fb2", "odt", "rtf", "txt", "pdf")
+    convert_locks: dict[str, asyncio.Lock] = {}
+
+    def device_of(request: Request) -> str:
+        """old = régi Kindle (csak MOBI), new = újabb Kindle (AZW3). Süti, különben a böngésző azonosítója alapján."""
+        d = request.cookies.get("shelfy_device")
+        if d in ("old", "new"):
+            return d
+        return "old" if OLD_KINDLE_UA.search(request.headers.get("user-agent", "")) else "new"
+
+    def convert_opts(b: dict, target: str) -> list[str]:
+        opts = ["--share-not-sync", "--title", b["title"]]  # nincs ál-ASIN → a Kindle a saját borítót mutatja
+        if b["authors"]:
+            opts += ["--authors", " & ".join(a["name"] for a in b["authors"])]
+        if b.get("series"):
+            opts += ["--series", b["series"]]
+            if b.get("series_index"):
+                opts += ["--series-index", str(b["series_index"])]
+        if lib.cover_path(b["id"]).exists():
+            opts += ["--cover", str(lib.cover_path(b["id"]))]
+        if target == "mobi":  # régi Kindle: klasszikus MOBI (KF8 nélkül), 600×800-as profil
+            opts += ["--output-profile", "kindle", "--mobi-file-type", "old"]
+        elif target == "azw3":
+            opts += ["--output-profile", "kindle_pw3"]
+        return opts
+
+    async def ensure_format(bid: int, fmt: str) -> Path | None:
+        """A könyv fájlja a kért formátumban: ha nincs meg, konvertál és gyorsítótárba teszi (data/cache/convert)."""
+        p = lib.file_path(bid, fmt)
+        if p and p.exists():
+            return p
+        if fmt not in KINDLE_FORMATS or not calibre.has_convert:
+            return None
+        b = lib.book(bid)
+        src_fmt = next((f for f in SOURCE_ORDER if f in b["formats"] and f != fmt), None)
+        if not src_fmt:
+            return None
+        out = cfg.data_dir / "cache" / "convert" / f"{bid}_{int(b['updated_at'] or 0)}.{fmt}"
+        lock = convert_locks.setdefault(out.name, asyncio.Lock())
+        async with lock:
+            if not out.exists():
+                out.parent.mkdir(parents=True, exist_ok=True)
+                for old in out.parent.glob(f"{bid}_*.{fmt}"):  # elavult (régebbi adatokkal készült) példány
+                    old.unlink(missing_ok=True)
+                await calibre.convert(lib.file_path(bid, src_fmt), out, convert_opts(b, fmt))
+                if fmt in ("mobi", "azw3"):
+                    await asyncio.to_thread(kindle_personal_doc, out)
+        return out
+
+    def file_name(b: dict) -> str:
+        return ascii_name(f"{b['authors'][0]['name']} - {b['title']}" if b["authors"] else b["title"])
+
+    @app.get("/book/{bid}/download/{fmt}")
+    async def download(request: Request, bid: int, fmt: str):
+        user: User = request.state.user
+        b = lib.book(bid)
+        if not user.can("can_download"):
+            return Response(status_code=403)
+        if not b:
+            return Response(status_code=404)
+        try:
+            p = await ensure_format(bid, fmt)
+        except RuntimeError:
+            return flash(f"/book/{bid}", "convert_error")
+        if not p:
+            return Response(status_code=404)
+        db.run("INSERT INTO downloads(user_id, book_id, at) VALUES(?, ?, ?)", (user.id, bid, now()))
+        name = f"{file_name(b)}.{fmt}"
+        if fmt in ("azw3", "mobi", "azw") and p.parent != cfg.data_dir / "cache" / "convert":
+            tmp = Path(tempfile.mkstemp(suffix="." + fmt, dir=cfg.data_dir)[1])
+            tmp.write_bytes(p.read_bytes())
+            await asyncio.to_thread(kindle_personal_doc, tmp)
+            from starlette.background import BackgroundTask
+            return FileResponse(tmp, media_type=MIME.get(fmt, "application/octet-stream"), headers=disposition(name),
+                                background=BackgroundTask(tmp.unlink, missing_ok=True))
+        return FileResponse(p, media_type=MIME.get(fmt, "application/octet-stream"), headers=disposition(name))
+
+    @app.post("/book/{bid}/convert")
+    async def convert(request: Request, bid: int, target: str = Form(...)):
+        """Tartós konvertálás: az új formátum a könyv fájljai közé kerül (szerkesztői jog)."""
+        user: User = request.state.user
+        if not user.can("can_edit") or target not in ("epub", "azw3", "mobi", "pdf") or not calibre.has_convert:
+            return Response(status_code=403)
+        b = lib.book(bid)
+        src_fmt = next((f for f in SOURCE_ORDER if f in b["formats"] and f != target), None)
+        if not src_fmt:
+            return flash(f"/book/{bid}", "convert_nosrc")
+        dst = Path(tempfile.mkstemp(suffix="." + target, dir=cfg.data_dir)[1])
+        try:
+            await calibre.convert(lib.file_path(bid, src_fmt), dst, convert_opts(b, target))
+            lib.add_file(bid, dst, target, await asyncio.to_thread(sha256_file, dst))
+        except RuntimeError:
+            return flash(f"/book/{bid}", "convert_error")
+        finally:
+            dst.unlink(missing_ok=True)
+        return flash(f"/book/{bid}", "converted")
+
+    async def send_to_kindle(user: User, bid: int) -> str:
+        """Küldés a felhasználó Kindle címére; az eredmény egy üzenetkulcs."""
+        s = settings_dict()
+        if not (s["smtp_host"] and s["smtp_from"]):
+            return "mail_off"
+        if not user.kindle_email:
+            return "mail_noaddr"
+        b = lib.book(bid)
+        # az Amazon EPUB-ot, PDF-et, DOCX-et és TXT-t fogad; MOBI/AZW3-ból EPUB készül
+        fmt = next((f for f in ("epub", "pdf", "docx", "txt") if f in b["formats"]), None)
+        try:
+            p = lib.file_path(bid, fmt) if fmt else await ensure_format(bid, "epub")
+        except RuntimeError:
+            return "convert_error"
+        if not p:
+            return "mail_nofmt"
+        fmt = p.suffix.lstrip(".")
+        if p.stat().st_size > 49 * 1024 * 1024:
+            return "mail_toobig"
+        try:
+            await asyncio.to_thread(send_mail, s, user.kindle_email, s.get("kindle_subject") or "Shelfy",
+                                    f"{file_name(b)}.{fmt}", p.read_bytes(), MIME[fmt])
+        except Exception:
+            return "mail_error"
+        db.run("INSERT INTO downloads(user_id, book_id, at) VALUES(?, ?, ?)", (user.id, bid, now()))
+        return "mail_sent"
+
+    @app.post("/book/{bid}/send")
+    async def send(request: Request, bid: int):
+        user: User = request.state.user
+        if not user.can("can_download"):
+            return Response(status_code=403)
+        back = "/kindle/book/" if (request.headers.get("referer") or "").find("/kindle/") >= 0 else "/book/"
+        return flash(f"{back}{bid}", await send_to_kindle(user, bid))
+
+    @app.post("/book/{bid}/read")
+    async def mark_read(request: Request, bid: int, status: str = Form(...)):
+        user: User = request.state.user
+        if status in ("read", "reading"):
+            db.run("INSERT INTO read_state(user_id, book_id, status, updated_at) VALUES(?, ?, ?, ?) "
+                   "ON CONFLICT(user_id, book_id) DO UPDATE SET status = excluded.status, updated_at = excluded.updated_at",
+                   (user.id, bid, status, now()))
+        else:
+            db.run("DELETE FROM read_state WHERE user_id = ? AND book_id = ?", (user.id, bid))
+        return RedirectResponse(f"/book/{bid}", status_code=303)
+
+    @app.post("/book/{bid}/shelf")
+    async def to_shelf(request: Request, bid: int, shelf: str = Form(""), new_shelf: str = Form("")):
+        user: User = request.state.user
+        sid = int(shelf) if shelf.isdigit() else None
+        if new_shelf.strip():
+            sid = db.run("INSERT INTO shelves(user_id, name) VALUES(?, ?)", (user.id, new_shelf.strip()))
+        if sid and db.val("SELECT 1 FROM shelves WHERE id = ? AND user_id = ?", (sid, user.id)):
+            db.run("INSERT OR IGNORE INTO shelf_books(shelf_id, book_id) VALUES(?, ?)", (sid, bid))
+        return flash(f"/book/{bid}", "shelved")
+
+    @app.get("/book/{bid}/edit", response_class=HTMLResponse)
+    async def edit_form(request: Request, bid: int):
+        if not request.state.user.can("can_edit"):
+            return Response(status_code=403)
+        b = lib.book(bid)
+        return render(request, "edit.html", b=b, m=dict(lib.meta(bid).__dict__))
+
+    @app.post("/book/{bid}/edit")
+    async def edit(request: Request, bid: int):
+        user: User = request.state.user
+        if not user.can("can_edit"):
+            return Response(status_code=403)
+        form = await request.form()
+        meta = meta_from_form(form)
+        lib.update_meta(bid, meta)
+        cov = form.get("cover")
+        if cov is not None and getattr(cov, "filename", ""):
+            data = await cov.read()
+            if data:
+                lib.set_cover(bid, data)
+        return flash(f"/book/{bid}", "saved")
+
+    @app.post("/book/{bid}/delete")
+    async def delete(request: Request, bid: int):
+        if not request.state.user.can("can_delete"):
+            return Response(status_code=403)
+        lib.delete_book(bid)
+        return flash("/books", "deleted")
+
+    def meta_from_form(form) -> Meta:
+        split = lambda s: [x.strip() for x in (s or "").replace(";", ",").split(",") if x.strip()]
+        return Meta.from_dict({
+            "title": form.get("title"), "authors": split(form.get("authors")), "series": form.get("series"),
+            "series_index": form.get("series_index"), "publisher": form.get("publisher"), "year": form.get("year"),
+            "language": form.get("language"), "isbn": form.get("isbn"), "tags": split(form.get("tags")),
+            "description": form.get("description"), "rating": form.get("rating"),
+            "source": form.get("source") or None, "source_url": form.get("source_url") or None,
+        })
+
+    # ------------------------------------------------------------------ feltöltés
+    @app.get("/upload", response_class=HTMLResponse)
+    async def upload_page(request: Request):
+        user: User = request.state.user
+        if not user.can("can_upload"):
+            return Response(status_code=403)
+        items = [dict(r) for r in db.q("""SELECT id, filename, format, size, status, duplicate_of, message, source, updated_at
+                                          FROM uploads WHERE status IN ('pending','inspecting','review','error')
+                                          ORDER BY id DESC LIMIT 200""")]
+        done = [dict(r) for r in db.q("""SELECT u.id, u.filename, u.status, u.book_id, b.title FROM uploads u
+                                         LEFT JOIN books b ON b.id = u.book_id WHERE u.status IN ('done','rejected')
+                                         ORDER BY u.updated_at DESC LIMIT 15""")]
+        for it in items:
+            it["extracted"] = json.loads(db.val("SELECT extracted FROM uploads WHERE id = ?", (it["id"],)) or "{}")
+            it["inspection"] = json.loads(db.val("SELECT inspection FROM uploads WHERE id = ?", (it["id"],)) or "[]")
+            cands = json.loads(db.val("SELECT candidates FROM uploads WHERE id = ?", (it["id"],)) or "[]")
+            it["best"] = cands[0] if cands else None
+        return render(request, "upload.html", items=items, done=done, msg=request.query_params.get("msg"),
+                      ingest_dir=str(cfg.ingest_dir) if cfg.ingest_dir else None,
+                      auto_approve=db.get_setting("auto_approve") == "1", online=cfg.online_lookup)
+
+    @app.post("/upload")
+    async def upload(request: Request, files: list[UploadFile] = File(...)):
+        user: User = request.state.user
+        if not user.can("can_upload"):
+            return Response(status_code=403)
+        n = 0
+        for f in files:
+            if not f.filename:
+                continue
+            with tempfile.NamedTemporaryFile(delete=False, dir=cfg.data_dir) as tmp:
+                while chunk := await f.read(1 << 20):
+                    tmp.write(chunk)
+            ingest.add_file(Path(tmp.name), Path(f.filename).name, user.id, move=True)
+            n += 1
+        if request.headers.get("accept", "").startswith("application/json"):
+            return JSONResponse({"ok": True, "count": n})
+        return flash("/upload", "uploaded")
+
+    @app.get("/upload/status.json")
+    async def upload_status(request: Request):
+        rows = db.q("SELECT id, status FROM uploads WHERE status IN ('pending','inspecting','review','error') ORDER BY id DESC LIMIT 200")
+        return {"items": [dict(r) for r in rows]}
+
+    def get_upload(uid: int):
+        r = db.one("SELECT * FROM uploads WHERE id = ?", (uid,))
+        if not r:
+            return None
+        d = dict(r)
+        for k in ("extracted", "candidates", "inspection"):
+            d[k] = json.loads(d[k] or ("{}" if k == "extracted" else "[]"))
+        return d
+
+    @app.get("/upload/{uid}", response_class=HTMLResponse)
+    async def review(request: Request, uid: int, c: int | None = None):
+        if not request.state.user.can("can_upload"):
+            return Response(status_code=403)
+        up = get_upload(uid)
+        if not up:
+            return Response(status_code=404)
+        if c is None:
+            c = 0 if up["candidates"] and up["candidates"][0]["score"] >= 0.6 else -1
+        proposal = ingest.proposal(uid, c if c >= 0 else None) if up["status"] == "review" else None
+        dup = lib.book(up["duplicate_of"]) if up["duplicate_of"] else None
+        has_cover = (cfg.data_dir / "uploads" / f"{uid}_cover.jpg").exists()
+        lang = lang_of(request, request.state.user)
+        for chk in up["inspection"]:  # a jegyzőkönyv belső kulcsai helyett lefordított nevek
+            prm = chk["params"]
+            if chk["key"] == "categories" and up["extracted"].get("categories"):
+                prm["list"] = ", ".join(i18n.t(lang, f"cat.{k}") for k in up["extracted"]["categories"])
+            elif chk["key"] == "meta" and prm.get("fields") not in (None, "–"):
+                prm["fields"] = ", ".join(i18n.t(lang, f"book.{f.strip()}") for f in prm["fields"].split(","))
+            elif chk["key"] == "online":
+                parts = []
+                for item in filter(None, (prm.get("sources") or "").split(", ")):
+                    name, _, st = item.partition(": ")
+                    if name in ("–", "ki"):
+                        continue
+                    st_key = st if st in ("ok", "empty") else "error"
+                    parts.append(f"{i18n.t(lang, 'source.' + name)}: {i18n.t(lang, 'insp.src_' + st_key)}")
+                prm["sources"] = f" ({', '.join(parts)})" if parts else ""
+        return render(request, "review.html", up=up, chosen=c, p=proposal, dup=dup, has_cover=has_cover,
+                      categories=list(CATEGORIES))
+
+    @app.get("/upload/{uid}/cand/{idx}/cover")
+    async def candidate_cover(request: Request, uid: int, idx: int):
+        """Az online találat borítója a szerveren keresztül (gyorsítótárral), így a böngésző nem kéri le közvetlenül."""
+        up = get_upload(uid)
+        if not up or not (0 <= idx < len(up["candidates"])) or not up["candidates"][idx].get("cover_url"):
+            return Response(status_code=404)
+        url = up["candidates"][idx]["cover_url"]
+        cache = covers_dir / f"cand_{hashlib.sha1(url.encode()).hexdigest()}.jpg"
+        if not cache.exists():
+            data = await lookup.fetch_image(url)
+            if not data:
+                return Response(status_code=404)
+            cache.write_bytes(thumbnail(data, 400))
+        return FileResponse(cache, media_type="image/jpeg", headers={"Cache-Control": "max-age=86400"})
+
+    @app.get("/upload/{uid}/cover")
+    async def upload_cover(uid: int):
+        p = cfg.data_dir / "uploads" / f"{uid}_cover.jpg"
+        return FileResponse(p, media_type="image/jpeg") if p.exists() else Response(status_code=404)
+
+    @app.post("/upload/{uid}/approve")
+    async def approve(request: Request, uid: int):
+        user: User = request.state.user
+        if not user.can("can_upload"):
+            return Response(status_code=403)
+        form = await request.form()
+        up = get_upload(uid)
+        if not up or up["status"] != "review":
+            return RedirectResponse("/upload", status_code=303)
+        if form.get("action") == "add_format" and up["duplicate_of"]:
+            bid = await ingest.approve(uid, {}, add_to=up["duplicate_of"])
+            return flash(f"/book/{bid}", "format_added")
+        meta = meta_from_form(form)
+        data = {**meta.__dict__, "categories": form.getlist("categories"),
+                "cover_url": form.get("cover_url") if form.get("cover_choice") == "online" else None}
+        bid = await ingest.approve(uid, data, use_candidate_cover=form.get("cover_choice") == "online",
+                                   lang=lang_of(request, user))
+        if form.get("next") == "queue":
+            return flash("/upload", "approved")
+        return flash(f"/book/{bid}", "approved")
+
+    @app.post("/upload/approve-all")
+    async def approve_all(request: Request):
+        user: User = request.state.user
+        if not user.can("can_upload"):
+            return Response(status_code=403)
+        n = 0
+        for r in db.q("SELECT id, candidates, duplicate_of FROM uploads WHERE status = 'review'"):
+            cands = json.loads(r["candidates"] or "[]")
+            if r["duplicate_of"]:
+                continue
+            c = 0 if cands and cands[0]["score"] >= 0.75 else None
+            await ingest.approve(r["id"], ingest.proposal(r["id"], c), use_candidate_cover=c is not None,
+                                 lang=lang_of(request, user))
+            n += 1
+        return flash("/upload", "approved")
+
+    @app.post("/upload/{uid}/reject")
+    async def reject(request: Request, uid: int):
+        if not request.state.user.can("can_upload"):
+            return Response(status_code=403)
+        ingest.reject(uid)
+        return flash("/upload", "rejected")
+
+    @app.post("/upload/{uid}/research")
+    async def research(request: Request, uid: int, title: str = Form(""), author: str = Form(""),
+                       isbn: str = Form(""), only: str = Form("")):
+        if not request.state.user.can("can_upload"):
+            return Response(status_code=403)
+        await ingest.inspect(uid, {"title": title.strip() or None, "authors": [author.strip()] if author.strip() else None,
+                                   "isbn": isbn.strip() or None, "only": only or None})
+        return RedirectResponse(f"/upload/{uid}", status_code=303)
+
+    # ------------------------------------------------------------------ saját fiók
+    @app.get("/me", response_class=HTMLResponse)
+    async def me(request: Request):
+        return render(request, "me.html", msg=request.query_params.get("msg"), error=None)
+
+    @app.post("/me")
+    async def me_save(request: Request, display_name: str = Form(""), kindle_email: str = Form(""), language: str = Form(""),
+                      old_password: str = Form(""), new_password: str = Form("")):
+        user: User = request.state.user
+        db.run("UPDATE users SET display_name = ?, kindle_email = ?, language = ? WHERE id = ?",
+               (display_name.strip() or user.username, kindle_email.strip() or None,
+                language if i18n.has(language) else None, user.id))
+        resp = flash("/me", "saved")
+        if new_password:
+            if len(new_password) < 8 or not verify_password(old_password, user.password_hash):
+                return render(request, "me.html", 400, msg=None, error=tr(request, "me.password_error"))
+            db.run("UPDATE users SET password_hash = ? WHERE id = ?", (hash_password(new_password), user.id))
+            u = User.from_row(db.one("SELECT * FROM users WHERE id = ?", (user.id,)))
+            save(request, resp, {"uid": u.id, "fp": u.fingerprint})
+        if i18n.has(language):
+            resp.set_cookie("shelfy_lang", language, max_age=YEAR, samesite="lax")
+        return resp
+
+    # ------------------------------------------------------------------ admin
+    @app.get("/admin", response_class=HTMLResponse)
+    async def admin_users(request: Request):
+        users = [dict(r) for r in db.q("SELECT * FROM users ORDER BY role = 'admin' DESC, username COLLATE NOCASE")]
+        return render(request, "admin_users.html", users=users, msg=request.query_params.get("msg"), section="users")
+
+    @app.get("/admin/users/{uid}", response_class=HTMLResponse)
+    async def admin_user_form(request: Request, uid: str):
+        u = None if uid == "new" else db.one("SELECT * FROM users WHERE id = ?", (int(uid),))
+        return render(request, "admin_user.html", u=dict(u) if u else None, roles=ROLES, perms=PERMS,
+                      role_defaults=ROLE_DEFAULTS, error=None, section="users")
+
+    @app.post("/admin/users/{uid}")
+    async def admin_user_save(request: Request, uid: str):
+        form = await request.form()
+        username = (form.get("username") or "").strip()
+        role = form.get("role") if form.get("role") in ROLES else "reader"
+        flags = {p: 1 if form.get(p) else 0 for p in PERMS}
+        if role == "admin":
+            flags = dict(ROLE_DEFAULTS["admin"])
+        pw = form.get("password") or ""
+        common = (form.get("display_name") or username, role, flags["can_upload"], flags["can_edit"],
+                  flags["can_download"], flags["can_delete"], (form.get("kindle_email") or "").strip() or None,
+                  form.get("language") if i18n.has(form.get("language")) else None)
+        if uid == "new":
+            if not username or len(pw) < 8 or db.val("SELECT 1 FROM users WHERE username = ?", (username,)):
+                return render(request, "admin_user.html", 400, u=None, roles=ROLES, perms=PERMS,
+                              role_defaults=ROLE_DEFAULTS, error=tr(request, "admin.user_error"), section="users")
+            db.run("""INSERT INTO users(username, display_name, role, can_upload, can_edit, can_download, can_delete,
+                      kindle_email, language, password_hash, created_at) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+                   (username,) + common + (hash_password(pw), now()))
+        else:
+            target = int(uid)
+            me_ = request.state.user
+            if target == me_.id and role != "admin":  # magát nem fokozhatja le az admin
+                role = "admin"
+                common = (common[0], "admin", 1, 1, 1, 1) + common[6:]
+            db.run("""UPDATE users SET display_name = ?, role = ?, can_upload = ?, can_edit = ?, can_download = ?,
+                      can_delete = ?, kindle_email = ?, language = ? WHERE id = ?""", common + (target,))
+            if pw:
+                if len(pw) < 8:
+                    return flash(f"/admin/users/{uid}", "short_password")
+                db.run("UPDATE users SET password_hash = ? WHERE id = ?", (hash_password(pw), target))
+        return flash("/admin", "saved")
+
+    @app.post("/admin/users/{uid}/delete")
+    async def admin_user_delete(request: Request, uid: int):
+        if uid == request.state.user.id:
+            return flash("/admin", "self_delete")
+        db.run("DELETE FROM users WHERE id = ?", (uid,))
+        return flash("/admin", "deleted")
+
+    @app.get("/admin/settings", response_class=HTMLResponse)
+    async def admin_settings(request: Request):
+        return render(request, "admin_settings.html", s=settings_dict(), calibre=calibre, cfg=cfg,
+                      msg=request.query_params.get("msg"), section="settings")
+
+    @app.post("/admin/settings")
+    async def admin_settings_save(request: Request):
+        form = await request.form()
+        for k in SMTP_KEYS + ("kindle_subject",):
+            if k == "smtp_password" and not form.get(k):
+                continue  # üresen hagyva = marad a régi
+            db.set_setting(k, (form.get(k) or "").strip() or None)
+        db.set_setting("auto_approve", "1" if form.get("auto_approve") else "0")
+        return flash("/admin/settings", "saved")
+
+    @app.post("/admin/settings/test-mail")
+    async def admin_test_mail(request: Request, to: str = Form(...)):
+        s = settings_dict()
+        try:
+            await asyncio.to_thread(send_mail, s, to, "Shelfy teszt", "shelfy.txt", b"Shelfy OK", "text/plain")
+        except Exception as e:
+            return flash("/admin/settings", "mail_error")
+        return flash("/admin/settings", "mail_sent")
+
+    @app.get("/admin/languages", response_class=HTMLResponse)
+    async def admin_languages(request: Request):
+        langs = []
+        for code in i18n.languages:
+            done, total = i18n.completeness(code)
+            langs.append({"code": code, "name": i18n.names[code], "done": done, "total": total,
+                          "pct": round(done * 100 / total) if total else 0})
+        return render(request, "admin_languages.html", langs=langs, section="languages")
+
+    @app.get("/admin/languages/{code}", response_class=HTMLResponse)
+    async def admin_language(request: Request, code: str):
+        if not i18n.has(code):
+            return Response(status_code=404)
+        ref = i18n.catalogs[REFERENCE]
+        rows = [{"key": k, "ref": v, "value": i18n.catalogs[code].get(k, "")} for k, v in ref.items()]
+        return render(request, "admin_language.html", code=code, lang_name=i18n.names[code], rows=rows, is_ref=code == REFERENCE, ref_name=i18n.names[REFERENCE], section="languages")
+
+
+    @app.post("/admin/languages/new")
+    async def admin_language_new(request: Request, code: str = Form(...), name: str = Form(...)):
+        code = code.strip().lower()
+        if not re.fullmatch(r"[a-z]{2,3}", code) or i18n.has(code):
+            return flash("/admin/languages", "lang_error")
+        i18n.save(code, {}, name.strip() or code)
+        return RedirectResponse(f"/admin/languages/{code}", status_code=303)
+
+    @app.post("/admin/languages/{code}")
+    async def admin_language_save(request: Request, code: str):
+        if not i18n.has(code):
+            return Response(status_code=404)
+        form = await request.form()
+        values = {k[2:]: v.strip() for k, v in form.items() if k.startswith("k:") and isinstance(v, str)}
+        if code == REFERENCE:  # a referencia nyelvből kulcs nem tűnhet el
+            values = {k: v or i18n.catalogs[REFERENCE][k] for k, v in values.items()}
+        i18n.save(code, values)
+        return flash(f"/admin/languages/{code}", "saved")
+
+    # ------------------------------------------------------------------ Kindle-nézet
+    # E-ink barát, JavaScript nélküli felület a Kindle böngészőjéhez (a Polc utódja).
+    KPER = 20
+
+    def kindle_ctx(request: Request) -> dict:
+        dev = device_of(request)
+        return {"device": dev, "kfmt": "mobi" if dev == "old" else "azw3",
+                "can_mail": bool(db.get_setting("smtp_host") and db.get_setting("smtp_from")),
+                "can_convert": calibre.has_convert, "msg": request.query_params.get("msg")}
+
+    @app.get("/kindle", response_class=HTMLResponse)
+    async def kindle_home(request: Request, q: str = "", page: int = 1, view: str = "all", sort: str = "added_new"):
+        user: User = request.state.user
+        page = max(1, page)
+        if sort not in SORTS:
+            sort = "added_new"
+        if view not in ("all", "new", "reading", "unread", "read"):
+            view = "all"
+        rows, total = lib.list_books(sort=sort, q=q or None, view=view, user_id=user.id, page=page, per_page=KPER)
+        return render(request, "kindle/list.html", books=rows, total=total, page=page,
+                      pages=max(1, math.ceil(total / KPER)), q=q, view=view, sort=sort, **kindle_ctx(request))
+
+    @app.get("/kindle/book/{bid}", response_class=HTMLResponse)
+    async def kindle_book(request: Request, bid: int):
+        b = lib.book(bid)
+        if not b:
+            return Response(status_code=404)
+        return render(request, "kindle/book.html", b=b, **kindle_ctx(request))
+
+    @app.get("/kindle/settings", response_class=HTMLResponse)
+    async def kindle_settings(request: Request):
+        return render(request, "kindle/settings.html", **kindle_ctx(request))
+
+    @app.post("/kindle/settings")
+    async def kindle_settings_save(request: Request, device: str = Form("new"), kindle_email: str = Form(""),
+                                   ui: str = Form("kindle")):
+        user: User = request.state.user
+        db.run("UPDATE users SET kindle_email = ? WHERE id = ?", (kindle_email.strip() or None, user.id))
+        resp = flash("/kindle" if ui == "kindle" else "/books", "saved")
+        resp.set_cookie("shelfy_device", "old" if device == "old" else "new", max_age=YEAR, samesite="lax")
+        resp.set_cookie("shelfy_ui", "full" if ui == "full" else "kindle", max_age=YEAR, samesite="lax")
+        return resp
+
+    # ------------------------------------------------------------------ Calibre könyvtár átvétele
+    import_progress = Progress()
+
+    @app.get("/admin/import", response_class=HTMLResponse)
+    async def admin_import(request: Request):
+        return render(request, "admin_import.html", p=import_progress, default=str(cfg.calibre_library or ""),
+                      msg=request.query_params.get("msg"), section="import")
+
+    @app.post("/admin/import")
+    async def admin_import_start(request: Request, path: str = Form("")):
+        root = Path(path.strip() or str(cfg.calibre_library or ""))
+        if import_progress.running:
+            return RedirectResponse("/admin/import", status_code=303)
+        if not (root / "metadata.db").is_file():
+            return flash("/admin/import", "import_nodb")
+        import_progress.running = True
+        app.state.import_task = asyncio.create_task(import_async(root, db, lib, import_progress))
+        return RedirectResponse("/admin/import", status_code=303)
+
+    return app

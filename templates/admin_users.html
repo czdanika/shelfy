@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% from "macros.html" import icon %}
+{% block title %}{{ t('admin.nav_users') }}{% endblock %}
+{% block content %}
+{% include "_adminnav.html" %}
+<section class="card" style="padding: 0; overflow-x: auto">
+  <div class="row between" style="padding: 16px 18px">
+    <h2 style="font-size: 18px">{{ t('admin.users') }} <span class="muted small">({{ users|length }})</span></h2>
+    <a class="btn primary small" href="/admin/users/new">{{ icon('plus', 14) }} {{ t('admin.new_user') }}</a>
+  </div>
+  <table class="list">
+    <thead><tr><th>{{ t('login.username') }}</th><th>{{ t('admin.role') }}</th><th>{{ t('admin.perms') }}</th><th>{{ t('me.kindle_email') }}</th><th>{{ t('admin.last_login') }}</th><th></th></tr></thead>
+    <tbody>
+    {% for u in users %}
+    <tr>
+      <td><strong>{{ u.display_name or u.username }}</strong><br><span class="small muted">{{ u.username }}</span></td>
+      <td><span class="badge {% if u.role == 'admin' %}ok{% else %}info{% endif %}">{{ t('role.' ~ u.role) }}</span></td>
+      <td class="small">{% for p in ('can_upload', 'can_edit', 'can_download', 'can_delete') %}{% if u[p] %}<span class="pill">{{ t('perm.' ~ p) }}</span> {% endif %}{% endfor %}</td>
+      <td class="small">{{ u.kindle_email or '–' }}</td>
+      <td class="small muted">{{ u.last_login|datetime }}</td>
+      <td style="text-align: right; white-space: nowrap">
+        <a class="btn small" href="/admin/users/{{ u.id }}">{{ icon('edit', 14) }} {{ t('action.edit') }}</a>
+        {% if u.id != user.id %}
+        <form method="post" action="/admin/users/{{ u.id }}/delete" style="display: inline" onsubmit="return confirm('{{ t('admin.delete_confirm', name=u.username)|e }}')">
+          <button class="btn small danger" type="submit" aria-label="{{ t('action.delete') }}">{{ icon('trash', 14) }}</button></form>
+        {% endif %}
+      </td>
+    </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</section>
+{% endblock %}

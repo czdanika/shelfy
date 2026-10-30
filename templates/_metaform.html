@@ -1,0 +1,18 @@
+{# közös metaadat-űrlap: m = Meta vagy javaslat (dict) #}
+{% macro v(name) %}{{ m.get(name) if m.get(name) is not none else '' }}{% endmacro %}
+{% macro lst(name) %}{{ (m.get(name) or [])|join(', ') }}{% endmacro %}
+<div class="grid2">
+  <div class="field" style="grid-column: 1 / -1"><label for="f-title">{{ t('book.title') }}</label><input id="f-title" name="title" type="text" required value="{{ v('title') }}"></div>
+  <div class="field" style="grid-column: 1 / -1"><label for="f-authors">{{ t('book.authors') }} <span class="muted">({{ t('edit.comma') }})</span></label><input id="f-authors" name="authors" type="text" value="{{ lst('authors') }}"></div>
+  <div class="field"><label for="f-series">{{ t('book.series') }}</label><input id="f-series" name="series" type="text" value="{{ v('series') }}"></div>
+  <div class="field"><label for="f-sidx">{{ t('book.series_index') }}</label><input id="f-sidx" name="series_index" type="number" step="0.1" value="{{ m.get('series_index')|num if m.get('series_index') is not none else '' }}"></div>
+  <div class="field"><label for="f-pub">{{ t('book.publisher') }}</label><input id="f-pub" name="publisher" type="text" value="{{ v('publisher') }}"></div>
+  <div class="field"><label for="f-year">{{ t('book.year') }}</label><input id="f-year" name="year" type="number" value="{{ v('year') }}"></div>
+  <div class="field"><label for="f-lang">{{ t('book.language') }}</label><input id="f-lang" name="language" type="text" value="{{ v('language') }}" placeholder="hun, eng…"></div>
+  <div class="field"><label for="f-isbn">ISBN</label><input id="f-isbn" name="isbn" type="text" value="{{ v('isbn') }}"></div>
+  <div class="field"><label for="f-rating">{{ t('book.rating') }}</label>
+    <select id="f-rating" name="rating"><option value="">–</option>{% for n in range(1, 6) %}<option value="{{ n }}" {% if (m.get('rating') or '')|string == n|string %}selected{% endif %}>{{ '★' * n }}</option>{% endfor %}</select></div>
+  <div class="field" style="grid-column: 1 / -1"><label for="f-tags">{{ t('book.tags') }} <span class="muted">({{ t('edit.comma') }})</span></label><input id="f-tags" name="tags" type="text" value="{{ lst('tags') }}"></div>
+  <div class="field" style="grid-column: 1 / -1"><label for="f-desc">{{ t('book.description') }}</label><textarea id="f-desc" name="description">{{ v('description') }}</textarea></div>
+</div>
+<input type="hidden" name="source" value="{{ v('source') }}"><input type="hidden" name="source_url" value="{{ v('source_url') }}">
