@@ -37,7 +37,8 @@
         </div>
       </details>
       {% endif %}
-      {% if user.can('can_edit') %}<a class="btn" href="/book/{{ b.id }}/edit">{{ icon('edit', 16) }} {{ t('action.edit') }}</a>{% endif %}
+      {% if user.can('can_edit') %}<a class="btn" href="/book/{{ b.id }}/edit">{{ icon('edit', 16) }} {{ t('action.edit') }}</a>
+      <a class="btn" href="/book/{{ b.id }}/lookup?go=1">{{ icon('search', 16) }} {{ t('lookup.button') }}</a>{% endif %}
     </div>
 
     <table class="meta">

@@ -251,11 +251,11 @@ class Lookup:
         await self.http.aclose()
 
     async def search(self, title: str, authors: list[str], isbn: str | None = None,
-                     only: str | None = None) -> tuple[list[Candidate], dict[str, str]]:
-        """Minden forrás párhuzamosan; (pontozott találatok, forrásonkénti állapot)."""
+                     only: str | None = None, fresh: bool = False) -> tuple[list[Candidate], dict[str, str]]:
+        """Minden forrás párhuzamosan; (pontozott találatok, forrásonkénti állapot). fresh=True: gyorsítótár nélkül."""
         key = (norm(title), tuple(norm(a) for a in authors), isbn, only)
         hit = self.cache.get(key)
-        if hit and time.time() - hit[0] < 3600:
+        if hit and not fresh and time.time() - hit[0] < 3600:
             return hit[1], {}
         provs = [p for p in self.providers if not only or p.name == only]
 

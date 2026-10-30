@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import asyncio
 import hashlib
+import hmac
 import shutil
 import json
 import math
@@ -77,8 +78,9 @@ def create_app(cfg: Config | None = None, transport=None) -> FastAPI:
     tpl = Jinja2Templates(directory=str(BASE / "templates"))
     import datetime as _dt
     from markupsafe import Markup
-    from .richtext import richtext
+    from .richtext import plaintext, richtext
     tpl.env.filters["richtext"] = lambda v: Markup(richtext(v))
+    tpl.env.filters["plain"] = lambda v: " ".join(plaintext(v).split())
     def filesize(n):
         n = float(n or 0)
         for unit in ("B", "KB", "MB", "GB", "TB"):
@@ -544,6 +546,99 @@ def create_app(cfg: Config | None = None, transport=None) -> FastAPI:
             return Response(status_code=403)
         lib.delete_book(bid)
         return flash("/books", "deleted")
+
+    # ------------------------------------------------------------------ online adatfrissítés meglévő könyvhöz
+    def url_sig(url: str) -> str:
+        return hmac.new(cfg.secret_key.encode(), url.encode(), hashlib.sha256).hexdigest()[:24]
+
+    tpl.env.globals["cover_proxy"] = lambda bid, url: f"/book/{bid}/lookup/cover?" + urlencode({"url": url, "sig": url_sig(url)})
+
+    LOOKUP_FIELDS = ("title", "authors", "series", "series_index", "publisher", "year", "language", "isbn",
+                     "rating", "description", "tags")
+
+    async def book_lookup(b: dict, p, fresh: bool):
+        title = (p.get("title") or b["title"]).strip()
+        author = (p.get("author") if p.get("author") is not None else (b["authors"][0]["name"] if b["authors"] else "")).strip()
+        isbn = (p.get("isbn") or "").strip() or None
+        only = p.get("only") or None
+        cands, status = await lookup.search(title, [author] if author else [], isbn, only, fresh=fresh)
+        return {"title": title, "author": author, "isbn": isbn or "", "only": only or ""}, cands, status
+
+    @app.get("/book/{bid}/lookup", response_class=HTMLResponse)
+    async def book_lookup_page(request: Request, bid: int):
+        if not request.state.user.can("can_edit"):
+            return Response(status_code=403)
+        b = lib.book(bid)
+        if not b:
+            return Response(status_code=404)
+        p = request.query_params
+        searched = "go" in p
+        q, cands, status = await book_lookup(b, p, fresh=p.get("go") == "1") if searched else (
+            {"title": b["title"], "author": b["authors"][0]["name"] if b["authors"] else "", "isbn": b["isbn"] or "", "only": ""}, [], {})
+        c = int(p["c"]) if p.get("c", "").lstrip("-").isdigit() else (0 if cands else -1)
+        cand = cands[c].to_dict() if 0 <= c < len(cands) else None
+        cur = lib.meta(bid).__dict__
+        rows, cats = [], []
+        if cand:
+            for f in LOOKUP_FIELDS:
+                new_v = cand.get(f) if f != "tags" else list(dict.fromkeys((cand.get("genres") or []) + (cand.get("tags") or [])))[:12]
+                if new_v in (None, "", []):
+                    continue
+                old_v = cur.get(f)
+                same = (old_v == new_v) or (f == "tags" and set(new_v) <= set(old_v or []))
+                rows.append({"key": f, "old": old_v, "new": new_v, "same": same,
+                             "checked": not same and (old_v in (None, "", []) or f == "description" and len(str(new_v)) > len(str(old_v or "")) + 40)})
+            from .categories import suggest
+            have = {x.lower() for x in cur.get("tags") or []}
+            cats = [{"key": k, "name": i18n.t(cfg.default_language, f"cat.{k}"), "has": i18n.t(cfg.default_language, f"cat.{k}").lower() in have}
+                    for k, _ in suggest((cand.get("tags") or []) + (cand.get("genres") or []), cand.get("genres"), cand.get("description"))]
+        sources = ", ".join(f"{i18n.t(lang_of(request, request.state.user), 'source.' + k)}: {i18n.t(lang_of(request, request.state.user), 'insp.src_' + (v if v in ('ok', 'empty') else 'error'))}" for k, v in status.items())
+        return render(request, "lookup.html", b=b, q=q, cands=[x.to_dict() for x in cands], chosen=c, cand=cand,
+                      rows=rows, cats=cats, searched=searched, sources=sources)
+
+    @app.get("/book/{bid}/lookup/cover")
+    async def book_lookup_cover(request: Request, bid: int, url: str, sig: str = ""):
+        """Online borító előnézete a szerveren át; csak a Shelfy által aláírt (találatból származó) cím."""
+        if not request.state.user.can("can_edit") or not hmac.compare_digest(sig, url_sig(url)):
+            return Response(status_code=404)
+        cache = covers_dir / f"cand_{hashlib.sha1(url.encode()).hexdigest()}.jpg"
+        if not cache.exists():
+            data = await lookup.fetch_image(url)
+            if not data:
+                return Response(status_code=404)
+            cache.write_bytes(thumbnail(data, 400))
+        return FileResponse(cache, media_type="image/jpeg", headers={"Cache-Control": "max-age=86400"})
+
+    @app.post("/book/{bid}/lookup")
+    async def book_lookup_apply(request: Request, bid: int):
+        if not request.state.user.can("can_edit"):
+            return Response(status_code=403)
+        b = lib.book(bid)
+        form = await request.form()
+        _q, cands, _st = await book_lookup(b, form, fresh=False)  # ugyanaz a keresés, gyorsítótárból
+        c = int(form.get("c") or -1)
+        if not (0 <= c < len(cands)):
+            return flash(f"/book/{bid}/lookup", "lookup_gone")
+        cand = cands[c].to_dict()
+        m = lib.meta(bid)
+        take = set(form.getlist("take"))
+        for f in LOOKUP_FIELDS:
+            if f not in take:
+                continue
+            if f == "tags":
+                new_tags = list(dict.fromkeys((cand.get("genres") or []) + (cand.get("tags") or [])))[:12]
+                m.tags = list(dict.fromkeys(m.tags + new_tags))
+            elif cand.get(f) not in (None, "", []):
+                setattr(m, f, cand[f])
+        cat_names = [i18n.t(cfg.default_language, f"cat.{k}") for k in form.getlist("categories")]
+        m.tags = list(dict.fromkeys(m.tags + cat_names))
+        m.source, m.source_url = cand["source"], cand["url"]
+        lib.update_meta(bid, m)
+        if "cover" in take and cand.get("cover_url"):
+            data = await lookup.fetch_image(cand["cover_url"])
+            if data:
+                lib.set_cover(bid, data)
+        return flash(f"/book/{bid}", "lookup_applied")
 
     def meta_from_form(form) -> Meta:
         split = lambda s: [x.strip() for x in (s or "").replace(";", ",").split(",") if x.strip()]

@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+{% from "macros.html" import icon, placeholder %}
+{% block title %}{{ t('lookup.title') }}: {{ b.title }}{% endblock %}
+{% macro show(key, v) %}{% if v is none or v == '' or v == [] %}<span class="muted">–</span>{% elif key in ('authors', 'tags') %}{{ v|join(', ') }}{% elif key == 'description' %}{{ v|plain|truncate(260, True, '…') }}{% elif key == 'rating' %}{{ '★' * v|int }}{% elif key == 'series_index' %}{{ v|num }}{% elif key == 'language' %}{{ langname(v) }}{% else %}{{ v }}{% endif %}{% endmacro %}
+{% block content %}
+<div class="small muted"><a href="/book/{{ b.id }}">‹ {{ b.title }}</a> · <a href="/book/{{ b.id }}/edit">{{ t('action.edit') }}</a></div>
+<div>
+  <h1>{{ t('lookup.title') }}</h1>
+  <p class="muted" style="margin: 6px 0 0">{{ t('lookup.intro') }}</p>
+</div>
+
+<div class="review">
+  <aside style="display: flex; flex-direction: column; gap: 18px">
+    <section class="card" style="display: flex; gap: 14px; align-items: flex-start">
+      <div style="width: 70px; flex: none">{% if b.has_cover %}<img src="/book/{{ b.id }}/cover?w=160" alt="" style="width: 70px; border-radius: 4px">{% endif %}</div>
+      <div style="min-width: 0"><strong>{{ b.title }}</strong><br><span class="small">{{ b.authors|map(attribute='name')|join(', ') }}</span>
+        {% if b.source %}<br><span class="small muted">{{ t('book.source') }}: {{ t('source.' ~ b.source) }}</span>{% endif %}</div>
+    </section>
+    <form class="card" method="get" action="/book/{{ b.id }}/lookup" style="display: flex; flex-direction: column; gap: 10px">
+      <h2 style="font-size: 17px">{{ t('review.research') }}</h2>
+      <input type="hidden" name="go" value="1">
+      <div class="field"><label for="l-title">{{ t('book.title') }}</label><input id="l-title" name="title" type="text" value="{{ q.title }}"></div>
+      <div class="field"><label for="l-author">{{ t('book.author') }}</label><input id="l-author" name="author" type="text" value="{{ q.author }}"></div>
+      <div class="field"><label for="l-isbn">ISBN</label><input id="l-isbn" name="isbn" type="text" value="{{ q.isbn }}" placeholder="{{ b.isbn or '' }}"></div>
+      <div class="field"><label for="l-only">{{ t('review.source') }}</label>
+        <select id="l-only" name="only"><option value="">{{ t('review.all_sources') }}</option>
+          {% for s in ('moly', 'google', 'openlibrary') %}<option value="{{ s }}" {% if q.only == s %}selected{% endif %}>{{ t('source.' ~ s) }}</option>{% endfor %}</select></div>
+      <button class="btn primary" type="submit">{{ icon('search', 16) }} {{ t('lookup.search') }}</button>
+      {% if sources %}<span class="small muted">{{ sources }}</span>{% endif %}
+    </form>
+  </aside>
+
+  <div style="display: flex; flex-direction: column; gap: 18px; min-width: 0">
+    {% if searched %}
+    <section class="card" style="display: flex; flex-direction: column; gap: 10px">
+      <div class="row between"><h2 style="font-size: 18px">{{ t('review.candidates') }}</h2><span class="small muted">{{ t('lookup.pick') }}</span></div>
+      {% set base = '?go=0&title=' ~ q.title|urlencode ~ '&author=' ~ q.author|urlencode ~ '&isbn=' ~ q.isbn|urlencode ~ '&only=' ~ q.only %}
+      {% for c in cands %}
+      <a class="cand {% if chosen == loop.index0 %}on{% endif %}" href="{{ base }}&c={{ loop.index0 }}">
+        {% if c.cover_url %}<img src="{{ cover_proxy(b.id, c.cover_url) }}" alt="" loading="lazy">{% else %}<span class="mini"></span>{% endif %}
+        <span style="flex: 1; min-width: 0">
+          <span class="row between" style="gap: 8px"><strong>{{ c.title }}</strong>
+            <span class="badge {% if c.score >= 0.8 %}ok{% elif c.score >= 0.6 %}warn{% else %}info{% endif %}">{{ (c.score * 100)|round|int }}%</span></span>
+          <span class="small">{{ c.authors|join(', ') }}</span><br>
+          <span class="small muted">{{ t('source.' ~ c.source) }}{% if c.publisher %} · {{ c.publisher }}{% endif %}{% if c.year %} · {{ c.year }}{% endif %}{% if c.series %} · {{ c.series }}{% if c.series_index %} #{{ c.series_index|num }}{% endif %}{% endif %}</span>
+        </span>
+      </a>
+      {% else %}
+      <p class="small muted" style="margin: 0">{{ t('lookup.none') }}</p>
+      {% endfor %}
+    </section>
+    {% else %}
+    <section class="card"><p class="muted" style="margin: 0">{{ t('lookup.start') }}</p></section>
+    {% endif %}
+
+    {% if cand %}
+    <form class="card" method="post" action="/book/{{ b.id }}/lookup" style="display: flex; flex-direction: column; gap: 14px">
+      <div class="row between"><h2 style="font-size: 18px">{{ t('lookup.compare') }}</h2>
+        <a class="small" href="{{ cand.url }}" target="_blank" rel="noopener">{{ t('source.' ~ cand.source) }} ↗</a></div>
+      <input type="hidden" name="c" value="{{ chosen }}">
+      {% for k in ('title', 'author', 'isbn', 'only') %}<input type="hidden" name="{{ k }}" value="{{ q[k] }}">{% endfor %}
+      <div style="overflow-x: auto">
+      <table class="list cmp">
+        <thead><tr><th style="width: 40px"></th><th>{{ t('lookup.field') }}</th><th>{{ t('lookup.current') }}</th><th>{{ t('lookup.online') }}</th></tr></thead>
+        <tbody>
+        {% if cand.cover_url %}
+        <tr><td><input type="checkbox" name="take" value="cover" aria-label="{{ t('review.cover') }}" {% if not b.has_cover %}checked{% endif %}></td>
+          <td class="lbl">{{ t('review.cover') }}</td>
+          <td>{% if b.has_cover %}<img src="/book/{{ b.id }}/cover?w=160" alt="" class="cmpimg">{% else %}<span class="muted">–</span>{% endif %}</td>
+          <td><img src="{{ cover_proxy(b.id, cand.cover_url) }}" alt="" class="cmpimg"></td></tr>
+        {% endif %}
+        {% for r in rows %}
+        <tr class="{% if r.same %}same{% endif %}">
+          <td>{% if not r.same %}<input type="checkbox" name="take" value="{{ r.key }}" aria-label="{{ t('book.' ~ r.key) }}" {% if r.checked %}checked{% endif %}>{% else %}<span class="muted" title="{{ t('lookup.same') }}">=</span>{% endif %}</td>
+          <td class="lbl">{{ t('book.' ~ r.key) }}{% if r.key == 'tags' %} <span class="muted small">({{ t('lookup.tags_add') }})</span>{% endif %}</td>
+          <td>{{ show(r.key, r.old) }}</td>
+          <td>{{ show(r.key, r.new) }}</td>
+        </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+      </div>
+      {% if cats %}
+      <fieldset class="cats">
+        <legend class="lbl">{{ t('review.categories') }} <span class="muted">({{ t('review.categories_help') }})</span></legend>
+        {% for c in cats %}<label class="chip"><input type="checkbox" name="categories" value="{{ c.key }}" {% if not c.has %}checked{% endif %}><span>{{ t('cat.' ~ c.key) }}</span></label>{% endfor %}
+      </fieldset>
+      {% endif %}
+      <div class="row">
+        <button class="btn primary" type="submit">{{ icon('check', 16) }} {{ t('lookup.apply') }}</button>
+        <a class="btn" href="/book/{{ b.id }}">{{ t('action.cancel') }}</a>
+      </div>
+    </form>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

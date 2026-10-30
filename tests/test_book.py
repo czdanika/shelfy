@@ -93,3 +93,25 @@ def test_delete(admin, book):
     d = admin.app.state.lib.book_dir(book)
     r = admin.post(f"/book/{book}/delete", follow_redirects=False)
     assert r.status_code == 303 and admin.app.state.lib.book(book) is None and not d.exists()
+
+
+def test_online_lookup_for_existing_book(admin, book):
+    # a könyv adatainak egy részét kitöröljük, majd online frissítjük
+    m = admin.app.state.lib.meta(book)
+    m.series, m.series_index, m.year, m.description = None, None, None, "régi"
+    admin.app.state.lib.update_meta(book, m)
+    html = admin.get(f"/book/{book}/lookup?go=1").text
+    assert "Összehasonlítás" in html and "Moly.hu" in html
+    assert 'name="take" value="series" aria-label="Sorozat" checked' in html
+    assert 'value="description"' in html and "/lookup/cover?url=" in html
+    r = admin.post(f"/book/{book}/lookup", data={"c": "0", "title": "A kék város", "author": "Próba Anna", "isbn": "", "only": "",
+                                                  "take": ["series", "series_index", "year", "description", "cover"],
+                                                  "categories": ["crime"]}, follow_redirects=False)
+    assert "lookup_applied" in r.headers["location"]
+    b = admin.app.state.lib.book(book)
+    assert b["series"] == "Városok" and b["series_index"] == 2 and b["year"] == 2019
+    assert "rejtélyes" in b["description"] and "Krimi" in {t["name"] for t in b["tags"]}
+
+
+def test_lookup_cover_proxy_requires_signature(admin, book):
+    assert admin.get(f"/book/{book}/lookup/cover?url=https://img.example/kek.jpg&sig=bad").status_code == 404

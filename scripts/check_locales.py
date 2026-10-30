@@ -45,7 +45,8 @@ def dynamic() -> set[str]:
     keys |= {f"book.dl_{f}" for f in ("mobi", "azw3", "epub")}
     keys |= {f"mail.src_{s}" for s in ("own", "global", "none")}
     keys |= {f"insp.src_{s}" for s in ("ok", "empty", "error")}
-    keys |= {f"book.{f}" for f in ("title", "authors", "language", "publisher", "year", "isbn", "series", "description")}
+    keys |= {f"book.{f}" for f in ("title", "authors", "language", "publisher", "year", "isbn", "series", "description",
+                                    "series_index", "rating", "tags")}
     # vizsgálati lépések: a kódból olvassuk ki, milyen kulcs/állapot párok fordulhatnak elő
     src = (ROOT / "app/ingest.py").read_text(encoding="utf-8")
     for key, rest in re.findall(r'check\("([a-z]+)",\s*(.+)', src):

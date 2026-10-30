@@ -3,7 +3,8 @@
 {% block title %}{{ t('action.edit') }}: {{ b.title }}{% endblock %}
 {% block content %}
 <div class="small muted"><a href="/book/{{ b.id }}">‹ {{ b.title }}</a></div>
-<h1>{{ t('edit.title') }}</h1>
+<div class="row between" style="align-items: flex-end"><h1>{{ t('edit.title') }}</h1>
+  <a class="btn" href="/book/{{ b.id }}/lookup?go=1">{{ icon('search', 16) }} {{ t('lookup.button') }}</a></div>
 <form class="card" method="post" action="/book/{{ b.id }}/edit" enctype="multipart/form-data" style="display: flex; flex-direction: column; gap: 16px">
   {% include "_metaform.html" %}
   <div class="field" style="max-width: 420px">

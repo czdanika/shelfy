@@ -389,7 +389,9 @@
   "short_password": "The password must be at least 8 characters.",
   "lang_error": "Invalid or existing language code.",
   "mail_toobig": "The file is larger than 50 MB; Amazon does not accept it.",
-  "mail_cleared": "Personal e-mail settings removed; the shared account is in use."
+  "mail_cleared": "Personal e-mail settings removed; the shared account is in use.",
+  "lookup_applied": "Online metadata applied.",
+  "lookup_gone": "That result is no longer available; please search again."
  },
  "langname": {
   "hu": "Hungarian",
@@ -476,5 +478,21 @@
   "column": "E-mail sending",
   "own": "own",
   "shared": "shared"
+ },
+ "lookup": {
+  "title": "Refresh metadata online",
+  "button": "Online metadata",
+  "intro": "Search the online sources (Moly.hu, Google Books, Open Library) with fresh data. Pick the right match and tick the fields to take over.",
+  "search": "Search now",
+  "pick": "Which one is right?",
+  "none": "No results – try a different title, author or ISBN.",
+  "start": "Start a search on the left.",
+  "compare": "Comparison",
+  "field": "Field",
+  "current": "Current",
+  "online": "Online",
+  "same": "Identical",
+  "tags_add": "added to existing ones",
+  "apply": "Apply selected"
  }
 }

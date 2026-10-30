@@ -229,7 +229,8 @@ class Library:
         b = self.book(bid)
         return Meta(title=b["title"], authors=[a["name"] for a in b["authors"]], series=b["series"],
                     series_index=b["series_index"], publisher=b["publisher"], year=b["year"], language=b["language"],
-                    isbn=b["isbn"], tags=[t["name"] for t in b["tags"]], description=b["description"], rating=b["rating"])
+                    isbn=b["isbn"], tags=[t["name"] for t in b["tags"]], description=b["description"], rating=b["rating"],
+                    source=b.get("source"), source_url=b.get("source_url"))
 
     def book(self, bid: int) -> dict | None:
         r = self.db.one("""SELECT b.*, s.name AS series, p.name AS publisher FROM books b

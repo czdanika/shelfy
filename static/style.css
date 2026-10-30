@@ -194,3 +194,4 @@ table.list td input[type=text], table.list td textarea{width:100%}
 .qnav{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
 .qnav a{padding:5px 11px;border-radius:999px;background:#fff;border:1px solid var(--line-2);color:var(--text);font-size:13px;text-decoration:none}
 .qnav a.on{background:var(--side);border-color:var(--side);color:#fff;font-weight:600}
+.cmp td{vertical-align:top} .cmp tr.same td{color:var(--muted)} .cmp .lbl{white-space:nowrap} .cmpimg{width:80px;border-radius:4px;box-shadow:0 3px 8px rgba(0,0,0,.18)}

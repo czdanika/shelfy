@@ -389,7 +389,9 @@
   "short_password": "A jelszónak legalább 8 karakteresnek kell lennie.",
   "lang_error": "Érvénytelen vagy már létező nyelvkód.",
   "mail_toobig": "A fájl nagyobb 50 MB-nál, ezt az Amazon nem fogadja.",
-  "mail_cleared": "A saját e-mail beállítás törölve, a közös fiók van használatban."
+  "mail_cleared": "A saját e-mail beállítás törölve, a közös fiók van használatban.",
+  "lookup_applied": "Az online adatok átvéve.",
+  "lookup_gone": "A találat már nem érhető el, keress újra."
  },
  "langname": {
   "hu": "magyar",
@@ -476,5 +478,21 @@
   "column": "E-mail küldés",
   "own": "saját",
   "shared": "közös"
+ },
+ "lookup": {
+  "title": "Online adatok frissítése",
+  "button": "Online adatok",
+  "intro": "Keresés az online forrásokban (Moly.hu, Google Books, Open Library), friss adatokkal. Válaszd ki a találatot, és jelöld be, mely adatokat vegye át.",
+  "search": "Keresés most",
+  "pick": "Melyik a jó?",
+  "none": "Nincs találat – próbáld más címmel, szerzővel vagy ISBN-nel.",
+  "start": "Indítsd a keresést a bal oldalon.",
+  "compare": "Összehasonlítás",
+  "field": "Adat",
+  "current": "Jelenlegi",
+  "online": "Online",
+  "same": "Megegyezik",
+  "tags_add": "hozzáadás a meglévőkhöz",
+  "apply": "Kijelöltek átvétele"
  }
 }
