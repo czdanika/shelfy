@@ -1,7 +1,7 @@
 """Automatikus kategorizálás: a fájl és az online források címkéiből egységes kategóriák.
 
 A kategóriák neve fordítható (locales: "cat.<kulcs>"); a könyvhöz a fordított név kerül címkeként
-a beállított alapnyelven, így a böngészés a Calibre-szerű címke-modellt használja.
+a beállított alapnyelven, így a kategóriák a címkék között böngészhetők.
 """
 from __future__ import annotations
 

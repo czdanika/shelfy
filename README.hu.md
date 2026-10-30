@@ -19,7 +19,7 @@ A felület magyar és angol. Minden felirat a `locales/*.json` fájlokban van, �
   - milyen a borító
 - **Információk letöltése**: Moly.hu, Google Books és Open Library. A leírás, a sorozat, a kiadás éve, a címkék és a borító egyetlen kattintással átvehető. A találatok közül te választasz, és az adatok jóváhagyás előtt szerkeszthetők.
 - **Automatikus kategorizálás** a címkékből és a leírásból (krimi, fantasy, sci-fi, történelmi regény…).
-- **Calibre-szerű böngészés és rendezés**: szerzők, sorozatok, címkék, kiadók, nyelvek, formátumok és értékelés szerint, valamint a saját polcaid.
+- **Böngészés és rendezés**: szerzők, sorozatok, címkék, kiadók, nyelvek, formátumok és értékelés szerint, valamint a saját polcaid.
 - **Konvertálás** a Calibre `ebook-convert` eszközével. Letöltéskor a hiányzó Kindle-formátumot (MOBI/AZW3/EPUB) magától elkészíti.
 - **Küldés Kindle-re e-mailben**, minden felhasználónak a saját Kindle-címére.
 - **Kindle-nézet** (`/kindle`): JavaScript nélküli, e-ink-barát felület. Kindle böngészőből magától ez nyílik meg, a régi Kindle MOBI-t kap.

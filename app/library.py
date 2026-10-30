@@ -1,4 +1,4 @@
-"""Könyvtár: tárolás (Calibre-szerű mappaszerkezet), könyvek felvétele, lekérdezése, rendezése."""
+"""Könyvtár: tárolás (Szerző/Cím (id) mappaszerkezet), könyvek felvétele, lekérdezése, rendezése."""
 from __future__ import annotations
 
 import re

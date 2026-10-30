@@ -19,7 +19,7 @@ The interface ships in **English** and **Hungarian**. Every label lives in a tra
   - how good is the cover?
 - **Metadata lookup** from Moly.hu, Google Books and Open Library. You pick the right match, and description, series, year, tags and cover come over in one click. Everything stays editable before you approve.
 - **Automatic categorisation** from tags and description (crime, fantasy, science fiction, historical fiction…). Category names are translated, too.
-- **Calibre-style browsing and sorting** by author, series, tag, publisher, language, format and rating, plus personal shelves and reading status.
+- **Browsing and sorting** by author, series, tag, publisher, language, format and rating, plus personal shelves and reading status.
 - **Conversion** with Calibre's `ebook-convert`. A missing Kindle format (MOBI/AZW3/EPUB) is created automatically on download and cached.
 - **Send to Kindle** by e-mail. Each user sends to their own Kindle address. If a book only exists as MOBI/AZW3, an EPUB is made first, because Amazon only accepts EPUB.
 - **Kindle view** (`/kindle`): an e-ink friendly page with no JavaScript. It opens automatically in the Kindle browser, and old Kindles get MOBI.
