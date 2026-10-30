@@ -76,3 +76,42 @@ def test_reader_sends_to_kindle(admin, book, monkeypatch):
     r = admin.post(f"/book/{book}/send", headers={"referer": f"http://shelfy.test/kindle/book/{book}"}, follow_redirects=False)
     assert r.headers["location"] == f"/kindle/book/{book}?msg=mail_sent"
     assert sent and sent[0][0] == "cs@kindle.com" and sent[0][1].endswith(".epub")
+
+
+def test_per_user_mail_settings(admin, book, monkeypatch):
+    sent = []
+    import app.main as m
+    monkeypatch.setattr(m, "send_mail", lambda s, to, subj, name, data, mime: sent.append((s["smtp_host"], s["smtp_user"], s["smtp_password"], to)))
+    # közös fiók az admintól
+    admin.post("/admin/settings", data={"smtp_host": "smtp.kozos.hu", "smtp_port": "587", "smtp_from": "kozos@example.com",
+                                        "smtp_user": "kozos", "smtp_password": "kozosjelszo"})
+    uid = make_user(admin, "orsi", can_download=True)
+    assert "közös" in admin.get("/admin").text
+    # az admin beállítja Orsinak a saját fiókját
+    admin.post(f"/admin/users/{uid}/mail", data={"smtp_host": "smtp.orsi.hu", "smtp_port": "465", "smtp_security": "ssl",
+                                                  "smtp_user": "orsi", "smtp_password": "titkos-orsi", "smtp_from": "orsi@example.com"})
+    row = admin.app.state.db.one("SELECT smtp_host, smtp_password FROM users WHERE id = ?", (uid,))
+    assert row["smtp_host"] == "smtp.orsi.hu" and row["smtp_password"].startswith("enc:") and "titkos" not in row["smtp_password"]
+    assert "titkos-orsi" not in admin.get(f"/admin/users/{uid}").text
+    # a közös jelszó is titkosítva tárolódik
+    assert admin.app.state.db.get_setting("smtp_password").startswith("enc:")
+
+    admin.post(f"/book/{book}/send", data={})  # admin: nincs Kindle címe
+    admin.post("/me", data={"display_name": "A", "kindle_email": "admin@kindle.com"})
+    admin.post(f"/book/{book}/send")
+    assert sent[-1] == ("smtp.kozos.hu", "kozos", "kozosjelszo", "admin@kindle.com")
+
+    login(admin, "orsi", "olvaso123")
+    assert "saját beállításod" in admin.get("/me").text
+    admin.post("/me", data={"display_name": "Orsi", "kindle_email": "orsi@kindle.com"})
+    admin.post(f"/book/{book}/send")
+    assert sent[-1] == ("smtp.orsi.hu", "orsi", "titkos-orsi", "orsi@kindle.com")
+    # jelszó üresen hagyva megmarad, majd törlés után a közös jön
+    admin.post("/me/mail", data={"smtp_host": "smtp.orsi2.hu", "smtp_from": "orsi@example.com", "smtp_user": "orsi", "smtp_password": ""})
+    admin.post(f"/book/{book}/send")
+    assert sent[-1][:3] == ("smtp.orsi2.hu", "orsi", "titkos-orsi")
+    admin.post("/me/mail", data={"action": "clear"})
+    admin.post(f"/book/{book}/send")
+    assert sent[-1][0] == "smtp.kozos.hu"
+    r = admin.post("/me/mail/test", data={"to": "x@example.com"}, follow_redirects=False)
+    assert "mail_sent" in r.headers["location"]

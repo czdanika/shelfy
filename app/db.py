@@ -6,6 +6,9 @@ import threading
 import time
 from pathlib import Path
 
+# felhasználónkénti e-mail (SMTP) beállítás; a jelszó titkosítva
+USER_MAIL_COLUMNS = ("smtp_host", "smtp_port", "smtp_security", "smtp_user", "smtp_password", "smtp_from")
+
 SCHEMA = """
 CREATE TABLE IF NOT EXISTS users (
   id INTEGER PRIMARY KEY,
@@ -100,6 +103,14 @@ class Database:
         self.lock = threading.RLock()
         with self.lock:
             self.conn.executescript(SCHEMA)
+            self._migrate()
+
+    def _migrate(self) -> None:
+        """Új oszlopok felvétele a meglévő adatbázisokba (verzióváltáskor)."""
+        cols = {r[1] for r in self.conn.execute("PRAGMA table_info(users)")}
+        for c in USER_MAIL_COLUMNS:
+            if c not in cols:
+                self.conn.execute(f"ALTER TABLE users ADD COLUMN {c} TEXT")
 
     def q(self, sql: str, args: tuple | list = ()) -> list[sqlite3.Row]:
         with self.lock:

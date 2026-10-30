@@ -116,7 +116,43 @@ def create_app(cfg: Config | None = None, transport=None) -> FastAPI:
         return resp
 
     def settings_dict() -> dict:
-        return {k: db.get_setting(k) for k in SMTP_KEYS + ("auto_approve", "kindle_subject")}
+        d = {k: db.get_setting(k) for k in SMTP_KEYS + ("auto_approve", "kindle_subject")}
+        d["smtp_password"] = sessions.unseal(d["smtp_password"])
+        return d
+
+    def user_mail(uid: int) -> dict:
+        """A felhasználó saját SMTP beállítása (a jelszó visszafejtve)."""
+        r = db.one("SELECT " + ", ".join(SMTP_KEYS) + " FROM users WHERE id = ?", (uid,))
+        d = {k: r[k] for k in SMTP_KEYS} if r else {k: None for k in SMTP_KEYS}
+        d["smtp_password"] = sessions.unseal(d["smtp_password"])
+        return d
+
+    def mail_settings(user: User) -> tuple[dict | None, str]:
+        """A küldéshez használt beállítás: a felhasználó sajátja, különben a közös. (beállítás, 'own'|'global'|'none')"""
+        own = user_mail(user.id)
+        if own["smtp_host"] and own["smtp_from"]:
+            return dict(own, kindle_subject=db.get_setting("kindle_subject")), "own"
+        g = settings_dict()
+        if g["smtp_host"] and g["smtp_from"]:
+            return g, "global"
+        return None, "none"
+
+    def save_mail(form, target: str, uid: int | None = None) -> None:
+        """SMTP mezők mentése a közös beállításba (target='global') vagy egy felhasználóhoz."""
+        vals = {k: (form.get(k) or "").strip() or None for k in SMTP_KEYS}
+        keep_pw = not form.get("smtp_password")  # üresen hagyva = marad a régi
+        vals["smtp_password"] = sessions.seal(form.get("smtp_password"))
+        if target == "global":
+            for k, v in vals.items():
+                if k == "smtp_password" and keep_pw:
+                    continue
+                db.set_setting(k, v)
+            return
+        keys = [k for k in SMTP_KEYS if not (k == "smtp_password" and keep_pw)]
+        db.run(f"UPDATE users SET {', '.join(k + ' = ?' for k in keys)} WHERE id = ?", [vals[k] for k in keys] + [uid])
+
+    def clear_mail(uid: int) -> None:
+        db.run(f"UPDATE users SET {', '.join(k + ' = NULL' for k in SMTP_KEYS)} WHERE id = ?", (uid,))
 
     @app.middleware("http")
     async def gate(request: Request, call_next):
@@ -305,7 +341,7 @@ def create_app(cfg: Config | None = None, transport=None) -> FastAPI:
             more, _ = lib.list_books(author=b["authors"][0]["id"], per_page=12)
             more = [m for m in more if m["id"] != bid][:10]
         return render(request, "book.html", b=b, read_state=state, more=more, msg=request.query_params.get("msg"),
-                      can_mail=bool(db.get_setting("smtp_host") and db.get_setting("smtp_from")),
+                      can_mail=mail_settings(request.state.user)[0] is not None,
                       can_convert=converter.has_convert)
 
     @app.get("/book/{bid}/cover")
@@ -426,8 +462,8 @@ def create_app(cfg: Config | None = None, transport=None) -> FastAPI:
 
     async def send_to_kindle(user: User, bid: int) -> str:
         """Küldés a felhasználó Kindle címére; az eredmény egy üzenetkulcs."""
-        s = settings_dict()
-        if not (s["smtp_host"] and s["smtp_from"]):
+        s, _src = mail_settings(user)
+        if not s:
             return "mail_off"
         if not user.kindle_email:
             return "mail_noaddr"
@@ -705,7 +741,8 @@ def create_app(cfg: Config | None = None, transport=None) -> FastAPI:
     # ------------------------------------------------------------------ saját fiók
     @app.get("/me", response_class=HTMLResponse)
     async def me(request: Request):
-        return render(request, "me.html", msg=request.query_params.get("msg"), error=None)
+        return render(request, "me.html", msg=request.query_params.get("msg"), error=None,
+                      m=user_mail(request.state.user.id), mail_src=mail_settings(request.state.user)[1])
 
     @app.post("/me")
     async def me_save(request: Request, display_name: str = Form(""), kindle_email: str = Form(""), language: str = Form(""),
@@ -717,13 +754,35 @@ def create_app(cfg: Config | None = None, transport=None) -> FastAPI:
         resp = flash("/me", "saved")
         if new_password:
             if len(new_password) < 8 or not verify_password(old_password, user.password_hash):
-                return render(request, "me.html", 400, msg=None, error=tr(request, "me.password_error"))
+                return render(request, "me.html", 400, msg=None, error=tr(request, "me.password_error"),
+                              m=user_mail(user.id), mail_src=mail_settings(user)[1])
             db.run("UPDATE users SET password_hash = ? WHERE id = ?", (hash_password(new_password), user.id))
             u = User.from_row(db.one("SELECT * FROM users WHERE id = ?", (user.id,)))
             save(request, resp, {"uid": u.id, "fp": u.fingerprint})
         if i18n.has(language):
             resp.set_cookie("shelfy_lang", language, max_age=YEAR, samesite="lax")
         return resp
+
+    @app.post("/me/mail")
+    async def me_mail(request: Request):
+        form = await request.form()
+        uid = request.state.user.id
+        if form.get("action") == "clear":
+            clear_mail(uid)
+            return flash("/me", "mail_cleared")
+        save_mail(form, "user", uid)
+        return flash("/me", "saved")
+
+    @app.post("/me/mail/test")
+    async def me_mail_test(request: Request, to: str = Form(...)):
+        s, _src = mail_settings(request.state.user)
+        if not s:
+            return flash("/me", "mail_off")
+        try:
+            await asyncio.to_thread(send_mail, s, to.strip(), "Shelfy teszt", "shelfy.txt", b"Shelfy OK", "text/plain")
+        except Exception:
+            return flash("/me", "mail_error")
+        return flash("/me", "mail_sent")
 
     # ------------------------------------------------------------------ admin
     @app.get("/admin", response_class=HTMLResponse)
@@ -735,7 +794,8 @@ def create_app(cfg: Config | None = None, transport=None) -> FastAPI:
     async def admin_user_form(request: Request, uid: str):
         u = None if uid == "new" else db.one("SELECT * FROM users WHERE id = ?", (int(uid),))
         return render(request, "admin_user.html", u=dict(u) if u else None, roles=ROLES, perms=PERMS,
-                      role_defaults=ROLE_DEFAULTS, error=None, section="users")
+                      role_defaults=ROLE_DEFAULTS, error=None, section="users",
+                      m=user_mail(u["id"]) if u else None, msg=request.query_params.get("msg"))
 
     @app.post("/admin/users/{uid}")
     async def admin_user_save(request: Request, uid: str):
@@ -770,6 +830,15 @@ def create_app(cfg: Config | None = None, transport=None) -> FastAPI:
                 db.run("UPDATE users SET password_hash = ? WHERE id = ?", (hash_password(pw), target))
         return flash("/admin", "saved")
 
+    @app.post("/admin/users/{uid}/mail")
+    async def admin_user_mail(request: Request, uid: int):
+        form = await request.form()
+        if form.get("action") == "clear":
+            clear_mail(uid)
+            return flash(f"/admin/users/{uid}", "mail_cleared")
+        save_mail(form, "user", uid)
+        return flash(f"/admin/users/{uid}", "saved")
+
     @app.post("/admin/users/{uid}/delete")
     async def admin_user_delete(request: Request, uid: int):
         if uid == request.state.user.id:
@@ -790,10 +859,8 @@ def create_app(cfg: Config | None = None, transport=None) -> FastAPI:
     @app.post("/admin/settings")
     async def admin_settings_save(request: Request):
         form = await request.form()
-        for k in SMTP_KEYS + ("kindle_subject",):
-            if k == "smtp_password" and not form.get(k):
-                continue  # üresen hagyva = marad a régi
-            db.set_setting(k, (form.get(k) or "").strip() or None)
+        save_mail(form, "global")
+        db.set_setting("kindle_subject", (form.get("kindle_subject") or "").strip() or None)
         db.set_setting("auto_approve", "1" if form.get("auto_approve") else "0")
         return flash("/admin/settings", "saved")
 
@@ -850,7 +917,7 @@ def create_app(cfg: Config | None = None, transport=None) -> FastAPI:
     def kindle_ctx(request: Request) -> dict:
         dev = device_of(request)
         return {"device": dev, "kfmt": "mobi" if dev == "old" else "azw3",
-                "can_mail": bool(db.get_setting("smtp_host") and db.get_setting("smtp_from")),
+                "can_mail": mail_settings(request.state.user)[0] is not None,
                 "can_convert": converter.has_convert, "msg": request.query_params.get("msg")}
 
     @app.get("/kindle", response_class=HTMLResponse)

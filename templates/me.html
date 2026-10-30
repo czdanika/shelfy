@@ -1,10 +1,18 @@
 {% extends "base.html" %}
 {% from "macros.html" import icon %}
-{% block title %}{{ t('me.title') }}{% endblock %}
+{% block title %}{{ t('me.title') }}{% set action = '/me/mail' %}
+{% include "_mailform.html" %}
+{% if mail_src != 'none' %}
+<form class="card row" method="post" action="/me/mail/test" style="max-width: 760px; align-items: flex-end">
+  <div class="field" style="flex: 1 1 260px"><label for="tt">{{ t('mail.test_to') }}</label><input id="tt" name="to" type="email" required value="{{ user.kindle_email or '' }}"></div>
+  <button class="btn" type="submit">{{ icon('send', 16) }} {{ t('mail.test') }}</button>
+</form>
+{% endif %}
+{% endblock %}
 {% block content %}
 <h1>{{ t('me.title') }}</h1>
 {% if error %}<div class="flash err" role="alert">{{ error }}</div>{% endif %}
-<form class="card" method="post" action="/me" style="display: flex; flex-direction: column; gap: 16px; max-width: 720px">
+<form class="card" method="post" action="/me" style="display: flex; flex-direction: column; gap: 16px; max-width: 760px">
   <div class="grid2">
     <div class="field"><label>{{ t('login.username') }}</label><input type="text" value="{{ user.username }}" disabled></div>
     <div class="field"><label>{{ t('admin.role') }}</label><input type="text" value="{{ t('role.' ~ user.role) }}" disabled></div>
@@ -22,4 +30,12 @@
   </div>
   <div class="row"><button class="btn primary" type="submit">{{ icon('check', 16) }} {{ t('action.save') }}</button></div>
 </form>
+{% set action = '/me/mail' %}
+{% include "_mailform.html" %}
+{% if mail_src != 'none' %}
+<form class="card row" method="post" action="/me/mail/test" style="max-width: 760px; align-items: flex-end">
+  <div class="field" style="flex: 1 1 260px"><label for="tt">{{ t('mail.test_to') }}</label><input id="tt" name="to" type="email" required value="{{ user.kindle_email or '' }}"></div>
+  <button class="btn" type="submit">{{ icon('send', 16) }} {{ t('mail.test') }}</button>
+</form>
+{% endif %}
 {% endblock %}

@@ -82,6 +82,20 @@ class Sessions:
     def dump(self, data: dict) -> str:
         return self.f.encrypt(json.dumps(data).encode()).decode()
 
+    def seal(self, text: str | None) -> str | None:
+        """Titok (pl. SMTP jelszó) titkosítva tárolásra; 'enc:' előtaggal."""
+        return "enc:" + self.f.encrypt(text.encode()).decode() if text else None
+
+    def unseal(self, stored: str | None) -> str | None:
+        if not stored:
+            return None
+        if not stored.startswith("enc:"):  # régi, titkosítatlan érték
+            return stored
+        try:
+            return self.f.decrypt(stored[4:].encode()).decode()
+        except InvalidToken:
+            return None
+
     def load(self, token: str | None, max_age: int = 60 * 60 * 24 * 365) -> dict:
         if not token:
             return {}

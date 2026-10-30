@@ -43,6 +43,7 @@ def dynamic() -> set[str]:
     keys |= {f"admin.nav_{s}" for s in ("users", "settings", "languages")}
     keys |= {f"admin.sec_{s}" for s in ("starttls", "ssl", "none")}
     keys |= {f"book.dl_{f}" for f in ("mobi", "azw3", "epub")}
+    keys |= {f"mail.src_{s}" for s in ("own", "global", "none")}
     keys |= {f"insp.src_{s}" for s in ("ok", "empty", "error")}
     keys |= {f"book.{f}" for f in ("title", "authors", "language", "publisher", "year", "isbn", "series", "description")}
     # vizsgálati lépések: a kódból olvassuk ki, milyen kulcs/állapot párok fordulhatnak elő

@@ -1,0 +1,26 @@
+{# Felhasználónkénti e-mail (SMTP) beállítás. action = a mentés címe, m = a jelenlegi értékek #}
+{% from "macros.html" import icon %}
+<form class="card" method="post" action="{{ action }}" style="display: flex; flex-direction: column; gap: 14px; max-width: 760px">
+  <div>
+    <h2 style="font-size: 18px">{{ t('mail.title') }}</h2>
+    <p class="small muted" style="margin: 4px 0 0">{{ t('mail.help') }}</p>
+  </div>
+  {% if mail_src is defined %}
+  <div class="small"><span class="badge {{ 'ok' if mail_src == 'own' else ('info' if mail_src == 'global' else 'warn') }}">{{ t('mail.src_' ~ mail_src) }}</span></div>
+  {% endif %}
+  <div class="grid2">
+    <div class="field"><label for="m-host">{{ t('admin.smtp_host') }}</label><input id="m-host" name="smtp_host" type="text" value="{{ m.smtp_host or '' }}" placeholder="smtp.gmail.com" autocomplete="off"></div>
+    <div class="field"><label for="m-port">{{ t('admin.smtp_port') }}</label><input id="m-port" name="smtp_port" type="number" value="{{ m.smtp_port or '' }}" placeholder="587"></div>
+    <div class="field"><label for="m-sec">{{ t('admin.smtp_security') }}</label>
+      <select id="m-sec" name="smtp_security">{% for k in ('starttls', 'ssl', 'none') %}<option value="{{ k }}" {% if (m.smtp_security or 'starttls') == k %}selected{% endif %}>{{ t('admin.sec_' ~ k) }}</option>{% endfor %}</select></div>
+    <div class="field"><label for="m-user">{{ t('admin.smtp_user') }}</label><input id="m-user" name="smtp_user" type="text" value="{{ m.smtp_user or '' }}" autocomplete="off"></div>
+    <div class="field"><label for="m-pw">{{ t('admin.smtp_password') }}</label><input id="m-pw" name="smtp_password" type="password" autocomplete="new-password" placeholder="{{ '••••••••' if m.smtp_password else '' }}">
+      <span class="small muted">{{ t('admin.smtp_password_help') }}</span></div>
+    <div class="field"><label for="m-from">{{ t('admin.smtp_from') }}</label><input id="m-from" name="smtp_from" type="email" value="{{ m.smtp_from or '' }}">
+      <span class="small muted">{{ t('mail.from_help') }}</span></div>
+  </div>
+  <div class="row">
+    <button class="btn primary" type="submit">{{ icon('check', 16) }} {{ t('action.save') }}</button>
+    {% if m.smtp_host %}<button class="btn" type="submit" name="action" value="clear" formnovalidate>{{ icon('x', 16) }} {{ t('mail.clear') }}</button>{% endif %}
+  </div>
+</form>

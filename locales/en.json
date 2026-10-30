@@ -322,8 +322,8 @@
   "lang_default": "Default",
   "role_help": "Administrators can access everything.",
   "user_error": "Enter a unique username and a password of at least 8 characters.",
-  "mail_title": "E-mail sending (SMTP)",
-  "mail_help": "Shelfy uses this to send books to Kindle and other addresses.",
+  "mail_title": "Shared e-mail sending (SMTP)",
+  "mail_help": "Used by everyone who has no personal e-mail settings.",
   "smtp_host": "SMTP server",
   "smtp_port": "Port",
   "smtp_security": "Encryption",
@@ -388,7 +388,8 @@
   "self_delete": "You cannot delete yourself.",
   "short_password": "The password must be at least 8 characters.",
   "lang_error": "Invalid or existing language code.",
-  "mail_toobig": "The file is larger than 50 MB; Amazon does not accept it."
+  "mail_toobig": "The file is larger than 50 MB; Amazon does not accept it.",
+  "mail_cleared": "Personal e-mail settings removed; the shared account is in use."
  },
  "langname": {
   "hu": "Hungarian",
@@ -461,5 +462,19 @@
   "ui": "Interface",
   "ui_kindle": "Simple Kindle view",
   "ui_full": "Full interface"
+ },
+ "mail": {
+  "title": "Personal e-mail sending",
+  "help": "If you fill this in, books are sent to your Kindle from your own e-mail account. If left empty, the shared account set by the administrator is used.",
+  "src_own": "Your own settings are in use",
+  "src_global": "The shared e-mail account is in use",
+  "src_none": "E-mail sending is not configured",
+  "from_help": "Add this address to the approved senders in your Amazon account.",
+  "clear": "Remove personal settings (use shared)",
+  "test": "Test e-mail",
+  "test_to": "Test e-mail recipient",
+  "column": "E-mail sending",
+  "own": "own",
+  "shared": "shared"
  }
 }

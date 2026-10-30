@@ -28,6 +28,10 @@
   </div>
   <div class="row"><button class="btn primary" type="submit">{{ icon('check', 16) }} {{ t('action.save') }}</button><a class="btn" href="/admin">{{ t('action.cancel') }}</a></div>
 </form>
+{% if u %}
+{% set action = '/admin/users/' ~ u.id ~ '/mail' %}
+{% include "_mailform.html" %}
+{% endif %}
 <script>
 // szerepkör váltásakor az alapértelmezett jogosultságok bejelölése
 (function () {

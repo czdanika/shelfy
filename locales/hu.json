@@ -322,8 +322,8 @@
   "lang_default": "Alapértelmezett",
   "role_help": "Az adminisztrátor mindenhez hozzáfér.",
   "user_error": "Adj meg egyedi felhasználónevet és legalább 8 karakteres jelszót.",
-  "mail_title": "E-mail küldés (SMTP)",
-  "mail_help": "Ezzel küldi a Shelfy a könyveket a Kindle-re és más e-mail címekre.",
+  "mail_title": "Közös e-mail küldés (SMTP)",
+  "mail_help": "Ezt használja mindenki, akinek nincs saját e-mail beállítása.",
   "smtp_host": "SMTP szerver",
   "smtp_port": "Port",
   "smtp_security": "Titkosítás",
@@ -388,7 +388,8 @@
   "self_delete": "Saját magadat nem törölheted.",
   "short_password": "A jelszónak legalább 8 karakteresnek kell lennie.",
   "lang_error": "Érvénytelen vagy már létező nyelvkód.",
-  "mail_toobig": "A fájl nagyobb 50 MB-nál, ezt az Amazon nem fogadja."
+  "mail_toobig": "A fájl nagyobb 50 MB-nál, ezt az Amazon nem fogadja.",
+  "mail_cleared": "A saját e-mail beállítás törölve, a közös fiók van használatban."
  },
  "langname": {
   "hu": "magyar",
@@ -461,5 +462,19 @@
   "ui": "Felület",
   "ui_kindle": "Egyszerű Kindle-nézet",
   "ui_full": "Teljes felület"
+ },
+ "mail": {
+  "title": "Saját e-mail küldés",
+  "help": "Ha megadod, a könyveket a saját e-mail fiókodból küldi a Kindle-re. Ha üresen hagyod, az admin által beállított közös fiókot használja.",
+  "src_own": "Most a saját beállításod van használatban",
+  "src_global": "Most a közös e-mail fiók van használatban",
+  "src_none": "Nincs beállítva e-mail küldés",
+  "from_help": "Ezt a címet vedd fel az Amazon-fiókodban a jóváhagyott feladók közé.",
+  "clear": "Saját beállítás törlése (közös használata)",
+  "test": "Próba e-mail",
+  "test_to": "Próba e-mail címzettje",
+  "column": "E-mail küldés",
+  "own": "saját",
+  "shared": "közös"
  }
 }

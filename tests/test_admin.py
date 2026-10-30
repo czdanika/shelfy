@@ -79,7 +79,8 @@ def test_settings_keep_password(admin):
     admin.post("/admin/settings", data={"smtp_host": "smtp2.example", "smtp_port": "587", "smtp_password": ""})
     db = admin.app.state.db
     assert db.get_setting("smtp_host") == "smtp2.example"
-    assert db.get_setting("smtp_password") == "titok"
+    assert db.get_setting("smtp_password").startswith("enc:")  # titkosítva
+    assert admin.app.state.db and "titok" not in db.get_setting("smtp_password")
     assert db.get_setting("auto_approve") == "0"
     assert "titok" not in admin.get("/admin/settings").text
 
