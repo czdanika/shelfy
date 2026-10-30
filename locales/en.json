@@ -81,7 +81,10 @@
   "empty_title": "No books found",
   "empty_text": "Upload some books or try a different filter.",
   "zoom": "Size – how many books fit in a row",
-  "per_page": "Per page"
+  "per_page": "Per page",
+  "layout": "View",
+  "layout_grid": "Grid view",
+  "layout_list": "List view"
  },
  "pager": {
   "label": "Pagination",

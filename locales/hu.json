@@ -81,7 +81,10 @@
   "empty_title": "Nincs találat",
   "empty_text": "Tölts fel könyveket, vagy próbálj más szűrést.",
   "zoom": "Méret – mennyi könyv férjen el egy sorban",
-  "per_page": "Oldalanként"
+  "per_page": "Oldalanként",
+  "layout": "Nézet",
+  "layout_grid": "Rács nézet",
+  "layout_list": "Lista nézet"
  },
  "pager": {
   "label": "Lapozás",

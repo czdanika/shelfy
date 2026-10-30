@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% from "macros.html" import bookcard %}
+{% from "macros.html" import bookcard, bookrow %}
 {% block title %}{{ heading }}{% endblock %}
 {% block content %}
 <div class="row between" style="align-items: flex-end">
@@ -11,6 +11,10 @@
 </div>
 
 <div class="viewbar">
+  <span class="layout" role="group" aria-label="{{ t('library.layout') }}">
+    <a href="{{ qs(query, layout='grid') }}" class="{% if layout == 'grid' %}on{% endif %}" title="{{ t('library.layout_grid') }}" aria-label="{{ t('library.layout_grid') }}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><rect x="4" y="4" width="7" height="7"/><rect x="13" y="4" width="7" height="7"/><rect x="4" y="13" width="7" height="7"/><rect x="13" y="13" width="7" height="7"/></svg></a>
+    <a href="{{ qs(query, layout='list') }}" class="{% if layout == 'list' %}on{% endif %}" title="{{ t('library.layout_list') }}" aria-label="{{ t('library.layout_list') }}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><rect x="3" y="4" width="5" height="7"/><path d="M11 5h10M11 9h7"/><rect x="3" y="13" width="5" height="7"/><path d="M11 14h10M11 18h7"/></svg></a>
+  </span>
   <label class="zoom" title="{{ t('library.zoom') }}">
     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><rect x="4" y="4" width="7" height="7"/><rect x="13" y="4" width="7" height="7"/><rect x="4" y="13" width="7" height="7"/><rect x="13" y="13" width="7" height="7"/></svg>
     <span class="sr">{{ t('library.zoom') }}</span>
@@ -33,9 +37,15 @@
 {% endif %}
 
 {% if books %}
+{% if layout == 'list' %}
+<div class="blist" id="books" style="--card: {{ zoom }}px">
+  {% for b in books %}{{ bookrow(b, t, user, now, langname) }}{% endfor %}
+</div>
+{% else %}
 <div class="books {% if zoom <= 120 %}dense{% endif %}" id="books" style="--card: {{ zoom }}px">
   {% for b in books %}{{ bookcard(b, t, user, now) }}{% endfor %}
 </div>
+{% endif %}
 <div class="row" style="justify-content: center">{% include "_pager.html" %}</div>
 {% else %}
 <div class="card" style="text-align: center; padding: 48px">

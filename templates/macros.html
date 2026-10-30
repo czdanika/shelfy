@@ -49,3 +49,39 @@
   <div class="meta">{% if b.year %}<span>{{ b.year }}</span>{% endif %}{{ stars(b.rating) }}{% for f in b.formats[:3] %}<span class="fmt">{{ f|upper }}</span>{% endfor %}</div>
 </article>
 {% endmacro %}
+
+{% macro bookrow(b, t, user, now_ts, langname) %}
+<article class="brow">
+  <a class="brow-cover" href="/book/{{ b.id }}" aria-label="{{ b.title }}">
+    {% if b.has_cover %}<img src="/book/{{ b.id }}/cover?w=200" alt="" loading="lazy">{% else %}{{ placeholder(b) }}{% endif %}
+  </a>
+  <div class="brow-main">
+    <div class="brow-head">
+      <a class="brow-title" href="/book/{{ b.id }}">{{ b.title }}</a>
+      {% if now_ts - b.added_at < 7 * 86400 %}<span class="badge new-b">{{ t('book.new') }}</span>{% endif %}
+    </div>
+    <div class="brow-authors">{% for a in b.authors %}<a href="/books?author={{ a.id }}">{{ a.name }}</a>{% if not loop.last %}, {% endif %}{% endfor %}</div>
+    <div class="brow-meta">
+      {% if b.series %}<a href="/books?series={{ b.series_id }}&sort=series">{{ b.series }}{% if b.series_index %} ({{ '%g' % b.series_index }}){% endif %}</a>{% endif %}
+      {% if b.publisher %}<a href="/books?publisher={{ b.publisher_id }}">{{ b.publisher }}</a>{% endif %}
+      {% if b.year %}<span>{{ b.year }}</span>{% endif %}
+      {% if b.language %}<a href="/books?lang={{ b.language }}">{{ langname(b.language) }}</a>{% endif %}
+      {{ stars(b.rating) }}
+    </div>
+    {% if b.description %}<p class="brow-desc">{{ b.description|plain|truncate(300, True, '…') }}</p>{% endif %}
+    {% if b.tags %}<div class="brow-tags">{% for tg in b.tags[:8] %}<a class="pill" href="/books?tag={{ tg.id }}">{{ tg.name }}</a>{% endfor %}</div>{% endif %}
+  </div>
+  <div class="brow-side">
+    <div class="brow-fmts">{% for f in b.formats %}<span class="fmt">{{ f|upper }}</span>{% endfor %}</div>
+    <div class="brow-actions">
+      {% if user.can('can_download') and b.formats %}
+      {% set f0 = 'epub' if 'epub' in b.formats else b.formats[0] %}
+      <a href="/book/{{ b.id }}/download/{{ f0 }}" title="{{ t('action.download') }} {{ f0|upper }}" aria-label="{{ t('action.download') }}">{{ icon('download') }}</a>
+      {% if user.kindle_email %}<form method="post" action="/book/{{ b.id }}/send"><button type="submit" title="{{ t('action.send_kindle') }}" aria-label="{{ t('action.send_kindle') }}">{{ icon('send') }}</button></form>{% endif %}
+      {% endif %}
+      {% if user.can('can_edit') %}<a href="/book/{{ b.id }}/edit" title="{{ t('action.edit') }}" aria-label="{{ t('action.edit') }}">{{ icon('edit') }}</a>{% endif %}
+      <a href="/book/{{ b.id }}#shelf" title="{{ t('action.shelf') }}" aria-label="{{ t('action.shelf') }}">{{ icon('plus') }}</a>
+    </div>
+  </div>
+</article>
+{% endmacro %}

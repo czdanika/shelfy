@@ -331,6 +331,9 @@ def create_app(cfg: Config | None = None, transport=None) -> FastAPI:
         if per_page is None:
             c = request.cookies.get("shelfy_pp", "")
             per_page = int(c) if c.isdigit() and int(c) in PER_PAGE_CHOICES else PER_PAGE
+        layout = p.get("layout") if p.get("layout") in ("grid", "list") else request.cookies.get("shelfy_layout", "grid")
+        if layout not in ("grid", "list"):
+            layout = "grid"
         zc = request.cookies.get("shelfy_zoom", "")
         zoom = min(ZOOM_MAX, max(ZOOM_MIN, int(zc))) if zc.isdigit() else ZOOM_DEFAULT
         rows, total = lib.list_books(sort=sort, q=p.get("q"), author=num("author"), series=num("series"), tag=num("tag"),
@@ -352,7 +355,9 @@ def create_app(cfg: Config | None = None, transport=None) -> FastAPI:
         resp = render(request, "library.html", books=rows, total=total, page=page,
                       pages=max(1, math.ceil(total / per_page)), sort=sort, sort_groups=SORT_GROUPS,
                       heading=heading, view=view, msg=p.get("msg"), zoom=zoom, zoom_min=ZOOM_MIN, zoom_max=ZOOM_MAX,
-                      per_page=per_page, per_page_choices=PER_PAGE_CHOICES)
+                      per_page=per_page, per_page_choices=PER_PAGE_CHOICES, layout=layout)
+        if p.get("layout") in ("grid", "list"):
+            resp.set_cookie("shelfy_layout", layout, max_age=YEAR, samesite="lax")
         if num("pp") in PER_PAGE_CHOICES:
             resp.set_cookie("shelfy_pp", str(per_page), max_age=YEAR, samesite="lax")
         if p.get("sort") in SORTS:

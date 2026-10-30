@@ -297,7 +297,8 @@ class Library:
                    WHERE {' AND '.join(where)}"""
         total = self.db.val(f"SELECT COUNT(*) {base}", args)
         rows = self.db.q(f"""SELECT b.id, b.title, b.year, b.rating, b.has_cover, b.added_at, b.series_index, b.language,
-                   s.name AS series, s.id AS series_id,
+                   s.name AS series, s.id AS series_id, p.name AS publisher, p.id AS publisher_id,
+                   substr(b.description, 1, 1200) AS description,
                    (SELECT a.sort FROM book_authors ba JOIN authors a ON a.id = ba.author_id WHERE ba.book_id = b.id
                      ORDER BY ba.position LIMIT 1) AS first_author
                    {base} ORDER BY {order} LIMIT ? OFFSET ?""", args + [per_page, (max(page, 1) - 1) * per_page])
@@ -312,9 +313,14 @@ class Library:
             fmts: dict[int, list] = {}
             for r in self.db.q(f"SELECT book_id, format FROM files WHERE book_id IN ({marks}) ORDER BY format", ids):
                 fmts.setdefault(r["book_id"], []).append(r["format"])
+            tags: dict[int, list] = {}
+            for r in self.db.q(f"""SELECT bt.book_id, t.id, t.name FROM book_tags bt JOIN tags t ON t.id = bt.tag_id
+                                   WHERE bt.book_id IN ({marks}) ORDER BY t.name""", ids):
+                tags.setdefault(r["book_id"], []).append({"id": r["id"], "name": r["name"]})
             for b in books:
                 b["authors"] = auth.get(b["id"], [])
                 b["formats"] = fmts.get(b["id"], [])
+                b["tags"] = tags.get(b["id"], [])
         return books, total
 
     def facet(self, kind: str) -> list[dict]:

@@ -69,3 +69,13 @@ def test_library_sorting(admin):
     # a választott rendezést megjegyzi
     html = admin.get("/books").text
     assert html.index("Cékla") < html.index("Alma")
+
+
+def test_list_layout(admin):
+    lib = admin.app.state.lib
+    lib.add_book(Meta(title="Lista könyv", authors=["Szerző Egy"], year=2020, publisher="Kiadó", tags=["krimi"],
+                      description="<p>Hosszú <b>leírás</b> a listához.</p>"), [], None)
+    html = admin.get("/books?layout=list").text
+    assert 'class="brow"' in html and "Hosszú leírás a listához." in html and "Kiadó" in html and "krimi" in html
+    assert 'class="brow"' in admin.get("/books").text           # megjegyzi
+    assert 'class="brow"' not in admin.get("/books?layout=grid").text
