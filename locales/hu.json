@@ -357,15 +357,6 @@
   "lang_value": "Fordítás",
   "lang_only_missing": "Csak a hiányzók",
   "lang_ref_help": "A referencia nyelv szövegeit módosíthatod, de nem törölheted.",
-  "nav_import": "Calibre átvétel",
-  "import_title": "Meglévő Calibre könyvtár átvétele",
-  "import_help": "A Shelfy beolvassa a Calibre adatbázisát (metadata.db) – címek, szerzők, sorozatok, címkék, leírások, értékelések, borítók –, és átmásolja a fájlokat. A Calibre könyvtár nem változik. Többször is futtatható: a már átvett könyveket kihagyja.",
-  "import_path": "A Calibre könyvtár mappája (ahol a metadata.db van)",
-  "import_start": "Átvétel indítása",
-  "import_running": "Átvétel folyamatban…",
-  "import_result": "{done} / {total} feldolgozva · {added} felvéve · {skipped} kihagyva (már megvolt)",
-  "import_errors": "Hibák",
-  "import_done": "Kész.",
   "stats": "Könyvtár statisztika",
   "st_books": "könyv",
   "st_size": "összesen",
@@ -397,8 +388,7 @@
   "self_delete": "Saját magadat nem törölheted.",
   "short_password": "A jelszónak legalább 8 karakteresnek kell lennie.",
   "lang_error": "Érvénytelen vagy már létező nyelvkód.",
-  "mail_toobig": "A fájl nagyobb 50 MB-nál, ezt az Amazon nem fogadja.",
-  "import_nodb": "Ebben a mappában nincs metadata.db."
+  "mail_toobig": "A fájl nagyobb 50 MB-nál, ezt az Amazon nem fogadja."
  },
  "langname": {
   "hu": "magyar",

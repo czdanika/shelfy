@@ -20,11 +20,10 @@ The interface ships in **English** and **Hungarian**. Every label lives in a tra
 - **Metadata lookup** from Moly.hu, Google Books and Open Library. You pick the right match, and description, series, year, tags and cover come over in one click. Everything stays editable before you approve.
 - **Automatic categorisation** from tags and description (crime, fantasy, science fiction, historical fiction…). Category names are translated, too.
 - **Browsing and sorting** by author, series, tag, publisher, language, format and rating, plus personal shelves and reading status.
-- **Conversion** with Calibre's `ebook-convert`. A missing Kindle format (MOBI/AZW3/EPUB) is created automatically on download and cached.
+- **Conversion** between ebook formats. A missing Kindle format (MOBI/AZW3/EPUB) is created automatically on download and cached.
 - **Send to Kindle** by e-mail. Each user sends to their own Kindle address. If a book only exists as MOBI/AZW3, an EPUB is made first, because Amazon only accepts EPUB.
 - **Kindle view** (`/kindle`): an e-ink friendly page with no JavaScript. It opens automatically in the Kindle browser, and old Kindles get MOBI.
 - **Users and roles**: administrator, editor and reader, with per-user permissions for upload, edit, download and delete.
-- **Calibre library import**: brings over your existing `metadata.db` and files, including descriptions, series, tags, ratings and covers. Your Calibre library is only read, and running the import again skips books already imported.
 
 | Upload | Inspection result |
 |---|---|
@@ -46,23 +45,20 @@ services:
     ports: ["18200:8080"]
     volumes:
       - shelfy-data:/data
-      - /path/to/Calibre Library:/calibre:ro   # optional, for the import
     environment:
       - DEFAULT_LANGUAGE=en                     # en | hu
-      - CALIBRE_LIBRARY=/calibre
 volumes:
   shelfy-data:
 ```
 
 Open `http://<server>:18200` and create the administrator account. Then:
 
-1. **Administration → Calibre import** brings over your existing library.
-2. **Administration → Settings** is where you set up SMTP for Send to Kindle. Add the sender address to the approved senders in your Amazon account.
-3. **Administration → Users** is where you add your family members.
+1. **Administration → Settings** is where you set up SMTP for Send to Kindle. Add the sender address to the approved senders in your Amazon account.
+2. **Administration → Users** is where you add your family members.
 
 > Old Kindle browsers often cannot open modern TLS sites (for example behind Cloudflare). At home, use the local address: `http://<server-ip>:18200`.
 
-The image is built for `linux/amd64` and `linux/arm64`, and it includes Calibre.
+The image is built for `linux/amd64` and `linux/arm64`, with the conversion tools included.
 
 ### Environment variables
 
@@ -71,7 +67,6 @@ The image is built for `linux/amd64` and `linux/arm64`, and it includes Calibre.
 | `DATA_DIR` | `/data` | database, caches, secret key |
 | `LIBRARY_DIR` | `/data/library` | book files (`Author/Title (id)/…`) |
 | `INGEST_DIR` | – | watched folder; files put here are processed automatically |
-| `CALIBRE_LIBRARY` | – | default Calibre library path for the import |
 | `DEFAULT_LANGUAGE` | `en` | default interface language; also the language of category tags |
 | `ONLINE_LOOKUP` | `true` | enable or disable online metadata lookup |
 | `METADATA_PROVIDERS` | `moly,google,openlibrary` | metadata sources, in order |
@@ -97,8 +92,8 @@ python scripts/check_locales.py
 
 ```bash
 pip install -r requirements.txt pytest
-pytest -q                      # tests that need Calibre are skipped if it is not installed
+pytest -q                      # conversion tests are skipped if ebook-convert is not installed
 DATA_DIR=./data uvicorn --factory app.main:create_app --reload
 ```
 
-Stack: FastAPI, Jinja2, SQLite, Calibre command-line tools. Moly.hu metadata is read from its public HTML pages, with an identifiable User-Agent and at a modest rate.
+Stack: FastAPI, Jinja2, SQLite, and the `ebook-meta` / `ebook-convert` command-line tools. Moly.hu metadata is read from its public HTML pages, with an identifiable User-Agent and at a modest rate.

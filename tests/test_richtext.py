@@ -1,7 +1,7 @@
 from app.richtext import plaintext, richtext
 
 
-def test_calibre_html_is_rendered_not_escaped():
+def test_html_description_is_rendered_not_escaped():
     out = richtext('<div>\n<p>Stephen King egyik <b>legjobb</b> regénye.</p><p>Második bekezdés.</p></div>')
     assert "<div>" not in out and "&lt;" not in out
     assert out.count("<p>") == 2 and "<b>legjobb</b>" in out

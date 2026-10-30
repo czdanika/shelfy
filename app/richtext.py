@@ -1,6 +1,6 @@
 """Könyvleírások biztonságos megjelenítése.
 
-A Calibre-ből, a fájlokból és az online forrásokból érkező leírás gyakran HTML (<div><p>…).
+A fájlokból és az online forrásokból érkező leírás gyakran HTML (<div><p>…).
 Csak egy szűk, ártalmatlan elemkészletet tartunk meg; minden más címke kimarad (a szövege marad),
 a script/style tartalma teljesen. A sima szöveges leírás bekezdéseket és sortöréseket kap.
 """

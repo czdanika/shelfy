@@ -51,8 +51,8 @@
     <section class="card" style="display: flex; flex-direction: column; gap: 10px">
       <h2 style="font-size: 17px">{{ t('admin.system') }}</h2>
       <ul class="checks small">
-        <li><span class="dot {{ 'ok' if calibre.has_meta else 'error' }}">{{ icon('check' if calibre.has_meta else 'x', 14) }}</span> ebook-meta</li>
-        <li><span class="dot {{ 'ok' if calibre.has_convert else 'error' }}">{{ icon('check' if calibre.has_convert else 'x', 14) }}</span> ebook-convert</li>
+        <li><span class="dot {{ 'ok' if converter.has_meta else 'error' }}">{{ icon('check' if converter.has_meta else 'x', 14) }}</span> ebook-meta</li>
+        <li><span class="dot {{ 'ok' if converter.has_convert else 'error' }}">{{ icon('check' if converter.has_convert else 'x', 14) }}</span> ebook-convert</li>
         <li><span class="dot {{ 'ok' if cfg.online_lookup else 'info' }}">{{ icon('check' if cfg.online_lookup else 'info', 14) }}</span>
           <span>{{ t('upload.online') }}: {% if cfg.online_lookup %}{% for pr in cfg.providers %}{{ t('source.' ~ pr) }}{% if not loop.last %}, {% endif %}{% endfor %}{% else %}{{ t('common.off') }}{% endif %}</span></li>
       </ul>

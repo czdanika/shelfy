@@ -7,7 +7,7 @@ from PIL import Image
 
 
 def to_jpeg(data: bytes, max_height: int = 1920, quality: int = 90) -> bytes:
-    """Bármilyen kép (WebP, PNG…) → RGB JPEG. A Calibre a WebP borítót csendben eldobja, ezért fontos."""
+    """Bármilyen kép (WebP, PNG…) → RGB JPEG. A konvertáló a WebP borítót csendben eldobja, ezért fontos."""
     img = Image.open(io.BytesIO(data))
     img = img.convert("RGB")
     if img.height > max_height:

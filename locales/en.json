@@ -357,15 +357,6 @@
   "lang_value": "Translation",
   "lang_only_missing": "Missing only",
   "lang_ref_help": "You can change the reference texts but not remove them.",
-  "nav_import": "Calibre import",
-  "import_title": "Import an existing Calibre library",
-  "import_help": "Shelfy reads the Calibre database (metadata.db) – titles, authors, series, tags, descriptions, ratings, covers – and copies the files. The Calibre library is not changed. You can run it again: books already imported are skipped.",
-  "import_path": "Calibre library folder (containing metadata.db)",
-  "import_start": "Start import",
-  "import_running": "Importing…",
-  "import_result": "{done} / {total} processed · {added} added · {skipped} skipped (already present)",
-  "import_errors": "Errors",
-  "import_done": "Finished.",
   "stats": "Library statistics",
   "st_books": "books",
   "st_size": "total size",
@@ -397,8 +388,7 @@
   "self_delete": "You cannot delete yourself.",
   "short_password": "The password must be at least 8 characters.",
   "lang_error": "Invalid or existing language code.",
-  "mail_toobig": "The file is larger than 50 MB; Amazon does not accept it.",
-  "import_nodb": "No metadata.db in this folder."
+  "mail_toobig": "The file is larger than 50 MB; Amazon does not accept it."
  },
  "langname": {
   "hu": "Hungarian",

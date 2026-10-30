@@ -11,7 +11,7 @@ from test_admin import login, make_user
 OLD_UA = "Mozilla/5.0 (Linux; U; en-US) AppleWebKit/528.5+ (KHTML, like Gecko, Safari/528.5+) Version/4.0 Kindle/3.0 (screen 600x800; rotate)"
 NEW_UA = "Mozilla/5.0 (X11; U; Linux armv7l like Android; en-us) AppleWebKit/531.2+ (KHTML, like Gecko) Version/5.0 Safari/531.2+ Mobile Safari/531.2+ Kindle/3.0+"
 
-pytestmark = pytest.mark.skipif(not shutil.which("ebook-convert"), reason="nincs Calibre")
+pytestmark = pytest.mark.skipif(not shutil.which("ebook-convert"), reason="nincs ebook-convert")
 
 
 @pytest.fixture

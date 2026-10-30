@@ -1,6 +1,6 @@
 FROM python:3.12-slim-bookworm
 
-# Calibre: metaadat-olvasás (ebook-meta) és konvertálás (ebook-convert)
+# ebook-meta (metaadat-olvasás) és ebook-convert (konvertálás)
 RUN apt-get update && apt-get install -y --no-install-recommends calibre fonts-dejavu-core && \
     rm -rf /var/lib/apt/lists/*
 

@@ -19,7 +19,6 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
 from . import __version__
-from .calibre_import import Progress, import_async
 from .categories import CATEGORIES
 from .auth import PERMS, ROLE_DEFAULTS, ROLES, Sessions, Throttle, User, hash_password, verify_password
 from .config import Config, load_config
@@ -29,7 +28,7 @@ from .images import thumbnail
 from .ingest import Ingest
 from .library import MIME, SORT_GROUPS, SORTS, Library, Meta, ascii_name
 from .providers import Lookup
-from .tools import Calibre, kindle_personal_doc, send_mail, sha256_file
+from .tools import Converter, kindle_personal_doc, send_mail, sha256_file
 
 BASE = Path(__file__).resolve().parent.parent
 COOKIE = "shelfy"
@@ -53,9 +52,9 @@ def create_app(cfg: Config | None = None, transport=None) -> FastAPI:
     i18n = I18n(override_dir=cfg.data_dir / "locales")
     sessions = Sessions(cfg.secret_key)
     throttle = Throttle()
-    calibre = Calibre(cfg)
+    converter = Converter(cfg)
     lookup = Lookup(cfg.providers, transport=transport)
-    ingest = Ingest(db, lib, calibre, lookup, cfg.data_dir / "uploads",
+    ingest = Ingest(db, lib, converter, lookup, cfg.data_dir / "uploads",
                     online=cfg.online_lookup, default_lang=cfg.default_language, translate=i18n.t)
     covers_dir = cfg.data_dir / "cache" / "covers"
     covers_dir.mkdir(parents=True, exist_ok=True)
@@ -243,7 +242,7 @@ def create_app(cfg: Config | None = None, transport=None) -> FastAPI:
 
     @app.get("/health")
     async def health():
-        return {"ok": True, "version": __version__, "books": lib.counts()["books"], "calibre": calibre.has_convert}
+        return {"ok": True, "version": __version__, "books": lib.counts()["books"], "convert": converter.has_convert}
 
     # ------------------------------------------------------------------ könyvtár
     @app.get("/", response_class=HTMLResponse)
@@ -307,7 +306,7 @@ def create_app(cfg: Config | None = None, transport=None) -> FastAPI:
             more = [m for m in more if m["id"] != bid][:10]
         return render(request, "book.html", b=b, read_state=state, more=more, msg=request.query_params.get("msg"),
                       can_mail=bool(db.get_setting("smtp_host") and db.get_setting("smtp_from")),
-                      can_convert=calibre.has_convert)
+                      can_convert=converter.has_convert)
 
     @app.get("/book/{bid}/cover")
     async def cover(bid: int, w: int = 0, g: int = 0):
@@ -359,7 +358,7 @@ def create_app(cfg: Config | None = None, transport=None) -> FastAPI:
         p = lib.file_path(bid, fmt)
         if p and p.exists():
             return p
-        if fmt not in KINDLE_FORMATS or not calibre.has_convert:
+        if fmt not in KINDLE_FORMATS or not converter.has_convert:
             return None
         b = lib.book(bid)
         src_fmt = next((f for f in SOURCE_ORDER if f in b["formats"] and f != fmt), None)
@@ -372,7 +371,7 @@ def create_app(cfg: Config | None = None, transport=None) -> FastAPI:
                 out.parent.mkdir(parents=True, exist_ok=True)
                 for old in out.parent.glob(f"{bid}_*.{fmt}"):  # elavult (régebbi adatokkal készült) példány
                     old.unlink(missing_ok=True)
-                await calibre.convert(lib.file_path(bid, src_fmt), out, convert_opts(b, fmt))
+                await converter.convert(lib.file_path(bid, src_fmt), out, convert_opts(b, fmt))
                 if fmt in ("mobi", "azw3"):
                     await asyncio.to_thread(kindle_personal_doc, out)
         return out
@@ -409,7 +408,7 @@ def create_app(cfg: Config | None = None, transport=None) -> FastAPI:
     async def convert(request: Request, bid: int, target: str = Form(...)):
         """Tartós konvertálás: az új formátum a könyv fájljai közé kerül (szerkesztői jog)."""
         user: User = request.state.user
-        if not user.can("can_edit") or target not in ("epub", "azw3", "mobi", "pdf") or not calibre.has_convert:
+        if not user.can("can_edit") or target not in ("epub", "azw3", "mobi", "pdf") or not converter.has_convert:
             return Response(status_code=403)
         b = lib.book(bid)
         src_fmt = next((f for f in SOURCE_ORDER if f in b["formats"] and f != target), None)
@@ -417,7 +416,7 @@ def create_app(cfg: Config | None = None, transport=None) -> FastAPI:
             return flash(f"/book/{bid}", "convert_nosrc")
         dst = Path(tempfile.mkstemp(suffix="." + target, dir=cfg.data_dir)[1])
         try:
-            await calibre.convert(lib.file_path(bid, src_fmt), dst, convert_opts(b, target))
+            await converter.convert(lib.file_path(bid, src_fmt), dst, convert_opts(b, target))
             lib.add_file(bid, dst, target, await asyncio.to_thread(sha256_file, dst))
         except RuntimeError:
             return flash(f"/book/{bid}", "convert_error")
@@ -785,7 +784,7 @@ def create_app(cfg: Config | None = None, transport=None) -> FastAPI:
         disk = shutil.disk_usage(cfg.library_dir)
         st = lib.stats()
         st.update(cache=dir_size(cfg.data_dir / "cache"), disk_free=disk.free, disk_total=disk.total)
-        return render(request, "admin_settings.html", s=settings_dict(), calibre=calibre, cfg=cfg, stats=st,
+        return render(request, "admin_settings.html", s=settings_dict(), converter=converter, cfg=cfg, stats=st,
                       msg=request.query_params.get("msg"), section="settings")
 
     @app.post("/admin/settings")
@@ -852,7 +851,7 @@ def create_app(cfg: Config | None = None, transport=None) -> FastAPI:
         dev = device_of(request)
         return {"device": dev, "kfmt": "mobi" if dev == "old" else "azw3",
                 "can_mail": bool(db.get_setting("smtp_host") and db.get_setting("smtp_from")),
-                "can_convert": calibre.has_convert, "msg": request.query_params.get("msg")}
+                "can_convert": converter.has_convert, "msg": request.query_params.get("msg")}
 
     @app.get("/kindle", response_class=HTMLResponse)
     async def kindle_home(request: Request, q: str = "", page: int = 1, view: str = "all", sort: str = "added_new"):
@@ -886,24 +885,5 @@ def create_app(cfg: Config | None = None, transport=None) -> FastAPI:
         resp.set_cookie("shelfy_device", "old" if device == "old" else "new", max_age=YEAR, samesite="lax")
         resp.set_cookie("shelfy_ui", "full" if ui == "full" else "kindle", max_age=YEAR, samesite="lax")
         return resp
-
-    # ------------------------------------------------------------------ Calibre könyvtár átvétele
-    import_progress = Progress()
-
-    @app.get("/admin/import", response_class=HTMLResponse)
-    async def admin_import(request: Request):
-        return render(request, "admin_import.html", p=import_progress, default=str(cfg.calibre_library or ""),
-                      msg=request.query_params.get("msg"), section="import")
-
-    @app.post("/admin/import")
-    async def admin_import_start(request: Request, path: str = Form("")):
-        root = Path(path.strip() or str(cfg.calibre_library or ""))
-        if import_progress.running:
-            return RedirectResponse("/admin/import", status_code=303)
-        if not (root / "metadata.db").is_file():
-            return flash("/admin/import", "import_nodb")
-        import_progress.running = True
-        app.state.import_task = asyncio.create_task(import_async(root, db, lib, import_progress))
-        return RedirectResponse("/admin/import", status_code=303)
 
     return app

@@ -27,7 +27,6 @@ class Config:
     admin_password: str | None = None
     providers: tuple[str, ...] = ("moly", "google", "openlibrary")
     online_lookup: bool = True
-    calibre_library: Path | None = None
 
 
 def load_config() -> Config:
@@ -62,5 +61,4 @@ def load_config() -> Config:
         admin_password=os.environ.get("ADMIN_PASSWORD") or None,
         providers=providers,
         online_lookup=_bool(os.environ.get("ONLINE_LOOKUP"), True),
-        calibre_library=Path(os.environ["CALIBRE_LIBRARY"]) if os.environ.get("CALIBRE_LIBRARY") else None,
     )

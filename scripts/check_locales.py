@@ -40,7 +40,7 @@ def dynamic() -> set[str]:
             keys |= {short, title}
     keys |= {f"upload.src_{s}" for s in ("web", "folder")}
     keys |= {f"upload.status_{s}" for s in ("pending", "inspecting", "review", "done", "error", "rejected")}
-    keys |= {f"admin.nav_{s}" for s in ("users", "settings", "languages", "import")}
+    keys |= {f"admin.nav_{s}" for s in ("users", "settings", "languages")}
     keys |= {f"admin.sec_{s}" for s in ("starttls", "ssl", "none")}
     keys |= {f"book.dl_{f}" for f in ("mobi", "azw3", "epub")}
     keys |= {f"insp.src_{s}" for s in ("ok", "empty", "error")}

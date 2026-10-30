@@ -1,4 +1,4 @@
-"""Külső eszközök: Calibre ebook-meta / ebook-convert, Kindle-javítás, hash, e-mail."""
+"""Külső eszközök: ebook-meta / ebook-convert, Kindle-javítás, hash, e-mail."""
 from __future__ import annotations
 
 import asyncio
@@ -34,7 +34,7 @@ async def run(cmd: list[str], timeout: int) -> tuple[int, str]:
     return proc.returncode, (out or b"").decode(errors="replace")
 
 
-class Calibre:
+class Converter:
     def __init__(self, cfg: Config) -> None:
         self.cfg = cfg
         self.lock = asyncio.Semaphore(1)
@@ -134,7 +134,7 @@ def parse_opf(text: str) -> dict:
 
 
 def fallback_meta(path: Path) -> dict:
-    """Ha nincs Calibre: fájlnévből ("Szerző - Cím.epub"), EPUB-nál az OPF-ből."""
+    """Ha nincs ebook-meta: fájlnévből ("Szerző - Cím.epub"), EPUB-nál az OPF-ből."""
     if path.suffix.lower() == ".epub":
         try:
             with zipfile.ZipFile(path) as z:

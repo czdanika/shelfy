@@ -57,7 +57,7 @@ def test_send_without_smtp(admin, book):
     assert "mail_off" in r.headers["location"]
 
 
-@pytest.mark.skipif(not shutil.which("ebook-convert"), reason="nincs Calibre")
+@pytest.mark.skipif(not shutil.which("ebook-convert"), reason="nincs ebook-convert")
 def test_convert_to_mobi(admin, book):
     r = admin.post(f"/book/{book}/convert", data={"target": "mobi"}, follow_redirects=False)
     assert "converted" in r.headers["location"]

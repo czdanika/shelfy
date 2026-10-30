@@ -3,7 +3,6 @@
 #   1. Portainer: Stacks → Add stack → Web editor, paste this file
 #   2. Adjust the volumes to your own folders
 #   3. Open http://<server>:18200 and create the administrator account
-#   4. Administration → Calibre import brings over an existing Calibre library
 
 services:
   shelfy:
@@ -16,11 +15,9 @@ services:
       - shelfy-data:/data                        # database, library, caches
       # - /srv/books/shelfy:/data/library         # keep the book files in a separate folder (optional)
       # - /srv/books/inbox:/ingest                # watched folder: files dropped here are processed automatically
-      # - /srv/calibre:/calibre:ro                # existing Calibre library (read-only) for the import
     environment:
       - DEFAULT_LANGUAGE=en                      # en | hu
       # - INGEST_DIR=/ingest
-      # - CALIBRE_LIBRARY=/calibre
       - ONLINE_LOOKUP=true                       # Moly.hu / Google Books / Open Library lookup
       - METADATA_PROVIDERS=moly,google,openlibrary
       # First admin from environment variables (otherwise create it in the browser):

@@ -16,7 +16,7 @@ from .categories import suggest
 from .db import Database, now
 from .library import FORMATS, Library, Meta, safe_name
 from .providers import Candidate, Lookup, candidates_json
-from .tools import Calibre, sha256_file
+from .tools import Converter, sha256_file
 
 MAGIC = {
     "epub": lambda b: b[:2] == b"PK",
@@ -42,9 +42,9 @@ def check(key: str, status: str, **params) -> dict:
 
 
 class Ingest:
-    def __init__(self, db: Database, lib: Library, calibre: Calibre, lookup: Lookup, upload_dir: Path,
+    def __init__(self, db: Database, lib: Library, converter: Converter, lookup: Lookup, upload_dir: Path,
                  online: bool = True, default_lang: str = "en", translate=None) -> None:
-        self.db, self.lib, self.calibre, self.lookup = db, lib, calibre, lookup
+        self.db, self.lib, self.converter, self.lookup = db, lib, converter, lookup
         self.dir = upload_dir
         self.dir.mkdir(parents=True, exist_ok=True)
         self.online = online
@@ -158,7 +158,7 @@ class Ingest:
         checks.append(check("hash", "warn" if same else "ok", sha=sha[:12]))
 
         # 4. metaadat a fájlból
-        meta, cover = await self.calibre.read_meta(path)
+        meta, cover = await self.converter.read_meta(path)
         found = [k for k in ("title", "authors", "language", "publisher", "year", "isbn", "series", "description") if meta.get(k)]
         checks.append(check("meta", "ok" if meta.get("title") and meta.get("authors") else "warn",
                             fields=", ".join(found) or "–"))

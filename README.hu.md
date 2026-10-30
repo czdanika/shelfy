@@ -20,11 +20,10 @@ A felület magyar és angol. Minden felirat a `locales/*.json` fájlokban van, �
 - **Információk letöltése**: Moly.hu, Google Books és Open Library. A leírás, a sorozat, a kiadás éve, a címkék és a borító egyetlen kattintással átvehető. A találatok közül te választasz, és az adatok jóváhagyás előtt szerkeszthetők.
 - **Automatikus kategorizálás** a címkékből és a leírásból (krimi, fantasy, sci-fi, történelmi regény…).
 - **Böngészés és rendezés**: szerzők, sorozatok, címkék, kiadók, nyelvek, formátumok és értékelés szerint, valamint a saját polcaid.
-- **Konvertálás** a Calibre `ebook-convert` eszközével. Letöltéskor a hiányzó Kindle-formátumot (MOBI/AZW3/EPUB) magától elkészíti.
+- **Konvertálás** az e-könyv formátumok között. Letöltéskor a hiányzó Kindle-formátumot (MOBI/AZW3/EPUB) magától elkészíti.
 - **Küldés Kindle-re e-mailben**, minden felhasználónak a saját Kindle-címére.
 - **Kindle-nézet** (`/kindle`): JavaScript nélküli, e-ink-barát felület. Kindle böngészőből magától ez nyílik meg, a régi Kindle MOBI-t kap.
 - **Felhasználók és szerepkörök**: adminisztrátor, szerkesztő, olvasó, egyenként állítható jogokkal (feltöltés, szerkesztés, letöltés, törlés).
-- **Calibre könyvtár átvétele**: a meglévő `metadata.db` és a fájlok egy kattintással átjönnek, a leírásokkal, sorozatokkal és címkékkel együtt.
 
 | Feltöltés | Vizsgálat eredménye |
 |---|---|
@@ -46,18 +45,15 @@ services:
     ports: ["18200:8080"]
     volumes:
       - shelfy-data:/data
-      - /volume1/calibre:/calibre:ro      # régi Calibre könyvtár az átvételhez (opcionális)
     environment:
-      - CALIBRE_LIBRARY=/calibre
 volumes:
   shelfy-data:
 ```
 
 Az első megnyitáskor létrehozod az admin fiókot. Utána:
 
-1. **Adminisztráció → Calibre átvétel**: áthozza a meglévő könyvtárat.
-2. **Adminisztráció → Beállítások**: SMTP a Kindle-küldéshez. A feladó címét az Amazon-fiókban fel kell venni a jóváhagyott feladók közé.
-3. **Adminisztráció → Felhasználók**: a családtagok fiókjai.
+1. **Adminisztráció → Beállítások**: SMTP a Kindle-küldéshez. A feladó címét az Amazon-fiókban fel kell venni a jóváhagyott feladók közé.
+2. **Adminisztráció → Felhasználók**: a családtagok fiókjai.
 
 > A régi Kindle böngészője a Cloudflare-en át nem mindig tölt be (TLS). Otthon a helyi címmel nyisd meg: `http://<nas-ip>:18200`.
 
@@ -68,7 +64,6 @@ Az első megnyitáskor létrehozod az admin fiókot. Utána:
 | `DATA_DIR` | `/data` | adatbázis, gyorsítótár, titkosító kulcs |
 | `LIBRARY_DIR` | `/data/library` | a könyvek fájljai (Szerző/Cím (id)/…) |
 | `INGEST_DIR` | – | figyelt mappa: az ide tett fájlokat magától feldolgozza |
-| `CALIBRE_LIBRARY` | – | a Calibre könyvtár alapértelmezett helye az átvételhez |
 | `DEFAULT_LANGUAGE` | `hu` | a felület alapnyelve |
 | `ONLINE_LOOKUP` | `true` | online adatkeresés be/ki |
 | `METADATA_PROVIDERS` | `moly,google,openlibrary` | adatforrások sorrendben |
@@ -90,7 +85,7 @@ python scripts/check_locales.py
 
 ```bash
 pip install -r requirements.txt pytest
-pytest -q                       # a Calibre-t igénylő tesztek Calibre nélkül kimaradnak
+pytest -q                       # a konvertálási tesztek ebook-convert nélkül kimaradnak
 DATA_DIR=./data uvicorn --factory app.main:create_app --reload
 ```
 
