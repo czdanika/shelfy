@@ -562,5 +562,11 @@
   "user_deleted": "Felhasználó törölve: {name}",
   "password_reset": "Jelszó visszaállítva parancssorból: {name}",
   "settings_saved": "Beállítások mentve"
+ },
+ "theme": {
+  "label": "Megjelenés",
+  "auto": "Automatikus (a rendszer szerint)",
+  "light": "Világos",
+  "dark": "Sötét"
  }
 }

@@ -4,7 +4,7 @@
   <div class="card">
     <div class="row between">
       <span class="row" style="gap: 10px">
-        <img src="/static/icons/shelfy-mark-light.svg" width="40" height="35" alt="" aria-hidden="true">
+        <img class="mark-light" src="/static/icons/shelfy-mark-light.svg" width="40" height="35" alt="" aria-hidden="true"><img class="mark-dark-only" src="/static/icons/shelfy-mark-dark.svg" width="40" height="35" alt="" aria-hidden="true">
         <strong style="font-family: var(--serif); font-size: 26px">{{ t('app.name') }}</strong>
       </span>
       <span class="small">{% for code, name in languages %}{% if code == lang %}<strong>{{ code|upper }}</strong>{% else %}<a href="/lang/{{ code }}" title="{{ name }}">{{ code|upper }}</a>{% endif %}{% if not loop.last %} / {% endif %}{% endfor %}</span>

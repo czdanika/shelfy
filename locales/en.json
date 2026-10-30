@@ -562,5 +562,11 @@
   "user_deleted": "User deleted: {name}",
   "password_reset": "Password reset from the command line: {name}",
   "settings_saved": "Settings saved"
+ },
+ "theme": {
+  "label": "Appearance",
+  "auto": "Automatic (follow the system)",
+  "light": "Light",
+  "dark": "Dark"
  }
 }

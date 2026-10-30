@@ -43,7 +43,7 @@ ZOOM_MIN, ZOOM_MAX, ZOOM_DEFAULT = 90, 260, 160  # könyvkártya szélessége px
 # Kindle 1/2/DX és Kindle Keyboard ("Kindle/3.0" a "+" nélkül): csak MOBI-t tölt le
 OLD_KINDLE_UA = re.compile(r"Kindle/(?:[12]\.\d|3\.0(?!\+))")
 KINDLE_UA = re.compile(r"Kindle|Silk/")
-PUBLIC = ("/login", "/setup", "/static/", "/lang/", "/health")
+PUBLIC = ("/theme/", "/login", "/setup", "/static/", "/lang/", "/health")
 SMTP_KEYS = ("smtp_host", "smtp_port", "smtp_security", "smtp_user", "smtp_password", "smtp_from")
 FACETS = {"authors": "author", "series": "series", "tags": "tag", "publishers": "publisher",
           "languages": "lang", "formats": "fmt", "ratings": "rating"}
@@ -201,6 +201,7 @@ def create_app(cfg: Config | None = None, transport=None) -> FastAPI:
             "user": user, "version": __version__, "path": request.url.path,
             "query": dict(request.query_params), "qs": qs, "now": now(),
             "event_text": partial(event_text, lang),
+            "theme": request.cookies.get("shelfy_theme") if request.cookies.get("shelfy_theme") in ("light", "dark") else "auto",
         }
         if user:
             base["shelves"] = [dict(r) for r in db.q("SELECT id, name FROM shelves WHERE user_id = ? ORDER BY name", (user.id,))]
@@ -294,6 +295,18 @@ def create_app(cfg: Config | None = None, transport=None) -> FastAPI:
     async def logout(request: Request):
         resp = RedirectResponse("/login", status_code=303)
         resp.delete_cookie(COOKIE)
+        return resp
+
+    @app.get("/theme/{mode}")
+    async def set_theme(request: Request, mode: str):
+        back = request.headers.get("referer") or "/"
+        if urlsplit(back).netloc not in ("", request.url.netloc):
+            back = "/"
+        resp = RedirectResponse(back, status_code=303)
+        if mode in ("light", "dark"):
+            resp.set_cookie("shelfy_theme", mode, max_age=YEAR, samesite="lax")
+        else:
+            resp.delete_cookie("shelfy_theme")
         return resp
 
     @app.get("/lang/{code}")

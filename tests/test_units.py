@@ -79,3 +79,14 @@ def test_list_layout(admin):
     assert 'class="brow"' in html and "Hosszú leírás a listához." in html and "Kiadó" in html and "krimi" in html
     assert 'class="brow"' in admin.get("/books").text           # megjegyzi
     assert 'class="brow"' not in admin.get("/books?layout=grid").text
+
+
+def test_theme_switch(admin):
+    html = admin.get("/books").text
+    assert "data-theme=" not in html.split(">")[1] and "prefers-color-scheme" in html   # automatikus
+    admin.get("/theme/dark", headers={"referer": "http://folio.test/books"})
+    assert '<html lang="hu" data-theme="dark">' in admin.get("/books").text
+    admin.get("/theme/light")
+    assert 'data-theme="light"' in admin.get("/books").text
+    admin.get("/theme/auto")
+    assert "prefers-color-scheme" in admin.get("/books").text
