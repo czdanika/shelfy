@@ -191,3 +191,6 @@ table.list td input[type=text], table.list td textarea{width:100%}
 .stats div{background:var(--bg);border-radius:10px;padding:10px 12px}
 .stats b{display:block;font-size:20px;line-height:1.2}
 .stats span{font-size:12px;color:var(--muted)}
+.qnav{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.qnav a{padding:5px 11px;border-radius:999px;background:#fff;border:1px solid var(--line-2);color:var(--text);font-size:13px;text-decoration:none}
+.qnav a.on{background:var(--side);border-color:var(--side);color:#fff;font-weight:600}

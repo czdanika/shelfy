@@ -89,3 +89,37 @@ def test_unsupported_format(admin, tmp_path):
     uid = admin.app.state.db.val("SELECT MAX(id) FROM uploads")
     assert wait_status(admin, uid) == "error"
     assert "nem kezeli" in admin.get(f"/upload/{uid}").text
+
+
+def test_two_uploads_review_one_after_another(admin, tmp_path):
+    ids = []
+    for name, title in (("a.epub", "A kék város"), ("b.epub", "Másik könyv")):
+        with make_epub(tmp_path / name, title=title, author="Próba Anna").open("rb") as f:
+            admin.post("/upload", files={"files": (name, f, "application/epub+zip")}, headers={"accept": "application/json"})
+        ids.append(admin.app.state.db.val("SELECT MAX(id) FROM uploads"))
+    for uid in ids:
+        wait_status(admin, uid)
+    first, second = ids
+    page = admin.get(f"/upload/{first}").text
+    assert "Átnézésre vár (2)" in page and f'href="/upload/{second}"' in page
+    assert "Felvétel és a következő (1 vár)" in page
+    # jóváhagyás után a második átnézése jön, nem tűnik el
+    r = admin.post(f"/upload/{first}/approve", data={"title": "A kék város", "authors": "Próba Anna", "next": "next"},
+                   follow_redirects=False)
+    assert r.headers["location"] == f"/upload/{second}?msg=approved"
+    page = admin.get(r.headers["location"]).text
+    assert "Felvéve a könyvtárba" in page and "Felvétel a könyvtárba" in page
+    # az utolsó után a könyv oldala
+    r = admin.post(f"/upload/{second}/approve", data={"title": "Másik könyv", "authors": "Próba Anna"}, follow_redirects=False)
+    assert r.headers["location"].startswith("/book/")
+
+
+def test_book_page_points_to_waiting_uploads(admin, tmp_path):
+    for name in ("a.epub", "b.epub"):
+        with make_epub(tmp_path / name, title=name).open("rb") as f:
+            admin.post("/upload", files={"files": (name, f, "application/epub+zip")}, headers={"accept": "application/json"})
+    last = admin.app.state.db.val("SELECT MAX(id) FROM uploads")
+    wait_status(admin, last); wait_status(admin, last - 1)
+    r = admin.post(f"/upload/{last}/approve", data={"title": "x", "next": "book"}, follow_redirects=False)
+    html = admin.get(r.headers["location"]).text
+    assert "1 feltöltés vár még átnézésre" in html

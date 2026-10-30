@@ -166,7 +166,8 @@
   "status_review": "Átnézésre vár",
   "status_done": "Felvéve",
   "status_error": "Hiba",
-  "status_rejected": "Elvetve"
+  "status_rejected": "Elvetve",
+  "waiting_link": "{n} feltöltés vár még átnézésre ›"
  },
  "insp": {
   "format": "Formátum",
@@ -229,7 +230,10 @@
   "categories": "Kategóriák",
   "categories_help": "címkeként kerülnek a könyvhöz",
   "approve": "Felvétel a könyvtárba",
-  "approve_next": "Felvétel és vissza a sorhoz"
+  "approve_next": "Felvétel és vissza a sorhoz",
+  "queue_label": "Átnézésre vár",
+  "approve_and_next": "Felvétel és a következő ({n} vár)",
+  "approve_open": "Felvétel és a könyv megnyitása"
  },
  "cat": {
   "crime": "Krimi",

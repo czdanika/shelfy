@@ -13,6 +13,16 @@
   {% endif %}
 </div>
 
+{% if queue|length > 1 %}
+<nav class="qnav" aria-label="{{ t('review.queue_label') }}">
+  <span class="lbl">{{ t('review.queue_label') }} ({{ queue|length }}):</span>
+  {% for w in queue %}
+  <a href="/upload/{{ w.id }}" class="{% if w.id == up.id %}on{% endif %}" {% if w.id == up.id %}aria-current="page"{% endif %}>
+    {% if w.status != 'review' %}<span class="spin"></span> {% endif %}{{ w.title|truncate(40, True, '…') }}</a>
+  {% endfor %}
+</nav>
+{% endif %}
+
 {% if up.status in ('pending', 'inspecting') %}
 <div class="card row"><span class="spin"></span> {{ t('upload.status_' ~ up.status) }}…</div>
 <script>setTimeout(function () { location.reload(); }, 3000);</script>
@@ -134,8 +144,13 @@
       </fieldset>
 
       <div class="row">
-        <button class="btn primary" type="submit">{{ icon('check', 16) }} {{ t('review.approve') }}</button>
+        {% if more %}
+        <button class="btn primary" type="submit" name="next" value="next">{{ icon('check', 16) }} {{ t('review.approve_and_next', n=more) }}</button>
+        <button class="btn" type="submit" name="next" value="book">{{ t('review.approve_open') }}</button>
+        {% else %}
+        <button class="btn primary" type="submit" name="next" value="book">{{ icon('check', 16) }} {{ t('review.approve') }}</button>
         <button class="btn" type="submit" name="next" value="queue">{{ t('review.approve_next') }}</button>
+        {% endif %}
       </div>
     </form>
     {% endif %}

@@ -166,7 +166,8 @@
   "status_review": "Ready for review",
   "status_done": "Added",
   "status_error": "Error",
-  "status_rejected": "Discarded"
+  "status_rejected": "Discarded",
+  "waiting_link": "{n} upload(s) still waiting for review ›"
  },
  "insp": {
   "format": "Format",
@@ -229,7 +230,10 @@
   "categories": "Categories",
   "categories_help": "added to the book as tags",
   "approve": "Add to library",
-  "approve_next": "Add and back to queue"
+  "approve_next": "Add and back to queue",
+  "queue_label": "Waiting for review",
+  "approve_and_next": "Add and next ({n} waiting)",
+  "approve_open": "Add and open the book"
  },
  "cat": {
   "crime": "Crime",

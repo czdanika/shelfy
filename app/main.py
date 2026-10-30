@@ -601,8 +601,10 @@ def create_app(cfg: Config | None = None, transport=None) -> FastAPI:
                     st_key = st if st in ("ok", "empty") else "error"
                     parts.append(f"{i18n.t(lang, 'source.' + name)}: {i18n.t(lang, 'insp.src_' + st_key)}")
                 prm["sources"] = f" ({', '.join(parts)})" if parts else ""
+        others = waiting()
         return render(request, "review.html", up=up, chosen=c, p=proposal, dup=dup, has_cover=has_cover,
-                      categories=list(CATEGORIES))
+                      categories=list(CATEGORIES), queue=others, msg=request.query_params.get("msg"),
+                      more=sum(1 for w in others if w["id"] != uid and w["status"] != "done"))
 
     @app.get("/upload/{uid}/cand/{idx}/cover")
     async def candidate_cover(request: Request, uid: int, idx: int):
@@ -624,6 +626,32 @@ def create_app(cfg: Config | None = None, transport=None) -> FastAPI:
         p = cfg.data_dir / "uploads" / f"{uid}_cover.jpg"
         return FileResponse(p, media_type="image/jpeg") if p.exists() else Response(status_code=404)
 
+    def waiting(exclude: int | None = None) -> list[dict]:
+        """Az átnézésre váró (és a még vizsgált) feltöltések, a legrégebbi elöl."""
+        rows = db.q("""SELECT id, filename, status, extracted FROM uploads
+                       WHERE status IN ('pending','inspecting','review') ORDER BY id""")
+        out = []
+        for r in rows:
+            if r["id"] == exclude:
+                continue
+            ex = json.loads(r["extracted"] or "{}")
+            out.append({"id": r["id"], "status": r["status"], "title": ex.get("title") or r["filename"]})
+        return out
+
+    def after_review(uid: int, msg: str, bid: int | None = None, mode: str | None = None) -> RedirectResponse:
+        """Jóváhagyás/elvetés után: a következő átnézendő könyv, a sor, vagy a felvett könyv oldala."""
+        rest = waiting(uid)
+        nxt = next((w for w in rest if w["status"] == "review"), None)
+        if mode == "book" and bid:
+            return flash(f"/book/{bid}", msg)
+        if mode == "queue":
+            return flash("/upload", msg)
+        if nxt:
+            return flash(f"/upload/{nxt['id']}", msg)
+        if rest:  # a többi még vizsgálat alatt
+            return flash("/upload", msg)
+        return flash(f"/book/{bid}" if bid else "/upload", msg)
+
     @app.post("/upload/{uid}/approve")
     async def approve(request: Request, uid: int):
         user: User = request.state.user
@@ -641,9 +669,7 @@ def create_app(cfg: Config | None = None, transport=None) -> FastAPI:
                 "cover_url": form.get("cover_url") if form.get("cover_choice") == "online" else None}
         bid = await ingest.approve(uid, data, use_candidate_cover=form.get("cover_choice") == "online",
                                    lang=lang_of(request, user))
-        if form.get("next") == "queue":
-            return flash("/upload", "approved")
-        return flash(f"/book/{bid}", "approved")
+        return after_review(uid, "approved", bid, form.get("next"))
 
     @app.post("/upload/approve-all")
     async def approve_all(request: Request):
@@ -666,7 +692,7 @@ def create_app(cfg: Config | None = None, transport=None) -> FastAPI:
         if not request.state.user.can("can_upload"):
             return Response(status_code=403)
         ingest.reject(uid)
-        return flash("/upload", "rejected")
+        return after_review(uid, "rejected", None, "next")
 
     @app.post("/upload/{uid}/research")
     async def research(request: Request, uid: int, title: str = Form(""), author: str = Form(""),
