@@ -49,9 +49,9 @@
   <div class="main">
     <header class="top">
       <form class="search" role="search" action="/books">
-        {{ icon('search', 18) }}
         <label for="q" class="sr">{{ t('search.label') }}</label>
         <input id="q" name="q" type="search" value="{{ query.get('q', '') }}" placeholder="{{ t('search.placeholder') }}">
+        <button type="submit" aria-label="{{ t('search.label') }}">{{ icon('search', 18) }}</button>
       </form>
       {% if user.can('can_upload') %}<a class="btn primary" href="/upload">{{ icon('upload', 16) }} {{ t('nav.upload') }}</a>{% endif %}
       <div class="lang">{% for code, name in languages %}{% if code == lang %}<span>{{ code|upper }}</span>{% else %}<a href="/lang/{{ code }}" title="{{ name }}">{{ code|upper }}</a>{% endif %}{% if not loop.last %}<span aria-hidden="true">/</span>{% endif %}{% endfor %}</div>

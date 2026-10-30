@@ -75,7 +75,8 @@
 
 {% if more %}
 <section style="display: flex; flex-direction: column; gap: 14px">
-  <div class="row between"><h2>{{ t('book.more_by') }}</h2><a href="/books?author={{ b.authors[0].id }}">{{ t('book.see_all') }} ›</a></div>
+  <h2 class="sechead"><span>{{ t('book.more_by') }}</span></h2>
+  <div style="text-align: right; margin-top: -8px"><a class="small" href="/books?author={{ b.authors[0].id }}">{{ t('book.see_all') }} ›</a></div>
   <div class="books">{% for m in more %}{{ bookcard(m, t, user, now) }}{% endfor %}</div>
 </section>
 {% endif %}

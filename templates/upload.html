@@ -28,7 +28,7 @@
 
 <section class="queue" aria-live="polite">
   <div class="row between">
-    <h2>{{ t('upload.queue') }}</h2>
+    <h2 class="sechead" style="flex: 1"><span>{{ t('upload.queue') }}</span></h2>
     {% if items|selectattr('status', 'equalto', 'review')|list %}
     <form method="post" action="/upload/approve-all"><button class="btn primary" type="submit">{{ icon('check', 16) }} {{ t('upload.approve_all') }}</button></form>
     {% endif %}

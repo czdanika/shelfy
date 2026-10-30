@@ -5,7 +5,7 @@
   --text:#18202E; --muted:#4B5563; --accent:#0F766E; --accent-d:#0B5A54; --accent-l:#CCFBF1;
   --amber:#F59E0B; --amber-l:#FEF3C7; --danger:#B91C1C; --danger-l:#FEE2E2; --ok:#166534; --ok-l:#DCFCE7;
   --warn:#92400E; --warn-l:#FEF3C7; --radius:12px;
-  --serif:"Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif; --sans:"Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --serif:"Source Sans 3", "Source Sans Pro", "Helvetica Neue", Arial, sans-serif; --sans:"Source Sans 3", "Source Sans Pro", "Helvetica Neue", Arial, sans-serif;
 }
 *{box-sizing:border-box}
 html,body{margin:0}
@@ -195,3 +195,92 @@ table.list td input[type=text], table.list td textarea{width:100%}
 .qnav a{padding:5px 11px;border-radius:999px;background:#fff;border:1px solid var(--line-2);color:var(--text);font-size:13px;text-decoration:none}
 .qnav a.on{background:var(--side);border-color:var(--side);color:#fff;font-weight:600}
 .cmp td{vertical-align:top} .cmp tr.same td{color:var(--muted)} .cmp .lbl{white-space:nowrap} .cmpimg{width:80px;border-radius:4px;box-shadow:0 3px 8px rgba(0,0,0,.18)}
+
+/* ================= Könnyű, vékony stílus ================= */
+body{font-size:15px;color:#212121}
+h1{font-weight:400;font-size:30px;letter-spacing:0}
+h2{font-weight:400;font-size:21px}
+.card h2{font-weight:600;font-size:17px}
+b,strong,th{font-weight:600}
+.muted{color:#6B7075}
+/* oldalsáv: vékonyabb betűk */
+.side .brand span{font-weight:600;letter-spacing:.2px}
+.side .label{font-weight:600;letter-spacing:1.6px;font-size:11px}
+.side a.item{font-weight:300;font-size:15px}
+.side a.item.on{font-weight:400}
+/* felső sáv és kereső: pirula, ráragasztott gomb */
+.top{padding:12px 28px}
+.search{padding:0;gap:0;height:40px;border-radius:999px;background:#fff;border:1px solid #818182;overflow:hidden}
+.search input{padding:0 18px;font-size:15px;font-weight:400;height:100%}
+.search button{flex:none;width:48px;height:100%;border:0;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer}
+.search button:hover{background:var(--accent-d)}
+/* gombok: pirula, a másodlagos fehér vékony kerettel */
+.btn{border-radius:999px;font-weight:600;min-height:40px;padding:0 20px;border-color:#C9CCD1}
+.btn.small{min-height:32px;padding:0 14px}
+.btn:hover{border-color:#818182}
+.adminnav a{border-radius:999px;font-weight:400}
+.adminnav a.on{font-weight:600}
+input[type=text],input[type=password],input[type=email],input[type=number],input[type=search],select,textarea{border-color:#C9CCD1;border-radius:8px}
+.card{border-radius:6px;border-color:#E3E5E8;box-shadow:none}
+/* rendezősáv: vékony, szellős */
+.sortbar{border-radius:6px;background:#fff;gap:6px 14px;padding:8px 12px}
+.sortgrp{background:none;padding:0;gap:2px}
+.sortgrp span{font-weight:400;color:#6B7075;text-transform:uppercase;font-size:12px;letter-spacing:.8px}
+.sortgrp a{font-weight:400;border-radius:999px;height:30px;min-width:40px;color:#212121}
+.sortgrp a:hover{background:#F1F3F4}
+.sortgrp a.on{font-weight:600}
+/* könyvkártya: középre zárt, finom árnyék */
+.books{gap:32px 26px}
+.book{text-align:center;align-items:center}
+.book .cover{width:100%}
+.cover .lift{border-radius:2px 6px 6px 2px;box-shadow:inset 5px 0 0 rgba(0,0,0,.10),0 1px 2px rgba(17,24,39,.12),0 8px 18px rgba(17,24,39,.16)}
+.cover:hover .lift{box-shadow:inset 5px 0 0 rgba(0,0,0,.10),0 2px 4px rgba(17,24,39,.14),0 14px 26px rgba(17,24,39,.2)}
+.book .title{font-weight:600;font-size:15px;margin-top:8px}
+.book .small{font-weight:400}
+.book .meta{justify-content:center;font-size:12px}
+.stars{color:#9AA0A6;letter-spacing:2px;font-size:12px}
+.cover .new{border-radius:999px;font-weight:600;padding:2px 9px}
+/* gyorsmenü: kerek fehér ikongombok */
+.quick{left:0;right:0;bottom:10px;justify-content:center;gap:8px;padding:0;background:none}
+.quick a,.quick button{flex:none;width:38px;height:38px;border-radius:50%;background:#fff;color:#212121;box-shadow:0 2px 8px rgba(0,0,0,.22)}
+.quick a:hover,.quick button:hover{background:#fff;color:var(--accent)}
+.quick form{flex:none}
+/* szakaszcím: középen, két oldalt vékony vonal */
+.sechead{display:flex;align-items:center;gap:16px;font-size:18px;font-weight:400;color:#575A5D;text-align:center}
+.sechead::before,.sechead::after{content:"";flex:1;height:1px;background:#D9DCDF}
+/* címkék, jelvények: lekerekített, vékonyabb */
+.pill{border-radius:999px;font-weight:400;background:#EEF6F5}
+.badge{font-weight:600}
+.fmt{border-radius:999px;font-weight:400}
+/* adatlap */
+.detail .big .lift{border-radius:2px 8px 8px 2px;box-shadow:inset 6px 0 0 rgba(0,0,0,.10),0 12px 28px rgba(17,24,39,.2)}
+table.meta th{font-weight:400;color:#6B7075}
+.desc{font-size:16px}
+table.meta th{width:1%;padding-right:28px}
+
+/* ===== Minimalista gombok: szögletes, vékony keret, kitöltés csak a fő gombon ===== */
+.btn{border-radius:2px;min-height:36px;padding:0 16px;font-size:14px;font-weight:600;letter-spacing:.2px;border-color:#BFC3C8;background:#fff;box-shadow:none}
+.btn.small{min-height:30px;padding:0 12px;font-size:13px}
+.btn:hover{border-color:#212121}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+.btn.primary:hover{background:var(--accent-d);border-color:var(--accent-d)}
+.btn.dark{background:#212121;border-color:#212121}
+.search{border-radius:2px;border-color:#BFC3C8;height:38px}
+.search button{width:44px}
+input[type=text],input[type=password],input[type=email],input[type=number],input[type=search],select,textarea{border-radius:2px}
+.sortbar{gap:4px 22px;border:0;border-bottom:1px solid #E3E5E8;border-radius:0;padding:4px 0 10px;background:none}
+.sortgrp a{border-radius:0;height:28px;min-width:0;padding:0 6px;color:#575A5D}
+.sortgrp a:hover{background:none;color:#212121}
+.sortgrp a.on{background:none;color:var(--accent);font-weight:600;box-shadow:inset 0 -2px 0 var(--accent)}
+.quick{gap:6px}
+.quick a,.quick button{width:34px;height:34px;border-radius:2px;box-shadow:0 1px 4px rgba(0,0,0,.25)}
+.adminnav a{border-radius:2px}
+.pill,.fmt,.badge,.cover .new,.chip span,.qnav a{border-radius:2px}
+.card{border-radius:2px}
+.drop{border-radius:2px}
+
+/* ===== B: másodlagos gombok csak szövegként (ikon + felirat), aláhúzás rámutatáskor ===== */
+.btn:not(.primary):not(.dark):not(.danger){border-color:transparent;background:none;padding:0 8px}
+.btn:not(.primary):not(.dark):not(.danger):hover{border-color:transparent;text-decoration:underline;text-underline-offset:4px}
+.btn.danger{border-color:transparent;background:none}
+.cand,.covopt,.drop,.flash,table.list{border-radius:2px}
