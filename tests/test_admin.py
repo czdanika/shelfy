@@ -97,7 +97,7 @@ def test_translation_editing(admin, cfg):
     admin.post("/admin/languages/en", data={"k:nav.library": ""})
     assert json.loads((cfg.data_dir / "locales" / "en.json").read_text())["nav.library"] == "Library"
 
-    r = admin.post("/admin/languages/new", data={"code": "de", "name": "Deutsch"}, follow_redirects=False)
-    assert r.headers["location"] == "/admin/languages/de"
-    assert "Deutsch" in admin.get("/admin/languages").text
+    r = admin.post("/admin/languages/new", data={"code": "it", "name": "Italiano"}, follow_redirects=False)
+    assert r.headers["location"] == "/admin/languages/it"
+    assert "Italiano" in admin.get("/admin/languages").text
     assert admin.post("/admin/languages/new", data={"code": "hu", "name": "x"}, follow_redirects=False).headers["location"].endswith("lang_error")

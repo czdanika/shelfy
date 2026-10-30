@@ -297,6 +297,25 @@ def create_app(cfg: Config | None = None, transport=None) -> FastAPI:
         resp.delete_cookie(COOKIE)
         return resp
 
+    HELP_DIR = BASE / "locales" / "help"
+
+    @app.get("/help", response_class=HTMLResponse)
+    async def help_page(request: Request):
+        """Használati útmutató; a szöveg nyelvenként a locales/help/<nyelv>.html fájlban (felülírható DATA_DIR/locales/help)."""
+        lang = lang_of(request, request.state.user)
+        html = None
+        for d in (cfg.data_dir / "locales" / "help", HELP_DIR):
+            for code in (lang, REFERENCE):
+                f = d / f"{code}.html"
+                if f.is_file():
+                    html = f.read_text(encoding="utf-8")
+                    break
+            if html:
+                break
+        toc = re.findall(r'<h2 id="([\w-]+)">(.*?)</h2>', html or "")
+        from markupsafe import Markup
+        return render(request, "help.html", content=Markup(html or ""), toc=toc)
+
     @app.get("/theme/{mode}")
     async def set_theme(request: Request, mode: str):
         back = request.headers.get("referer") or "/"

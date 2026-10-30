@@ -21,7 +21,8 @@
   "account": "Account",
   "profile": "My account",
   "logout": "Sign out",
-  "kindle": "Kindle view"
+  "kindle": "Kindle view",
+  "help": "Help"
  },
  "view": {
   "all": "All books",

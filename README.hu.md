@@ -10,7 +10,7 @@
 
 Saját, otthoni e-könyvtár: feltöltés, automatikus vizsgálat és adatgyűjtés, kereshető és szerkeszthető katalógus, konvertálás, küldés Kindle-re és egy egyszerű Kindle-nézet a régi Kindle-ökhöz is. Több felhasználóval, a családnak.
 
-A felület magyar és angol. Minden felirat a `locales/*.json` fájlokban van, és a felületről is fordítható.
+A felület magyar, angol, német és francia nyelvű, mindegyikhez beépített használati útmutatóval. Minden felirat a `locales/*.json` fájlokban van, és a felületről is fordítható. Világos és sötét téma is van.
 
 ![Könyvtár](docs/hu/library.png)
 
@@ -25,15 +25,30 @@ A felület magyar és angol. Minden felirat a `locales/*.json` fájlokban van, �
   - milyen a borító
 - **Információk letöltése**: Moly.hu, Google Books és Open Library. A leírás, a sorozat, a kiadás éve, a címkék és a borító egyetlen kattintással átvehető. A találatok közül te választasz, és az adatok jóváhagyás előtt szerkeszthetők.
 - **Automatikus kategorizálás** a címkékből és a leírásból (krimi, fantasy, sci-fi, történelmi regény…).
-- **Böngészés és rendezés**: szerzők, sorozatok, címkék, kiadók, nyelvek, formátumok és értékelés szerint, valamint a saját polcaid.
+- **Böngészés és rendezés**: szerzők, sorozatok, címkék, kiadók, nyelvek, formátumok és értékelés szerint, valamint a saját polcaid és olvasási állapot.
+- **Rács és lista nézet**: csúszkával állítható, hány borító férjen egy sorba, és választható, hány könyv legyen egy oldalon. Listában a borító mellett az adatok és a leírás eleje is látszik.
+- **Online adatfrissítés** a már felvett könyveknél: adatonként összeveti a jelenlegit és az online értéket, és csak azt veszi át, amit kijelölsz.
 - **Konvertálás** az e-könyv formátumok között. Letöltéskor a hiányzó Kindle-formátumot (MOBI/AZW3/EPUB) magától elkészíti.
 - **Küldés Kindle-re e-mailben**, minden felhasználónak a saját Kindle-címére.
 - **Kindle-nézet** (`/kindle`): JavaScript nélküli, e-ink-barát felület. Kindle böngészőből magától ez nyílik meg, a régi Kindle MOBI-t kap.
 - **Felhasználók és szerepkörök**: adminisztrátor, szerkesztő, olvasó, egyenként állítható jogokkal (feltöltés, szerkesztés, letöltés, törlés).
+- **E-mail felhasználónként**: közös SMTP-fiók, és ha kell, mindenkinek saját (beépített Gmail-útmutatóval). Az SMTP-jelszavak titkosítva tárolódnak.
+- **Napló**: feltöltés, felvétel, küldés (a sikertelen is, okkal), letöltés, belépés és beállításváltozás időbélyeggel, szűrhetően. Minden könyvnek saját előzményei vannak, mindenki látja a saját tevékenységét.
+- **Világos és sötét téma** (automatikus, a rendszert követi, vagy kézzel választható).
+- **Beépített súgó** minden nyelven, a megfelelő oldalakról linkelve.
+- **Telefonra telepíthető** (webalkalmazás-leíró és ikonok).
 
 | Feltöltés | Vizsgálat eredménye |
 |---|---|
 | ![](docs/hu/upload.png) | ![](docs/hu/review.png) |
+
+| Lista nézet | Sötét téma |
+|---|---|
+| ![](docs/hu/list.png) | ![](docs/hu/dark.png) |
+
+| Napló | Súgó |
+|---|---|
+| ![](docs/hu/log.png) | ![](docs/hu/help.png) |
 
 | Kindle lista | Kindle adatlap |
 |---|---|
@@ -70,7 +85,7 @@ Az első megnyitáskor létrehozod az admin fiókot. Utána:
 | `DATA_DIR` | `/data` | adatbázis, gyorsítótár, titkosító kulcs |
 | `LIBRARY_DIR` | `/data/library` | a könyvek fájljai (Szerző/Cím (id)/…) |
 | `INGEST_DIR` | – | figyelt mappa almappákkal együtt: az ide másolt e-könyveket magától felveszi (és kiveszi innen) |
-| `DEFAULT_LANGUAGE` | `hu` | a felület alapnyelve |
+| `DEFAULT_LANGUAGE` | `en` | a felület alapnyelve (`en`, `de`, `fr`, `hu`); a kategória-címkék is ezen a nyelven kerülnek a könyvekhez |
 | `ONLINE_LOOKUP` | `true` | online adatkeresés be/ki |
 | `METADATA_PROVIDERS` | `moly,google,openlibrary` | adatforrások sorrendben |
 | `ADMIN_USER`, `ADMIN_PASSWORD` | – | első admin fiók (ha nincs még felhasználó) |
@@ -91,7 +106,7 @@ Utána a felhasználó minden eszközről kijelentkezik.
 
 ## Fordítás
 
-A szövegek a `locales/hu.json` (referencia) és a `locales/en.json` fájlban vannak. Új nyelvet az **Adminisztráció → Nyelvek** oldalon lehet felvenni és fordítani. A felületen végzett módosítások a `DATA_DIR/locales` mappába kerülnek, így frissítéskor sem vesznek el.
+A szövegek a `locales/<kód>.json` fájlokban vannak: angol (`en.json`, ez a referencia – a hiányzó fordítások helyén angol jelenik meg), német (`de.json`), francia (`fr.json`) és magyar (`hu.json`). A használati útmutató nyelvenként a `locales/help/<kód>.html` fájlban van; saját változat a `DATA_DIR/locales/help/` mappába tehető. Új nyelvet az **Adminisztráció → Nyelvek** oldalon lehet felvenni és fordítani. A felületen végzett módosítások a `DATA_DIR/locales` mappába kerülnek, így frissítéskor sem vesznek el.
 
 Ellenőrzés, hogy minden használt kulcs le van-e fordítva:
 

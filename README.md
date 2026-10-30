@@ -5,12 +5,11 @@
   </picture>
 </p>
 
-
 *English · [Magyar](README.hu.md)*
 
 A self-hosted ebook library for your home and family. You upload books, Shelfy inspects them and completes their metadata online, and you get a searchable, editable catalogue. It also converts formats, sends books to Kindle by e-mail, and has a simple Kindle view that works on old Kindles too.
 
-The interface ships in **English** and **Hungarian**. Every label lives in a translation file, and you can add or edit languages from the admin interface.
+The interface ships in **English, German, French and Hungarian**, with a built-in user guide in each language. Every label lives in a translation file, and you can add or edit languages from the admin interface. Light and dark themes are included.
 
 ![Library](docs/library.png)
 
@@ -26,14 +25,29 @@ The interface ships in **English** and **Hungarian**. Every label lives in a tra
 - **Metadata lookup** from Moly.hu, Google Books and Open Library. You pick the right match, and description, series, year, tags and cover come over in one click. Everything stays editable before you approve.
 - **Automatic categorisation** from tags and description (crime, fantasy, science fiction, historical fiction…). Category names are translated, too.
 - **Browsing and sorting** by author, series, tag, publisher, language, format and rating, plus personal shelves and reading status.
+- **Grid and list views**: a size slider sets how many covers fit in a row, and you choose how many books appear per page. The list view shows the cover with details and the start of the description.
+- **Refresh metadata online** for books already in the library: compare current and online values field by field and take over only what you want.
 - **Conversion** between ebook formats. A missing Kindle format (MOBI/AZW3/EPUB) is created automatically on download and cached.
 - **Send to Kindle** by e-mail. Each user sends to their own Kindle address. If a book only exists as MOBI/AZW3, an EPUB is made first, because Amazon only accepts EPUB.
 - **Kindle view** (`/kindle`): an e-ink friendly page with no JavaScript. It opens automatically in the Kindle browser, and old Kindles get MOBI.
 - **Users and roles**: administrator, editor and reader, with per-user permissions for upload, edit, download and delete.
+- **E-mail per user**: a shared SMTP account, and optionally each user's own (with a built-in Gmail guide). SMTP passwords are stored encrypted.
+- **Activity log**: uploads, additions, sends (including failures and the reason), downloads, sign-ins and settings changes, with timestamps and filters. Every book has its own history, and every user sees their own activity.
+- **Light and dark theme** (automatic, following the system, or chosen by hand).
+- **Built-in help** in every language, with links from the relevant pages.
+- **Installable on phones** (web app manifest and icons).
 
 | Upload | Inspection result |
 |---|---|
 | ![](docs/upload.png) | ![](docs/review.png) |
+
+| List view | Dark theme |
+|---|---|
+| ![](docs/list.png) | ![](docs/dark.png) |
+
+| Activity log | Help |
+|---|---|
+| ![](docs/log.png) | ![](docs/help.png) |
 
 | Kindle list | Kindle book page |
 |---|---|
@@ -52,7 +66,7 @@ services:
     volumes:
       - shelfy-data:/data
     environment:
-      - DEFAULT_LANGUAGE=en                     # en | hu
+      - DEFAULT_LANGUAGE=en                     # en | de | fr | hu
 volumes:
   shelfy-data:
 ```
@@ -94,7 +108,9 @@ The user is signed out on every device afterwards.
 
 ## Translations
 
-Translations live in `locales/<code>.json`. English (`en.json`) is the reference: new languages are translated from it, and any missing text falls back to English. Hungarian (`hu.json`) is shipped as well.
+Translations live in `locales/<code>.json`. English (`en.json`) is the reference: new languages are translated from it, and any missing text falls back to English. German (`de.json`), French (`fr.json`) and Hungarian (`hu.json`) are shipped as well.
+
+The user guide is in `locales/help/<code>.html`, one file per language with the same sections (a missing language falls back to English). A customised guide can be placed in `DATA_DIR/locales/help/`.
 
 - Keys are grouped by area: `nav.*`, `book.*`, `upload.*`, `insp.*` (inspection steps), `cat.*` (categories), `admin.*`, `msg.*`… Placeholders look like `{n}`.
 - **From the interface**: *Administration → Languages* shows how complete each language is. There you can edit any text or add a new language. Edits are saved to `DATA_DIR/locales`, so they survive image updates.

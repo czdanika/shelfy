@@ -1,0 +1,98 @@
+<h2 id="start">Getting started</h2>
+<p>Shelfy is a home ebook library: you upload your books, Shelfy inspects them and completes their metadata online, and then anyone in the family can browse, download or send them to a Kindle.</p>
+<ol>
+  <li><strong>Upload</strong> – drag your books onto the <a href="/upload">Upload</a> page.</li>
+  <li><strong>Review</strong> – after the inspection, check the proposed metadata and add the book to the library.</li>
+  <li><strong>Kindle</strong> – enter your Kindle e-mail address on the <a href="/me">My account</a> page, and send books with one click.</li>
+</ol>
+
+<h2 id="upload">Uploading books</h2>
+<ul>
+  <li>On the <a href="/upload">Upload</a> page, drop files into the dashed box or click “choose from your computer”. You can upload several files at once.</li>
+  <li>Supported formats: EPUB, MOBI, AZW3, AZW, PRC, PDF, FB2, CBZ, CBR, DOCX, ODT, RTF, TXT, DJVU.</li>
+  <li><strong>Watched folder:</strong> if configured at installation, ebooks copied there (including subfolders) are picked up automatically. Other files (images etc.) are left alone; imported books are moved out of the folder.</li>
+  <li>Uploading requires the upload permission, granted by an administrator.</li>
+</ul>
+
+<h2 id="review">Inspection and review</h2>
+<p>Every uploaded file is inspected automatically. The <em>Inspection log</em> shows the result step by step:</p>
+<ul>
+  <li><strong>Format, integrity</strong> – is the file what its extension says, and is it intact?</li>
+  <li><strong>Identical file, duplicate</strong> – is this exact file, or a book with the same title and author, already in the library?</li>
+  <li><strong>Embedded metadata, cover</strong> – what could be read from the file, and how large the embedded cover is.</li>
+  <li><strong>Online lookup</strong> – matches from Moly.hu, Google Books and Open Library, with a match percentage.</li>
+  <li><strong>Category</strong> – a suggestion based on tags and description.</li>
+</ul>
+<p>On the review page:</p>
+<ul>
+  <li>Pick the right one from the <em>Matches</em> (or “File metadata only”). If none fits, refine the search with title, author or ISBN under <em>Search again</em>.</li>
+  <li>The <em>Proposed metadata</em> can be edited before adding. For the cover, choose between the embedded and the online one.</li>
+  <li><em>Categories</em> are added to the book as tags – click to toggle them.</li>
+  <li>If you already have the book, “Add as … format” attaches the file to the existing book as a new format.</li>
+  <li>If several uploads are waiting, they are all listed at the top, and “Add and next” moves straight on to the next one.</li>
+  <li><em>Approve all</em> in the upload queue adds every book with a good match at once (duplicates are skipped).</li>
+</ul>
+<p class="tip">When importing a larger collection, turn on <em>Administration → Settings → Add automatically on a confident match</em>: anything with at least an 85% match that is not a duplicate is added on its own.</p>
+
+<h2 id="library">Browsing the library</h2>
+<ul>
+  <li><strong>Search</strong> – the top field searches title, author, series, tag and ISBN.</li>
+  <li><strong>Views</strong> – in the left menu: all, recently added, popular, top rated, by reading status; under <em>Browse</em>: authors, series, tags, publishers, languages, formats, ratings.</li>
+  <li><strong>Sorting</strong> – in the bar above the books (added, title, author, published, series, rating). Your choice is remembered.</li>
+  <li><strong>Grid and list</strong> – switch with the icons at the top right. The list shows the main details and the start of the description next to the cover.</li>
+  <li><strong>Size</strong> – the slider sets the cover size (and so how many books fit in a row); next to it you choose how many books appear per page.</li>
+  <li><strong>Quick menu</strong> – in grid view, hover over a cover to download, send to Kindle, edit or add to a shelf.</li>
+  <li><strong>Shelves</strong> – put any book on a personal shelf from its page (e.g. “Holiday”); your shelves appear in the left menu.</li>
+</ul>
+
+<h2 id="book">The book page</h2>
+<ul>
+  <li><strong>Download</strong> – in any existing format. If MOBI, AZW3 or EPUB is missing, Shelfy creates it when you download.</li>
+  <li><strong>Convert</strong> – permanently adds a new format to the book (requires the edit permission).</li>
+  <li><strong>Edit</strong> – every field, including the cover.</li>
+  <li><strong>Online metadata</strong> – a fresh search in the online sources; you see the current and the online value side by side and tick what to take over.</li>
+  <li><strong>Reading status</strong> – unread, reading, read; separate for every user.</li>
+  <li><strong>History</strong> – who downloaded, sent or edited the book and when (visible to editors).</li>
+</ul>
+
+<h2 id="kindle">Kindle</h2>
+<h3>Sending by e-mail</h3>
+<ol>
+  <li>On <a href="/me">My account</a>, enter your Kindle e-mail address (…@kindle.com).</li>
+  <li>In your Amazon account, add the sender address to the approved senders (<em>Manage Your Content and Devices → Preferences → Personal Document Settings</em>).</li>
+  <li>On the book page or in the quick menu: <em>Send to Kindle</em>.</li>
+</ol>
+<p>The administrator sets up a shared sending account, but everyone can add their own on My account (there is a Gmail help there). If a book only exists as MOBI or AZW3, Shelfy first creates an EPUB, because Amazon only accepts EPUB now. The maximum size is 50 MB.</p>
+<h3>Downloading from the Kindle browser</h3>
+<p>Opened on a Kindle, Shelfy automatically shows the simple, e-ink friendly Kindle view. Under <em>Settings</em>, choose a newer (AZW3) or older Kindle (MOBI only). With an older Kindle, use the local network address (http://…), because the old browser cannot open many HTTPS sites.</p>
+<h3>On a phone</h3>
+<p>Use “Add to Home Screen” in the browser menu, and Shelfy opens as a separate app with its own icon.</p>
+
+<h2 id="account">My account</h2>
+<ul>
+  <li>Display name, interface language, Kindle e-mail address, password change.</li>
+  <li>Personal e-mail sending (SMTP) – if left empty, the shared account is used.</li>
+  <li>My activity – your own downloads, sends and uploads.</li>
+  <li>The language and the appearance (automatic / light / dark) can be set in the top bar.</li>
+</ul>
+
+<h2 id="admin">For administrators</h2>
+<ul>
+  <li><strong>Users</strong> – roles: administrator (full access), editor, reader; the permissions (upload, edit, download, delete) can also be set one by one. You can also give someone personal e-mail settings here.</li>
+  <li><strong>Settings</strong> – shared e-mail sending (SMTP), test e-mail, automatic adding, library statistics, system status.</li>
+  <li><strong>Languages</strong> – every label is translatable; see how complete each language is and add new ones. Translations edited in the interface survive updates.</li>
+  <li><strong>Activity log</strong> – every important event with a timestamp: uploads, additions, sends (including failures), downloads, sign-ins, settings changes. Filter by type, user and period, or show errors only.</li>
+</ul>
+<h3>Forgotten password</h3>
+<p>An administrator can reset a user's password on the Users page. If the administrator has forgotten their own, run this on the server:</p>
+<pre>docker exec -it shelfy python -m app.reset_password &lt;username&gt;</pre>
+
+<h2 id="faq">Frequently asked questions</h2>
+<dl>
+  <dt>The book does not arrive on my Kindle.</dt>
+  <dd>Check the <em>Activity log</em> (as an administrator) or <em>My activity</em>: if sending failed, the reason is shown there. If it succeeded, the sender address is probably not approved at Amazon.</dd>
+  <dt>Wrong metadata was taken over during upload.</dt>
+  <dd>Use <em>Online metadata</em> on the book page to search again, or fix it by hand with <em>Edit</em>.</dd>
+  <dt>The cover is missing.</dt>
+  <dd>The <em>Missing metadata</em> view lists books without cover or description; Online metadata or Edit (upload a cover) helps.</dd>
+</dl>

@@ -5,7 +5,7 @@
 <div class="small muted"><a href="/upload">‹ {{ t('upload.title') }}</a></div>
 <div class="row between" style="align-items: flex-end">
   <div style="min-width: 0">
-    <h1>{{ t('review.title') }}</h1>
+    <h1>{{ t('review.title') }} <a class="helplink" href="/help#review" title="{{ t('nav.help') }}" aria-label="{{ t('nav.help') }}">?</a></h1>
     <div class="muted small">{{ up.filename }} · {{ up.format|upper }} · {{ up.size|filesize }} · {{ t('upload.src_' ~ up.source) }}</div>
   </div>
   {% if up.status == 'review' %}

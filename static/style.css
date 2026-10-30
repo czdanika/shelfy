@@ -402,3 +402,25 @@ input[type=text],input[type=password],input[type=email],input[type=number],input
 .theme a{width:30px;height:30px;display:flex;align-items:center;justify-content:center;color:var(--muted);border-radius:2px}
 .theme a:hover{color:var(--text)}
 .theme a.on{color:var(--accent);box-shadow:inset 0 -2px 0 var(--accent)}
+
+/* súgó */
+.helpbtn{width:30px;height:30px;display:flex;align-items:center;justify-content:center;color:var(--muted)}
+.helpbtn:hover,.helpbtn.on{color:var(--accent)}
+.helplink{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;margin-left:8px;border:1px solid var(--line-2);border-radius:50%;font-size:13px;font-weight:600;color:var(--muted);vertical-align:middle;text-decoration:none}
+.helplink:hover{color:var(--accent);border-color:var(--accent);text-decoration:none}
+.helpwrap{display:grid;grid-template-columns:220px minmax(0,1fr);gap:24px;align-items:start}
+.helptoc{position:sticky;top:16px;display:flex;flex-direction:column;gap:2px;font-size:14px}
+.helptoc a{padding:5px 10px;color:var(--text-2);border-left:2px solid var(--line);text-decoration:none}
+.helptoc a:hover{color:var(--accent);border-left-color:var(--accent)}
+.help{max-width:820px;line-height:1.65;font-size:15px}
+.help h2{font-size:21px;font-weight:600;margin:28px 0 8px;scroll-margin-top:16px}
+.help h2:first-child{margin-top:0}
+.help h3{font-size:16px;font-weight:600;margin:18px 0 6px}
+.help ul,.help ol{padding-left:22px;margin:6px 0 12px}
+.help li{margin:4px 0}
+.help p{margin:6px 0 12px}
+.help .tip{border-left:2px solid var(--accent);background:var(--accent-soft);padding:8px 14px}
+.help pre{background:var(--subtle);padding:10px 14px;overflow-x:auto;font-size:13px}
+.help dt{font-weight:600;margin-top:10px}
+.help dd{margin:2px 0 8px 0;color:var(--text-2)}
+@media (max-width:900px){.helpwrap{grid-template-columns:1fr}.helptoc{position:static;flex-direction:row;flex-wrap:wrap}}

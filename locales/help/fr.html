@@ -1,0 +1,98 @@
+<h2 id="start">Premiers pas</h2>
+<p>Shelfy est une bibliothèque de livres numériques pour la maison : vous importez vos livres, Shelfy les vérifie et complète leurs métadonnées en ligne, puis toute la famille peut les parcourir, les télécharger ou les envoyer sur un Kindle.</p>
+<ol>
+  <li><strong>Importer</strong> – glissez vos livres sur la page <a href="/upload">Importer</a>.</li>
+  <li><strong>Vérifier</strong> – après l’inspection, contrôlez les métadonnées proposées et ajoutez le livre à la bibliothèque.</li>
+  <li><strong>Kindle</strong> – saisissez votre adresse e-mail Kindle sur la page <a href="/me">Mon compte</a> et envoyez des livres en un clic.</li>
+</ol>
+
+<h2 id="upload">Importer des livres</h2>
+<ul>
+  <li>Sur la page <a href="/upload">Importer</a>, déposez les fichiers dans le cadre en pointillés ou cliquez sur « choisissez sur votre ordinateur ». Plusieurs fichiers à la fois sont possibles.</li>
+  <li>Formats pris en charge : EPUB, MOBI, AZW3, AZW, PRC, PDF, FB2, CBZ, CBR, DOCX, ODT, RTF, TXT, DJVU.</li>
+  <li><strong>Dossier surveillé :</strong> s’il est configuré à l’installation, les livres copiés dedans (sous-dossiers compris) sont repris automatiquement. Les autres fichiers (images, etc.) ne sont pas touchés ; les livres importés sont retirés du dossier.</li>
+  <li>L’import nécessite le droit « Importer », accordé par un administrateur.</li>
+</ul>
+
+<h2 id="review">Inspection et vérification</h2>
+<p>Chaque fichier importé est inspecté automatiquement. Le <em>Journal d’inspection</em> affiche le résultat étape par étape :</p>
+<ul>
+  <li><strong>Format, intégrité</strong> – le fichier est-il bien ce qu’indique son extension, et est-il intact ?</li>
+  <li><strong>Fichier identique, doublon</strong> – ce fichier exact, ou un livre de même titre et auteur, est-il déjà dans la bibliothèque ?</li>
+  <li><strong>Métadonnées intégrées, couverture</strong> – ce qui a pu être lu dans le fichier et la taille de la couverture intégrée.</li>
+  <li><strong>Recherche en ligne</strong> – les correspondances de Moly.hu, Google Books et Open Library, avec un pourcentage.</li>
+  <li><strong>Catégorie</strong> – une suggestion d’après les étiquettes et la description.</li>
+</ul>
+<p>Sur la page de vérification :</p>
+<ul>
+  <li>Choisissez la bonne parmi les <em>Correspondances</em> (ou « Métadonnées du fichier uniquement »). Si aucune ne convient, affinez la recherche par titre, auteur ou ISBN sous <em>Nouvelle recherche</em>.</li>
+  <li>Les <em>Métadonnées proposées</em> peuvent être modifiées avant l’ajout. Pour la couverture, choisissez entre celle du fichier et celle en ligne.</li>
+  <li>Les <em>Catégories</em> sont ajoutées au livre comme étiquettes – un clic pour les activer ou désactiver.</li>
+  <li>Si vous avez déjà le livre, « Ajouter au format … » rattache le fichier au livre existant comme nouveau format.</li>
+  <li>Si plusieurs imports attendent, ils sont tous listés en haut, et « Ajouter et suivant » passe directement au suivant.</li>
+  <li><em>Tout ajouter</em> dans la file ajoute d’un coup tous les livres ayant une bonne correspondance (les doublons sont ignorés).</li>
+</ul>
+<p class="tip">Pour importer une grande collection, activez <em>Administration → Paramètres → Ajouter automatiquement en cas de correspondance sûre</em> : tout ce qui correspond à au moins 85 % et n’est pas un doublon est ajouté tout seul.</p>
+
+<h2 id="library">Parcourir la bibliothèque</h2>
+<ul>
+  <li><strong>Recherche</strong> – le champ du haut cherche dans le titre, l’auteur, la série, les étiquettes et l’ISBN.</li>
+  <li><strong>Vues</strong> – dans le menu de gauche : tous, ajouts récents, populaires, les mieux notés, par statut de lecture ; sous <em>Parcourir</em> : auteurs, séries, étiquettes, éditeurs, langues, formats, notes.</li>
+  <li><strong>Tri</strong> – dans la barre au-dessus des livres (ajout, titre, auteur, parution, série, note). Votre choix est mémorisé.</li>
+  <li><strong>Grille et liste</strong> – basculez avec les icônes en haut à droite. La liste affiche les principales informations et le début de la description à côté de la couverture.</li>
+  <li><strong>Taille</strong> – le curseur règle la taille des couvertures (et donc le nombre de livres par rangée) ; à côté, choisissez le nombre de livres par page.</li>
+  <li><strong>Menu rapide</strong> – en vue grille, survolez une couverture pour télécharger, envoyer sur Kindle, modifier ou ranger sur une étagère.</li>
+  <li><strong>Étagères</strong> – depuis sa page, rangez n’importe quel livre sur une étagère personnelle (par ex. « Vacances ») ; vos étagères apparaissent dans le menu de gauche.</li>
+</ul>
+
+<h2 id="book">La page du livre</h2>
+<ul>
+  <li><strong>Télécharger</strong> – dans n’importe quel format existant. S’il manque le MOBI, l’AZW3 ou l’EPUB, Shelfy le crée au téléchargement.</li>
+  <li><strong>Convertir</strong> – ajoute durablement un nouveau format au livre (droit de modification requis).</li>
+  <li><strong>Modifier</strong> – tous les champs, couverture comprise.</li>
+  <li><strong>Métadonnées en ligne</strong> – une nouvelle recherche dans les sources en ligne ; la valeur actuelle et la valeur en ligne s’affichent côte à côte, et vous cochez ce qu’il faut reprendre.</li>
+  <li><strong>Statut de lecture</strong> – non lu, en cours, lu ; propre à chaque utilisateur.</li>
+  <li><strong>Historique</strong> – qui a téléchargé, envoyé ou modifié le livre, et quand (visible pour les éditeurs).</li>
+</ul>
+
+<h2 id="kindle">Kindle</h2>
+<h3>Envoi par e-mail</h3>
+<ol>
+  <li>Sur <a href="/me">Mon compte</a>, saisissez votre adresse e-mail Kindle (…@kindle.com).</li>
+  <li>Dans votre compte Amazon, ajoutez l’adresse d’expédition aux expéditeurs approuvés (<em>Gérer votre contenu et vos appareils → Préférences → Paramètres des documents personnels</em>).</li>
+  <li>Sur la page du livre ou dans le menu rapide : <em>Envoyer sur Kindle</em>.</li>
+</ol>
+<p>L’administrateur configure un compte d’envoi partagé, mais chacun peut ajouter le sien dans Mon compte (une aide Gmail s’y trouve). Si un livre n’existe qu’en MOBI ou AZW3, Shelfy crée d’abord un EPUB, car Amazon n’accepte plus que l’EPUB. La taille maximale est de 50 Mo.</p>
+<h3>Télécharger depuis le navigateur du Kindle</h3>
+<p>Ouvert sur un Kindle, Shelfy affiche automatiquement la vue Kindle, simple et adaptée à l’encre électronique. Sous <em>Paramètres</em>, choisissez un Kindle récent (AZW3) ou ancien (MOBI uniquement). Avec un Kindle ancien, utilisez l’adresse du réseau local (http://…), car l’ancien navigateur ne peut pas ouvrir de nombreux sites HTTPS.</p>
+<h3>Sur un téléphone</h3>
+<p>Avec « Ajouter à l’écran d’accueil » dans le menu du navigateur, Shelfy s’ouvre comme une application à part avec sa propre icône.</p>
+
+<h2 id="account">Mon compte</h2>
+<ul>
+  <li>Nom affiché, langue de l’interface, adresse e-mail Kindle, changement de mot de passe.</li>
+  <li>Envoi d’e-mails personnel (SMTP) – laissé vide, le compte partagé est utilisé.</li>
+  <li>Mon activité – vos propres téléchargements, envois et imports.</li>
+  <li>La langue et l’apparence (automatique / clair / sombre) se règlent dans la barre du haut.</li>
+</ul>
+
+<h2 id="admin">Pour les administrateurs</h2>
+<ul>
+  <li><strong>Utilisateurs</strong> – rôles : administrateur (accès complet), éditeur, lecteur ; les droits (importer, modifier, télécharger, supprimer) peuvent aussi être réglés un par un. Vous pouvez aussi donner ici à quelqu’un des réglages e-mail personnels.</li>
+  <li><strong>Paramètres</strong> – envoi d’e-mails partagé (SMTP), e-mail de test, ajout automatique, statistiques de la bibliothèque, état du système.</li>
+  <li><strong>Langues</strong> – chaque libellé est traduisible ; voyez l’avancement de chaque langue et ajoutez-en de nouvelles. Les traductions modifiées dans l’interface sont conservées lors des mises à jour.</li>
+  <li><strong>Journal d’activité</strong> – chaque événement important horodaté : imports, ajouts, envois (échecs compris), téléchargements, connexions, changements de paramètres. Filtrable par type, utilisateur et période, ou erreurs uniquement.</li>
+</ul>
+<h3>Mot de passe oublié</h3>
+<p>Un administrateur peut réinitialiser le mot de passe d’un utilisateur sur la page Utilisateurs. Si l’administrateur a oublié le sien, lancez sur le serveur :</p>
+<pre>docker exec -it shelfy python -m app.reset_password &lt;nom d’utilisateur&gt;</pre>
+
+<h2 id="faq">Questions fréquentes</h2>
+<dl>
+  <dt>Le livre n’arrive pas sur mon Kindle.</dt>
+  <dd>Consultez le <em>Journal d’activité</em> (en tant qu’administrateur) ou <em>Mon activité</em> : si l’envoi a échoué, la raison y figure. S’il a réussi, l’adresse d’expédition n’est probablement pas approuvée chez Amazon.</dd>
+  <dt>De mauvaises métadonnées ont été reprises à l’import.</dt>
+  <dd>Relancez une recherche avec <em>Métadonnées en ligne</em> sur la page du livre, ou corrigez à la main avec <em>Modifier</em>.</dd>
+  <dt>La couverture manque.</dt>
+  <dd>La vue <em>Métadonnées manquantes</em> liste les livres sans couverture ni description ; Métadonnées en ligne ou Modifier (importer une couverture) aident.</dd>
+</dl>

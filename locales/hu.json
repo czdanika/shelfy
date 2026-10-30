@@ -21,7 +21,8 @@
   "account": "Fiók",
   "profile": "Saját fiók",
   "logout": "Kijelentkezés",
-  "kindle": "Kindle-nézet"
+  "kindle": "Kindle-nézet",
+  "help": "Súgó"
  },
  "view": {
   "all": "Összes könyv",

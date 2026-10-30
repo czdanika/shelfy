@@ -90,3 +90,20 @@ def test_theme_switch(admin):
     assert 'data-theme="light"' in admin.get("/books").text
     admin.get("/theme/auto")
     assert "prefers-color-scheme" in admin.get("/books").text
+
+
+def test_help_in_all_languages(admin):
+    for code, word in (("hu", "Első lépések"), ("en", "Getting started"), ("de", "Erste Schritte"), ("fr", "Premiers pas")):
+        admin.get(f"/lang/{code}")
+        html = admin.get("/help").text
+        assert word in html and 'href="#kindle"' in html, code
+    admin.get("/lang/hu")
+
+
+def test_help_files_have_same_sections():
+    import re
+    from pathlib import Path
+    root = Path(__file__).resolve().parent.parent / "locales" / "help"
+    ids = {f.stem: re.findall(r'<h2 id="([\w-]+)"', f.read_text()) for f in root.glob("*.html")}
+    assert set(ids) >= {"hu", "en", "de", "fr"}
+    assert len({tuple(v) for v in ids.values()}) == 1, ids
