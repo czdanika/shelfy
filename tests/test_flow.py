@@ -166,3 +166,30 @@ def test_watched_folder_unmovable_file_is_not_retried(cfg, tmp_path, monkeypatch
     assert len(calls) == 1
     assert app.state.db.val("SELECT COUNT(*) FROM uploads") == 0
     assert (folder / "a.epub").exists()
+
+
+def test_watched_folder_takes_metadata_opf_and_cover(client, tmp_path):
+    """Könyvmappa: e-könyv + metadata.opf + cover.jpg → az OPF adatai és a borító is átjönnek, a mappa kiürül."""
+    from conftest import cover_bytes, make_epub, wait_status
+    ing = client.app.state.ingest
+    folder = tmp_path / "inbox" / "Szerző Sára" / "Az igazi cím (12)"
+    folder.mkdir(parents=True)
+    make_epub(folder / "konyv.epub", title="Rossz cím", author="Valaki")
+    (folder / "metadata.opf").write_text("""<?xml version='1.0' encoding='utf-8'?>
+<package xmlns="http://www.idpf.org/2007/opf" version="2.0"><metadata xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:opf="http://www.idpf.org/2007/opf">
+<dc:title>Az igazi cím</dc:title><dc:creator opf:role="aut">Szerző Sára</dc:creator><dc:description>Leírás az adatlapról.</dc:description>
+<meta name="calibre:series" content="Sorozat"/><meta name="calibre:series_index" content="2"/></metadata></package>""", encoding="utf-8")
+    (folder / "cover.jpg").write_bytes(cover_bytes(600, 900))
+    sizes = {}
+    for _ in range(2):
+        ing._scan(tmp_path / "inbox", sizes)
+    uid = client.app.state.db.val("SELECT id FROM uploads ORDER BY id DESC LIMIT 1")
+    assert (ing.dir / f"{uid}_side.opf").exists() and not (folder / "metadata.opf").exists()
+    ing._scan(tmp_path / "inbox", sizes)  # a kiürült könyvmappát eltakarítja
+    assert not folder.exists()
+    import asyncio
+    asyncio.run(ing.inspect(uid))
+    import json
+    ex = json.loads(client.app.state.db.val("SELECT extracted FROM uploads WHERE id = ?", (uid,)))
+    assert ex["title"] == "Az igazi cím" and ex["series"] == "Sorozat" and ex["description"].startswith("Leírás")
+    assert (ing.dir / f"{uid}_cover.jpg").exists()

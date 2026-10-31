@@ -78,14 +78,22 @@ def strip_html(s: str) -> str:
 
 class Provider:
     name = "base"
+    min_interval = 0.5  # másodperc két kérés között – nagy importnál se terheljük a forrást
 
     def __init__(self, client: httpx.AsyncClient) -> None:
         self.http = client
         self.lock = asyncio.Semaphore(1)
+        self.last = 0.0
 
     async def get(self, url: str, **kw) -> httpx.Response:
         async with self.lock:
-            return await self.http.get(url, headers={"User-Agent": UA, "Accept-Language": "hu,en;q=0.8"}, **kw)
+            wait = self.last + self.min_interval - time.monotonic()
+            if wait > 0:
+                await asyncio.sleep(wait)
+            try:
+                return await self.http.get(url, headers={"User-Agent": UA, "Accept-Language": "hu,en;q=0.8"}, **kw)
+            finally:
+                self.last = time.monotonic()
 
     async def search(self, title: str, authors: list[str], isbn: str | None = None) -> list[Candidate]:
         raise NotImplementedError
@@ -95,6 +103,7 @@ class Provider:
 
 class Moly(Provider):
     name = "moly"
+    min_interval = 1.5  # a Moly.hu nyilvános oldalait olvassuk: kíméletes tempó
     BASE = "https://moly.hu"
 
     async def search(self, title: str, authors: list[str], isbn: str | None = None) -> list[Candidate]:
@@ -473,12 +482,15 @@ class Lookup:
     def __init__(self, names: tuple[str, ...], transport=None) -> None:
         self.http = httpx.AsyncClient(timeout=httpx.Timeout(20.0, connect=8.0), follow_redirects=True, transport=transport)
         self.cache: dict[tuple, tuple[float, list[Candidate]]] = {}
+        self.throttle = transport is None  # tesztben (saját transport) nincs várakozás
         self.configure(names)
 
     def configure(self, names, google_key: str | None = None) -> None:
         """A bekapcsolt források, fontossági sorrendben (az első a legfontosabb)."""
         self.providers = [PROVIDERS[n](self.http) for n in names if n in PROVIDERS]
         for p in self.providers:
+            if not self.throttle:
+                p.min_interval = 0
             if isinstance(p, GoogleBooks):
                 p.api_key = google_key or None
         self.cache.clear()

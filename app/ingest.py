@@ -16,7 +16,7 @@ from .categories import suggest
 from .db import Database, now
 from .library import FORMATS, Library, Meta, safe_name
 from .providers import Candidate, Lookup, candidates_json
-from .tools import Converter, sha256_file
+from .tools import Converter, parse_opf, sha256_file
 
 MAGIC = {
     "epub": lambda b: b[:2] == b"PK",
@@ -124,7 +124,7 @@ class Ingest:
             if sizes.get(p) == size and size > 0:
                 sizes.pop(p, None)
                 try:
-                    self.add_file(p, p.name, user_id=None, source="folder", move=True)
+                    self.add_file(p, p.name, user_id=None, source="folder", move=True, sidecars=self._sidecars(p))
                     self.stuck.pop(p, None)
                 except OSError as e:
                     # pl. nincs írási jog a figyelt mappára: egyszer naplózzuk, és nem próbáljuk újra 10 mp-enként
@@ -141,8 +141,23 @@ class Ingest:
             except OSError:
                 pass
 
+    @staticmethod
+    def _sidecars(p: Path) -> dict[str, Path]:
+        """Ha a könyv saját mappájában mellette van egy metadata.opf (szabványos OPF-adatlap) és/vagy cover.jpg,
+        azokat is átvesszük – de csak ha a mappában ez az egyetlen e-könyv, különben nem tudni, melyikhez tartoznak."""
+        books = [f for f in p.parent.iterdir() if f.is_file() and f.suffix.lower().lstrip(".") in FORMATS]
+        if len(books) != 1:
+            return {}
+        out = {}
+        for key, name in (("opf", "metadata.opf"), ("cover", "cover.jpg")):
+            f = p.parent / name
+            if f.is_file():
+                out[key] = f
+        return out
+
     # ------------------------------------------------------------------ felvétel
-    def add_file(self, src: Path, filename: str, user_id: int | None, source: str = "web", move: bool = False) -> int:
+    def add_file(self, src: Path, filename: str, user_id: int | None, source: str = "web", move: bool = False,
+                 sidecars: dict[str, Path] | None = None) -> int:
         ext = Path(filename).suffix.lower().lstrip(".")
         ts = now()
         uid = self.db.run("""INSERT INTO uploads(user_id, filename, stored_path, format, size, sha256, status, source, created_at, updated_at)
@@ -161,6 +176,11 @@ class Ingest:
                 dst.unlink(missing_ok=True)
             raise
         self.db.run("UPDATE uploads SET stored_path = ? WHERE id = ?", (str(dst), uid))
+        for key, f in (sidecars or {}).items():
+            try:
+                shutil.move(str(f), self.dir / f"{uid}_side.{'opf' if key == 'opf' else 'jpg'}")
+            except OSError:
+                pass
         if self.events:
             self.events.log("upload", user_id=user_id, file=filename, source=source)
         if self.tasks:
@@ -217,6 +237,15 @@ class Ingest:
 
         # 4. metaadat a fájlból
         meta, cover = await self.converter.read_meta(path)
+        side_opf, side_cover = self.dir / f"{uid}_side.opf", self.dir / f"{uid}_side.jpg"
+        if side_opf.exists():  # a mellékelt OPF-adatlap gondozottabb, mint a fájlba ágyazott adat
+            side = parse_opf(side_opf.read_text(encoding="utf-8", errors="replace"))
+            meta.update({k: v for k, v in side.items() if v})
+        if side_cover.exists():
+            sc = side_cover.read_bytes()
+            from .images import image_size
+            if not cover or (image_size(sc) or (0, 0))[1] > (image_size(cover) or (0, 0))[1]:
+                cover = sc
         found = [k for k in ("title", "authors", "language", "publisher", "year", "isbn", "series", "description") if meta.get(k)]
         checks.append(check("meta", "ok" if meta.get("title") and meta.get("authors") else "warn",
                             fields=", ".join(found) or "–"))
@@ -340,7 +369,8 @@ class Ingest:
 
     def cleanup(self, uid: int) -> None:
         up = self.db.one("SELECT stored_path FROM uploads WHERE id = ?", (uid,))
-        for p in (Path(up["stored_path"]), self.dir / f"{uid}_cover.jpg"):
+        for p in (Path(up["stored_path"]), self.dir / f"{uid}_cover.jpg", self.dir / f"{uid}_side.opf",
+                  self.dir / f"{uid}_side.jpg"):
             try:
                 p.unlink()
             except OSError:
