@@ -58,10 +58,11 @@
       {% if user.can('can_upload') %}<a class="item {% if path.startswith('/upload') %}on{% endif %}" href="/upload"><span>{{ t('nav.upload') }}</span>{% if pending %}<span class="n">{{ pending }}</span>{% endif %}</a>{% endif %}
       <a class="item {% if v == 'incomplete' %}on{% endif %}" href="/books?view=incomplete">{{ t('view.incomplete') }}</a>
       <a class="item {% if v == 'archived' %}on{% endif %}" href="/books?view=archived"><span>{{ t('view.archived') }}</span>{% if nav_counts.archived %}<span class="n">{{ nav_counts.archived }}</span>{% endif %}</a>
+      {% if user.is_admin %}<a class="item {% if path == '/admin/duplicates' %}on{% endif %}" href="/admin/duplicates"><span>{{ t('dup.title') }}</span>{% if nav_counts.dups %}<span class="n">{{ nav_counts.dups }}</span>{% endif %}</a>{% endif %}
       {% if user.is_admin %}<a class="item {% if v == 'hidden' %}on{% endif %}" href="/books?view=hidden"><span>{{ t('view.hidden') }}</span>{% if nav_counts.hidden %}<span class="n">{{ nav_counts.hidden }}</span>{% endif %}</a>{% endif %}
       <a class="item {% if path == '/tasks' %}on{% endif %}" href="/tasks"><span>{{ t('nav.tasks') }}</span>{% if active_tasks %}<span class="n">{{ active_tasks }}</span>{% endif %}</a>
       {% if user.is_admin %}<a class="item {% if path == '/admin/settings' %}on{% endif %}" href="/admin/settings">{{ t('admin.nav_settings') }}</a>
-      <a class="item {% if path.startswith('/admin') and path != '/admin/settings' %}on{% endif %}" href="/admin">{{ t('nav.admin') }}</a>{% endif %}
+      <a class="item {% if path.startswith('/admin') and path not in ('/admin/settings', '/admin/duplicates') %}on{% endif %}" href="/admin">{{ t('nav.admin') }}</a>{% endif %}
     </div>
     {% endif %}
     <div class="side-extra">
@@ -113,7 +114,7 @@
       {% endif %}
     </header>
     <main class="content">
-      {% if msg %}<div class="flash {% if msg.endswith('error') or msg in ('mail_off', 'mail_noaddr', 'mail_nofmt', 'convert_nosrc', 'self_delete', 'short_password', 'mail_toobig', 'lang_error', 'lookup_gone') or msg.startswith('restore_') %}err{% endif %}" role="status">{{ t('msg.' ~ msg) }}{% if msg in ('approved', 'format_added', 'rejected') and pending and not path.startswith('/upload/') %} · <a href="/upload">{{ t('upload.waiting_link', n=pending) }}</a>{% endif %}</div>{% endif %}
+      {% if msg %}<div class="flash {% if msg.endswith('error') or msg in ('mail_off', 'mail_noaddr', 'mail_nofmt', 'convert_nosrc', 'self_delete', 'short_password', 'mail_toobig', 'lang_error', 'lookup_gone', 'lookup_nocover') or msg.startswith('restore_') %}err{% endif %}" role="status">{{ t('msg.' ~ msg) }}{% if msg in ('approved', 'format_added', 'rejected') and pending and not path.startswith('/upload/') %} · <a href="/upload">{{ t('upload.waiting_link', n=pending) }}</a>{% endif %}</div>{% endif %}
       {% block content %}{% endblock %}
     </main>
   </div>

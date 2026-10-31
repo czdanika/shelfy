@@ -53,7 +53,7 @@
     <section class="card warnbox" style="display: flex; flex-direction: column; gap: 10px">
       <h2 style="font-size: 17px">{{ icon('warn', 18) }} {{ t('review.dup_title') }}</h2>
       <a class="row" href="/book/{{ dup.id }}" style="gap: 12px; align-items: flex-start; color: inherit">
-        {% if dup.has_cover %}<img src="/book/{{ dup.id }}/cover?w=120" alt="" style="width: 54px; border-radius: 4px">{% endif %}
+        {% if dup.has_cover %}<img src="/book/{{ dup.id }}/cover?v={{ (dup.updated_at or 0)|int }}&w=120" alt="" style="width: 54px; border-radius: 4px">{% endif %}
         <span><strong>{{ dup.title }}</strong><br><span class="small">{{ dup.authors|map(attribute='name')|join(', ') }}</span><br>
           <span class="small muted">{{ dup.formats|map('upper')|join(' · ') }}</span></span>
       </a>

@@ -453,7 +453,11 @@
     "hidden": "Das Buch ist jetzt verborgen – nur Administratoren sehen es.",
     "unhidden": "Das Buch ist wieder für alle sichtbar.",
     "archived": "Das Buch wurde archiviert – es steht jetzt nur noch unter Archiviert.",
-    "unarchived": "Das Buch ist wieder in der Bibliothek."
+    "unarchived": "Das Buch ist wieder in der Bibliothek.",
+    "dup_merged": "Die Bücher wurden zusammengeführt.",
+    "dup_ignored": "Als „keine Duplikate“ markiert – sie werden nicht mehr vorgeschlagen.",
+    "dup_nothing": "Nichts zum Zusammenführen.",
+    "lookup_nocover": "Angaben aktualisiert, aber das Online-Cover konnte nicht geladen werden – versuche es später erneut oder lade eines unter Bearbeiten hoch."
   },
   "kindle": {
     "settings": "Einstellungen",
@@ -566,7 +570,8 @@
     "hidden": "Verborgen: {title}",
     "unhidden": "Sichtbar gemacht: {title}",
     "archived": "Archiviert: {title}",
-    "unarchived": "Aus dem Archiv geholt: {title}"
+    "unarchived": "Aus dem Archiv geholt: {title}",
+    "merged": "Duplikate zusammengeführt: {title} ({n} Exemplare, neue Formate: {formats})"
   },
   "theme": {
     "label": "Darstellung",
@@ -726,7 +731,9 @@
     "run_check": "Bibliothek prüfen",
     "run_duplicates": "Duplikate suchen",
     "empty": "Noch keine Aufgaben.",
-    "system": "System"
+    "system": "System",
+    "kind_merge": "Duplikate zusammenführen",
+    "msg_merged_n": "{n} Gruppen zusammengeführt"
   },
   "reader": {
     "read": "Lesen",
@@ -786,5 +793,27 @@
     "android_1": "Öffne das Browsermenü",
     "android_2": "Wähle „App installieren“ oder „Zum Startbildschirm hinzufügen“",
     "menu": "Als App installieren"
+  },
+  "dup": {
+    "title": "Duplikate",
+    "intro": "Wahrscheinlich gleiche Bücher: identische Datei, identische ISBN oder gleicher Titel mit gemeinsamem Autor. Verschiedene Formate eines Buches (z. B. MOBI und AZW3 am selben Buch) sind keine Duplikate.",
+    "run": "Duplikate suchen",
+    "running": "Suche läuft…",
+    "last_scan": "Letzte Suche: {when}",
+    "never": "Es wurde noch keine Suche ausgeführt.",
+    "groups": "{n} Gruppen",
+    "none": "Keine Duplikate gefunden.",
+    "merge_all": "Alle zusammenführen (Vorschlag)",
+    "merge_all_confirm": "Alle {n} Gruppen jeweils in das vorgeschlagene Buch zusammenführen? Die anderen Exemplare werden gelöscht.",
+    "reason_file": "Gleiche Datei",
+    "reason_isbn": "Gleiche ISBN",
+    "reason_title": "Gleicher Titel und Autor",
+    "keep": "Behalten",
+    "has_description": "Mit Beschreibung",
+    "no_description": "Ohne Beschreibung",
+    "merge_help": "Das ausgewählte Buch bleibt erhalten. Fehlende Formate, das Cover und leere Angaben (Beschreibung, Reihe, ISBN …) werden aus den anderen übernommen, Schlagwörter zusammengelegt, Lesefortschritt, Lesezeichen, Markierungen und Regale übertragen. Die anderen Exemplare werden danach gelöscht.",
+    "merge": "Zusammenführen",
+    "merge_confirm": "In das ausgewählte Buch zusammenführen? Die anderen Exemplare werden gelöscht.",
+    "not_dup": "Keine Duplikate"
   }
 }

@@ -35,7 +35,7 @@
 <article class="book">
   <div class="cover">
     <a class="lift" href="/book/{{ b.id }}" aria-label="{{ b.title }}">
-      {% if b.has_cover %}<img src="/book/{{ b.id }}/cover?w=320" alt="" loading="lazy">{% else %}{{ placeholder(b) }}{% endif %}
+      {% if b.has_cover %}<img src="/book/{{ b.id }}/cover?v={{ (b.updated_at or 0)|int }}&w=320" alt="" loading="lazy">{% else %}{{ placeholder(b) }}{% endif %}
     </a>
     {% if b.hidden %}<span class="hid" title="{{ t('book.hidden') }}">{{ icon('eyeoff', 14) }} {{ t('book.hidden') }}</span>
     {% elif now_ts - b.added_at < 7 * 86400 %}<span class="new">{{ t('book.new') }}</span>{% endif %}
@@ -57,7 +57,7 @@
 {% macro bookrow(b, t, user, now_ts, langname) %}
 <article class="brow">
   <a class="brow-cover" href="/book/{{ b.id }}" aria-label="{{ b.title }}">
-    {% if b.has_cover %}<img src="/book/{{ b.id }}/cover?w=200" alt="" loading="lazy">{% else %}{{ placeholder(b) }}{% endif %}
+    {% if b.has_cover %}<img src="/book/{{ b.id }}/cover?v={{ (b.updated_at or 0)|int }}&w=200" alt="" loading="lazy">{% else %}{{ placeholder(b) }}{% endif %}
   </a>
   <div class="brow-main">
     <div class="brow-head">

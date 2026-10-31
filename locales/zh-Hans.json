@@ -453,7 +453,11 @@
     "hidden": "这本书已隐藏——只有管理员能看到。",
     "unhidden": "这本书又对所有人可见了。",
     "archived": "这本书已归档——现在只在“已归档”中显示。",
-    "unarchived": "这本书已回到书库。"
+    "unarchived": "这本书已回到书库。",
+    "dup_merged": "已合并。",
+    "dup_ignored": "已标记为不是重复，今后不再提示。",
+    "dup_nothing": "没有可合并的内容。",
+    "lookup_nocover": "信息已更新，但无法下载在线封面——请稍后重试，或在“编辑”中上传封面。"
   },
   "langname": {
     "hu": "匈牙利语",
@@ -628,7 +632,8 @@
     "hidden": "已隐藏：{title}",
     "unhidden": "已取消隐藏：{title}",
     "archived": "已归档：{title}",
-    "unarchived": "已从归档中恢复：{title}"
+    "unarchived": "已从归档中恢复：{title}",
+    "merged": "已合并重复：{title}（{n} 个副本，新格式：{formats}）"
   },
   "theme": {
     "label": "外观",
@@ -726,7 +731,9 @@
     "run_check": "检查书库",
     "run_duplicates": "查找重复",
     "empty": "还没有任务。",
-    "system": "系统"
+    "system": "系统",
+    "kind_merge": "合并重复",
+    "msg_merged_n": "已合并 {n} 组"
   },
   "reader": {
     "read": "阅读",
@@ -786,5 +793,27 @@
     "android_1": "打开浏览器菜单",
     "android_2": "选择“安装应用”或“添加到主屏幕”",
     "menu": "安装为应用"
+  },
+  "dup": {
+    "title": "重复",
+    "intro": "可能是同一本书：文件相同、ISBN 相同，或标题相同且有共同作者。同一本书的不同格式（如同一本书的 MOBI 和 AZW3）不算重复。",
+    "run": "查找重复",
+    "running": "正在查找…",
+    "last_scan": "上次查找：{when}",
+    "never": "尚未运行过查找。",
+    "groups": "{n} 组",
+    "none": "未发现重复。",
+    "merge_all": "全部合并（推荐）",
+    "merge_all_confirm": "将全部 {n} 组分别合并到推荐的书中？其他副本将被删除。",
+    "reason_file": "文件相同",
+    "reason_isbn": "ISBN 相同",
+    "reason_title": "标题和作者相同",
+    "keep": "保留",
+    "has_description": "有简介",
+    "no_description": "无简介",
+    "merge_help": "保留所选的书。它缺少的格式、封面和空白信息（简介、丛书、ISBN 等）将从其他副本中获取，标签合并，阅读进度、书签、划线和书架也会转移。之后删除其他副本。",
+    "merge": "合并",
+    "merge_confirm": "合并到所选的书中？其他副本将被删除。",
+    "not_dup": "不是重复"
   }
 }

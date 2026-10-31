@@ -453,7 +453,11 @@
     "hidden": "El libro está oculto: solo los administradores lo ven.",
     "unhidden": "El libro vuelve a ser visible para todos.",
     "archived": "El libro se ha archivado: ahora solo aparece en Archivados.",
-    "unarchived": "El libro ha vuelto a la biblioteca."
+    "unarchived": "El libro ha vuelto a la biblioteca.",
+    "dup_merged": "Los libros se han fusionado.",
+    "dup_ignored": "Marcados como no duplicados: no se volverán a proponer.",
+    "dup_nothing": "No hay nada que fusionar.",
+    "lookup_nocover": "Datos actualizados, pero no se pudo descargar la portada en línea; inténtalo más tarde o sube una en Editar."
   },
   "langname": {
     "hu": "Húngaro",
@@ -628,7 +632,8 @@
     "hidden": "Ocultado: {title}",
     "unhidden": "Hecho visible: {title}",
     "archived": "Archivado: {title}",
-    "unarchived": "Sacado del archivo: {title}"
+    "unarchived": "Sacado del archivo: {title}",
+    "merged": "Duplicados fusionados en: {title} ({n} copias, formatos nuevos: {formats})"
   },
   "theme": {
     "label": "Apariencia",
@@ -726,7 +731,9 @@
     "run_check": "Comprobar biblioteca",
     "run_duplicates": "Buscar duplicados",
     "empty": "Aún no hay tareas.",
-    "system": "Sistema"
+    "system": "Sistema",
+    "kind_merge": "Fusionar duplicados",
+    "msg_merged_n": "{n} grupos fusionados"
   },
   "reader": {
     "read": "Leer",
@@ -786,5 +793,27 @@
     "android_1": "Abre el menú del navegador",
     "android_2": "Elige «Instalar aplicación» o «Añadir a pantalla de inicio»",
     "menu": "Instalar como app"
+  },
+  "dup": {
+    "title": "Duplicados",
+    "intro": "Libros que probablemente son el mismo: mismo archivo, mismo ISBN o mismo título con un autor en común. Los distintos formatos de un libro (p. ej., MOBI y AZW3 en el mismo libro) no son duplicados.",
+    "run": "Buscar duplicados",
+    "running": "Búsqueda en curso…",
+    "last_scan": "Última búsqueda: {when}",
+    "never": "Aún no se ha hecho ninguna búsqueda.",
+    "groups": "{n} grupos",
+    "none": "No se encontraron duplicados.",
+    "merge_all": "Fusionar todos (sugerido)",
+    "merge_all_confirm": "¿Fusionar los {n} grupos, cada uno en el libro sugerido? Las demás copias se eliminarán.",
+    "reason_file": "Mismo archivo",
+    "reason_isbn": "Mismo ISBN",
+    "reason_title": "Mismo título y autor",
+    "keep": "Conservar",
+    "has_description": "Con descripción",
+    "no_description": "Sin descripción",
+    "merge_help": "Se conserva el libro seleccionado. Los formatos que le faltan, la portada y los datos vacíos (descripción, serie, ISBN…) se toman de los demás, las etiquetas se combinan y el progreso, marcadores, subrayados y estanterías se trasladan. Después se eliminan las demás copias.",
+    "merge": "Fusionar",
+    "merge_confirm": "¿Fusionar en el libro seleccionado? Las demás copias se eliminarán.",
+    "not_dup": "No son duplicados"
   }
 }

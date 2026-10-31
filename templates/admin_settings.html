@@ -89,7 +89,7 @@
         <dt class="muted">{{ t('admin.st_cache') }}</dt><dd style="margin: 0">{{ stats.cache|filesize }}</dd>
         <dt class="muted">{{ t('admin.st_disk') }}</dt><dd style="margin: 0; white-space: nowrap">{{ t('admin.st_disk_val', free=stats.disk_free|filesize, total=stats.disk_total|filesize) }}</dd>
         {% if stats.archived %}<dt class="muted">{{ t('view.archived') }}</dt><dd style="margin: 0">{{ stats.archived }}</dd>{% endif %}
-        {% if stats.duplicates %}<dt class="muted">{{ t('admin.st_duplicates') }}</dt><dd style="margin: 0">{{ stats.duplicates }}</dd>{% endif %}
+        {% if stats.duplicates %}<dt class="muted">{{ t('admin.st_duplicates') }}</dt><dd style="margin: 0"><a href="/admin/duplicates">{{ stats.duplicates }}</a></dd>{% endif %}
       </dl>
     </section>
     <section class="card" style="display: flex; flex-direction: column; gap: 10px">

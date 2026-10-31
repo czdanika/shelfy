@@ -453,7 +453,11 @@
     "hidden": "The book is now hidden – only administrators can see it.",
     "unhidden": "The book is visible to everyone again.",
     "archived": "The book has been archived – it is now only listed under Archived.",
-    "unarchived": "The book is back in the library."
+    "unarchived": "The book is back in the library.",
+    "dup_merged": "The books have been merged.",
+    "dup_ignored": "Marked as not duplicates – they will not be offered again.",
+    "dup_nothing": "Nothing to merge.",
+    "lookup_nocover": "Details updated, but the online cover could not be downloaded – try again later or upload one under Edit."
   },
   "langname": {
     "hu": "Hungarian",
@@ -628,7 +632,8 @@
     "hidden": "Hidden: {title}",
     "unhidden": "Made visible: {title}",
     "archived": "Archived: {title}",
-    "unarchived": "Restored from archive: {title}"
+    "unarchived": "Restored from archive: {title}",
+    "merged": "Merged duplicates into: {title} ({n} copies, new formats: {formats})"
   },
   "theme": {
     "label": "Appearance",
@@ -726,7 +731,9 @@
     "run_check": "Check library",
     "run_duplicates": "Find duplicates",
     "empty": "No tasks yet.",
-    "system": "System"
+    "system": "System",
+    "kind_merge": "Merge duplicates",
+    "msg_merged_n": "{n} groups merged"
   },
   "reader": {
     "read": "Read",
@@ -786,5 +793,27 @@
     "android_1": "Open the browser menu",
     "android_2": "Choose “Install app” or “Add to Home screen”",
     "menu": "Install as an app"
+  },
+  "dup": {
+    "title": "Duplicates",
+    "intro": "Books that are probably the same: identical file, identical ISBN, or the same title with a common author. Different formats of one book (e.g. MOBI and AZW3 on the same book) are not duplicates.",
+    "run": "Find duplicates",
+    "running": "Search in progress…",
+    "last_scan": "Last search: {when}",
+    "never": "No search has been run yet.",
+    "groups": "{n} groups",
+    "none": "No duplicates found.",
+    "merge_all": "Merge all (suggested)",
+    "merge_all_confirm": "Merge all {n} groups, each into the suggested book? The other copies will be deleted.",
+    "reason_file": "Same file",
+    "reason_isbn": "Same ISBN",
+    "reason_title": "Same title and author",
+    "keep": "Keep",
+    "has_description": "Has description",
+    "no_description": "No description",
+    "merge_help": "The selected book is kept. Formats it lacks, the cover and empty details (description, series, ISBN…) are taken over from the others, tags are combined, and reading progress, bookmarks, highlights and shelves are moved over. The other copies are then deleted.",
+    "merge": "Merge",
+    "merge_confirm": "Merge into the selected book? The other copies will be deleted.",
+    "not_dup": "Not duplicates"
   }
 }

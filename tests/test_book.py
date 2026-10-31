@@ -146,3 +146,14 @@ def test_reader_notes_api(admin, tmp_path):
     assert len(admin.get(f"/book/{bid}/reader/notes").json()) == 2
     admin.post(f"/book/{bid}/reader/notes/{b['id']}", json={"delete": 1})
     assert [x["kind"] for x in admin.get(f"/book/{bid}/reader/notes").json()] == ["highlight"]
+
+
+def test_cover_url_changes_after_new_cover(admin, book):
+    import re as _re
+    from conftest import cover_bytes
+    url = lambda: _re.search(r'/book/\d+/cover\?v=(\d+)&w=520', admin.get(f"/book/{book}").text)
+    before = url()
+    import time as _t; _t.sleep(1.1)
+    admin.app.state.lib.set_cover(book, cover_bytes(color=(10, 200, 10)))
+    after = url()
+    assert after and (not before or before.group(1) != after.group(1))

@@ -453,7 +453,11 @@
     "hidden": "Książka jest teraz ukryta – widzą ją tylko administratorzy.",
     "unhidden": "Książka jest znowu widoczna dla wszystkich.",
     "archived": "Książka została zarchiwizowana – teraz widać ją tylko w sekcji „Zarchiwizowane”.",
-    "unarchived": "Książka wróciła do biblioteki."
+    "unarchived": "Książka wróciła do biblioteki.",
+    "dup_merged": "Książki zostały scalone.",
+    "dup_ignored": "Oznaczono jako nie-duplikaty – nie będą więcej proponowane.",
+    "dup_nothing": "Nie ma czego scalać.",
+    "lookup_nocover": "Dane zaktualizowane, ale nie udało się pobrać okładki online – spróbuj później lub prześlij ją w Edycji."
   },
   "langname": {
     "hu": "węgierski",
@@ -628,7 +632,8 @@
     "hidden": "Ukryto: {title}",
     "unhidden": "Odkryto: {title}",
     "archived": "Zarchiwizowano: {title}",
-    "unarchived": "Przywrócono z archiwum: {title}"
+    "unarchived": "Przywrócono z archiwum: {title}",
+    "merged": "Scalono duplikaty w: {title} (egzemplarze: {n}, nowe formaty: {formats})"
   },
   "theme": {
     "label": "Wygląd",
@@ -726,7 +731,9 @@
     "run_check": "Sprawdź bibliotekę",
     "run_duplicates": "Szukaj duplikatów",
     "empty": "Brak zadań.",
-    "system": "System"
+    "system": "System",
+    "kind_merge": "Scalanie duplikatów",
+    "msg_merged_n": "Scalono grupy: {n}"
   },
   "reader": {
     "read": "Czytaj",
@@ -786,5 +793,27 @@
     "android_1": "Otwórz menu przeglądarki",
     "android_2": "Wybierz „Zainstaluj aplikację” lub „Dodaj do ekranu głównego”",
     "menu": "Zainstaluj jako aplikację"
+  },
+  "dup": {
+    "title": "Duplikaty",
+    "intro": "Książki, które prawdopodobnie są takie same: ten sam plik, ten sam ISBN lub ten sam tytuł ze wspólnym autorem. Różne formaty jednej książki (np. MOBI i AZW3 przy tej samej książce) nie są duplikatami.",
+    "run": "Szukaj duplikatów",
+    "running": "Trwa wyszukiwanie…",
+    "last_scan": "Ostatnie wyszukiwanie: {when}",
+    "never": "Wyszukiwanie nie było jeszcze uruchamiane.",
+    "groups": "Grupy: {n}",
+    "none": "Nie znaleziono duplikatów.",
+    "merge_all": "Scal wszystkie (propozycja)",
+    "merge_all_confirm": "Scalić wszystkie grupy ({n}), każdą w proponowaną książkę? Pozostałe egzemplarze zostaną usunięte.",
+    "reason_file": "Ten sam plik",
+    "reason_isbn": "Ten sam ISBN",
+    "reason_title": "Ten sam tytuł i autor",
+    "keep": "Zachowaj",
+    "has_description": "Ma opis",
+    "no_description": "Brak opisu",
+    "merge_help": "Zaznaczona książka zostaje. Brakujące formaty, okładka i puste dane (opis, seria, ISBN…) są przejmowane z pozostałych, etykiety łączone, a postęp czytania, zakładki, zaznaczenia i półki przenoszone. Pozostałe egzemplarze są następnie usuwane.",
+    "merge": "Scal",
+    "merge_confirm": "Scalić w zaznaczoną książkę? Pozostałe egzemplarze zostaną usunięte.",
+    "not_dup": "To nie duplikaty"
   }
 }

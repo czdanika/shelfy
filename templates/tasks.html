@@ -7,6 +7,7 @@
   <div class="row">
     <form method="post" action="/tasks/run/check"><button class="btn small" type="submit">{{ t('tasks.run_check') }}</button></form>
     <form method="post" action="/tasks/run/duplicates"><button class="btn small" type="submit">{{ t('tasks.run_duplicates') }}</button></form>
+    <a class="btn small" href="/admin/duplicates">{{ t('dup.title') }}{% if nav_counts.dups %} ({{ nav_counts.dups }}){% endif %}</a>
   </div>
   {% endif %}
 </div>

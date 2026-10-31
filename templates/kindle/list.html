@@ -12,7 +12,7 @@
 <table class="books">
 {% for b in books %}
 <tr>
-  <td class="c">{% if b.has_cover %}<a href="/kindle/book/{{ b.id }}"><img src="/book/{{ b.id }}/cover?w=160&g=1" alt=""></a>{% endif %}</td>
+  <td class="c">{% if b.has_cover %}<a href="/kindle/book/{{ b.id }}"><img src="/book/{{ b.id }}/cover?v={{ (b.updated_at or 0)|int }}&w=160&g=1" alt=""></a>{% endif %}</td>
   <td><a class="bt" href="/kindle/book/{{ b.id }}">{{ b.title }}</a>
     <div class="ba">{{ b.authors|map(attribute='name')|join(', ') }}</div>
     {% if b.series %}<div class="muted">{{ b.series }}{% if b.series_index %} ({{ '%g' % b.series_index }}){% endif %}</div>{% endif %}

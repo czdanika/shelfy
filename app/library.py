@@ -310,7 +310,7 @@ class Library:
         base = f"""FROM books b LEFT JOIN series s ON s.id = b.series_id LEFT JOIN publishers p ON p.id = b.publisher_id
                    WHERE {' AND '.join(where)}"""
         total = self.db.val(f"SELECT COUNT(*) {base}", args)
-        rows = self.db.q(f"""SELECT b.id, b.title, b.hidden, b.archived, b.year, b.rating, b.has_cover, b.added_at, b.series_index, b.language,
+        rows = self.db.q(f"""SELECT b.id, b.title, b.hidden, b.archived, b.updated_at, b.year, b.rating, b.has_cover, b.added_at, b.series_index, b.language,
                    s.name AS series, s.id AS series_id, p.name AS publisher, p.id AS publisher_id,
                    substr(b.description, 1, 1200) AS description,
                    (SELECT a.sort FROM book_authors ba JOIN authors a ON a.id = ba.author_id WHERE ba.book_id = b.id
@@ -389,13 +389,141 @@ class Library:
             "duplicates": len(self.duplicate_groups()),
         }
 
-    def duplicate_groups(self) -> list[list[int]]:
-        """Azonos cím + első szerző (kis- és nagybetű, ékezet nélkül) = valószínű duplikátum."""
-        groups: dict[str, list[int]] = {}
-        for r in self.db.q("""SELECT b.id, b.title, (SELECT a.name FROM book_authors ba JOIN authors a ON a.id = ba.author_id
-                              WHERE ba.book_id = b.id ORDER BY ba.position LIMIT 1) AS author FROM books b WHERE b.archived = 0"""):
-            groups.setdefault(norm(r["title"]) + "|" + norm(r["author"] or ""), []).append(r["id"])
-        return [ids for ids in groups.values() if len(ids) > 1]
+    # ------------------------------------------------------------------ duplikátumok
+    @staticmethod
+    def _isbn13(v: str | None) -> str | None:
+        d = re.sub(r"[^0-9Xx]", "", v or "").upper()
+        if len(d) == 10:
+            core = "978" + d[:9]
+            chk = (10 - sum(int(c) * (1 if i % 2 == 0 else 3) for i, c in enumerate(core)) % 10) % 10
+            return core + str(chk)
+        return d if len(d) == 13 else None
+
+    @staticmethod
+    def _title_key(t: str) -> str:
+        """Cím összehasonlításhoz: a végén álló zárójeles rész (pl. sorozat, kiadás) nélkül."""
+        return norm(re.sub(r"\s*[\(\[][^\)\]]*[\)\]]\s*$", "", t or "")) or norm(t)
+
+    @staticmethod
+    def _author_key(a: str) -> str:
+        """Szerző: a szórend nem számít (Jókai Mór = Mór Jókai)."""
+        return " ".join(sorted(norm(a).split()))
+
+    def dup_ignored(self) -> list[list[int]]:
+        import json
+        try:
+            return json.loads(self.db.get_setting("dup_ignored") or "[]")
+        except ValueError:
+            return []
+
+    def dup_ignore(self, ids: list[int]) -> None:
+        import json
+        cur = [g for g in self.dup_ignored() if not set(g) <= set(ids)]
+        cur.append(sorted(set(ids)))
+        self.db.set_setting("dup_ignored", json.dumps(cur))
+
+    def duplicate_groups(self, ignored: list[list[int]] | None = None) -> list[dict]:
+        """Valószínű duplikátumok csoportjai: azonos fájl, azonos ISBN, vagy azonos cím és legalább egy közös szerző.
+        Egy könyv több formátuma (pl. MOBI és AZW3 ugyanannál a könyvnél) nem duplikátum."""
+        parent: dict[int, int] = {}
+        reasons: dict[frozenset, set] = {}
+
+        def find(x):
+            parent.setdefault(x, x)
+            while parent[x] != x:
+                parent[x] = parent[parent[x]]
+                x = parent[x]
+            return x
+
+        def link(ids, why):
+            ids = sorted(set(ids))
+            for a, b in zip(ids, ids[1:]):
+                parent[find(b)] = find(a)
+            for x in ids:
+                reasons.setdefault(frozenset([x]), set()).add(why)
+
+        by_sha: dict[str, list[int]] = {}
+        for r in self.db.q("SELECT book_id, sha256 FROM files"):
+            by_sha.setdefault(r["sha256"], []).append(r["book_id"])
+        by_isbn: dict[str, list[int]] = {}
+        by_title: dict[str, list[int]] = {}
+        authors: dict[int, set] = {}
+        for r in self.db.q("SELECT ba.book_id, a.name FROM book_authors ba JOIN authors a ON a.id = ba.author_id"):
+            authors.setdefault(r["book_id"], set()).add(self._author_key(r["name"]))
+        for r in self.db.q("SELECT id, title, isbn FROM books"):
+            k = self._isbn13(r["isbn"])
+            if k:
+                by_isbn.setdefault(k, []).append(r["id"])
+            by_title.setdefault(self._title_key(r["title"]), []).append(r["id"])
+        for ids in by_sha.values():
+            if len(set(ids)) > 1:
+                link(ids, "file")
+        for ids in by_isbn.values():
+            if len(ids) > 1:
+                link(ids, "isbn")
+        for ids in by_title.values():
+            for i, a in enumerate(ids):
+                for b in ids[i + 1:]:
+                    if (authors.get(a, set()) & authors.get(b, set())) or not authors.get(a) or not authors.get(b):
+                        link([a, b], "title")
+        groups: dict[int, list[int]] = {}
+        for x in list(parent):
+            groups.setdefault(find(x), []).append(x)
+        ign = [set(g) for g in (self.dup_ignored() if ignored is None else ignored)]
+        out = []
+        for ids in groups.values():
+            if len(ids) < 2 or any(set(ids) <= g for g in ign):
+                continue
+            why = set().union(*(reasons.get(frozenset([x]), set()) for x in ids))
+            out.append({"ids": sorted(ids), "reasons": [w for w in ("file", "isbn", "title") if w in why]})
+        titles = {r["id"]: r["title"] for r in self.db.q("SELECT id, title FROM books")}
+        out.sort(key=lambda g: hu_key(titles.get(g["ids"][0], "")))
+        return out
+
+    def merge_score(self, b: dict) -> tuple:
+        """Melyik könyvet érdemes megtartani: több formátum, borító, kitöltöttebb adatok; egyenlőnél a régebbi."""
+        filled = sum(1 for k in ("description", "isbn", "series", "publisher", "year", "language", "rating") if b.get(k))
+        return (len(b["formats"]), b["has_cover"], filled, len(b["tags"]), -b["id"])
+
+    def merge_books(self, keep: int, others: list[int]) -> dict:
+        """A többi könyv egyesítése a megtartottba: hiányzó formátumok, borító, üres adatok, címkék,
+        olvasási állapot, könyvjelzők, polcok, letöltések és napló átkerülnek; utána a többi könyv törlődik."""
+        db = self.db
+        res = {"formats": [], "skipped": [], "merged": 0}
+        for oid in others:
+            if oid == keep:
+                continue
+            k, o = self.book(keep), self.book(oid)
+            if not k or not o:
+                continue
+            for f in o["files"]:
+                src = self.book_dir(oid) / f["filename"]
+                if f["format"] in k["formats"] or not src.exists():
+                    res["skipped"].append(f["format"])
+                    continue
+                self.add_file(keep, src, f["format"], f["sha256"])
+                k["formats"].append(f["format"])
+                res["formats"].append(f["format"])
+            if not k["has_cover"] and o["has_cover"] and self.cover_path(oid).exists():
+                self.set_cover(keep, self.cover_path(oid).read_bytes())
+            for col in ("description", "isbn", "publisher_id", "year", "language", "rating", "source", "source_url"):
+                if not k.get(col) and o.get(col):
+                    db.run(f"UPDATE books SET {col} = ? WHERE id = ?", (o[col], keep))
+            if not k.get("series_id") and o.get("series_id"):
+                db.run("UPDATE books SET series_id = ?, series_index = ? WHERE id = ?", (o["series_id"], o["series_index"], keep))
+            db.run("INSERT OR IGNORE INTO book_tags(book_id, tag_id) SELECT ?, tag_id FROM book_tags WHERE book_id = ?", (keep, oid))
+            for t in ("read_state", "reading_pos", "shelf_books"):
+                db.run(f"UPDATE OR IGNORE {t} SET book_id = ? WHERE book_id = ?", (keep, oid))
+                db.run(f"DELETE FROM {t} WHERE book_id = ?", (oid,))
+            for t in ("annotations", "downloads", "events"):
+                db.run(f"UPDATE {t} SET book_id = ? WHERE book_id = ?", (keep, oid))
+            db.run("UPDATE uploads SET book_id = ? WHERE book_id = ?", (keep, oid))
+            db.run("UPDATE uploads SET duplicate_of = ? WHERE duplicate_of = ?", (keep, oid))
+            self.delete_book(oid)
+            res["merged"] += 1
+        db.run("UPDATE books SET updated_at = ? WHERE id = ?", (now(), keep))
+        self._cleanup_orphans()
+        return res
 
     def find_duplicates(self, sha: str | None, title: str | None, authors: list[str] | None) -> list[int]:
         ids: list[int] = []

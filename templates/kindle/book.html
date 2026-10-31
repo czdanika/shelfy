@@ -3,7 +3,7 @@
 {% block content %}
 <p class="muted"><a href="/kindle">‹ {{ t('kindle.back') }}</a></p>
 <table class="detail"><tr>
-  <td class="c">{% if b.has_cover %}<img src="/book/{{ b.id }}/cover?w=360&g=1" alt="">{% endif %}</td>
+  <td class="c">{% if b.has_cover %}<img src="/book/{{ b.id }}/cover?v={{ (b.updated_at or 0)|int }}&w=360&g=1" alt="">{% endif %}</td>
   <td>
     <h1 style="margin-top: 0">{{ b.title }}</h1>
     <div class="ba">{% for a in b.authors %}<a href="/kindle?q={{ a.name|urlencode }}">{{ a.name }}</a>{% if not loop.last %}, {% endif %}{% endfor %}</div>

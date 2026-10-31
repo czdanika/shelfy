@@ -12,7 +12,7 @@
 <div class="review">
   <aside style="display: flex; flex-direction: column; gap: 18px">
     <section class="card" style="display: flex; gap: 14px; align-items: flex-start">
-      <div style="width: 70px; flex: none">{% if b.has_cover %}<img src="/book/{{ b.id }}/cover?w=160" alt="" style="width: 70px; border-radius: 4px">{% endif %}</div>
+      <div style="width: 70px; flex: none">{% if b.has_cover %}<img src="/book/{{ b.id }}/cover?v={{ (b.updated_at or 0)|int }}&w=160" alt="" style="width: 70px; border-radius: 4px">{% endif %}</div>
       <div style="min-width: 0"><strong>{{ b.title }}</strong><br><span class="small">{{ b.authors|map(attribute='name')|join(', ') }}</span>
         {% if b.source %}<br><span class="small muted">{{ t('book.source') }}: {{ t('source.' ~ b.source) }}</span>{% endif %}</div>
     </section>
@@ -66,7 +66,7 @@
         {% if cand.cover_url %}
         <tr><td><input type="checkbox" name="take" value="cover" aria-label="{{ t('review.cover') }}" {% if not b.has_cover %}checked{% endif %}></td>
           <td class="lbl">{{ t('review.cover') }}</td>
-          <td>{% if b.has_cover %}<img src="/book/{{ b.id }}/cover?w=160" alt="" class="cmpimg">{% else %}<span class="muted">–</span>{% endif %}</td>
+          <td>{% if b.has_cover %}<img src="/book/{{ b.id }}/cover?v={{ (b.updated_at or 0)|int }}&w=160" alt="" class="cmpimg">{% else %}<span class="muted">–</span>{% endif %}</td>
           <td><img src="{{ cover_proxy(b.id, cand.cover_url) }}" alt="" class="cmpimg"></td></tr>
         {% endif %}
         {% for r in rows %}

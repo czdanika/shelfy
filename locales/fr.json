@@ -453,7 +453,11 @@
     "hidden": "Le livre est maintenant masqué – seuls les administrateurs le voient.",
     "unhidden": "Le livre est de nouveau visible par tous.",
     "archived": "Le livre a été archivé – il n’apparaît plus que dans Archivés.",
-    "unarchived": "Le livre est de retour dans la bibliothèque."
+    "unarchived": "Le livre est de retour dans la bibliothèque.",
+    "dup_merged": "Les livres ont été fusionnés.",
+    "dup_ignored": "Marqués comme non-doublons – ils ne seront plus proposés.",
+    "dup_nothing": "Rien à fusionner.",
+    "lookup_nocover": "Informations mises à jour, mais la couverture en ligne n’a pas pu être téléchargée – réessayez plus tard ou envoyez-en une dans Modifier."
   },
   "kindle": {
     "settings": "Paramètres",
@@ -566,7 +570,8 @@
     "hidden": "Masqué : {title}",
     "unhidden": "Rendu visible : {title}",
     "archived": "Archivé : {title}",
-    "unarchived": "Sorti de l’archive : {title}"
+    "unarchived": "Sorti de l’archive : {title}",
+    "merged": "Doublons fusionnés dans : {title} ({n} exemplaires, nouveaux formats : {formats})"
   },
   "theme": {
     "label": "Apparence",
@@ -726,7 +731,9 @@
     "run_check": "Vérifier la bibliothèque",
     "run_duplicates": "Chercher les doublons",
     "empty": "Aucune tâche pour l’instant.",
-    "system": "Système"
+    "system": "Système",
+    "kind_merge": "Fusion des doublons",
+    "msg_merged_n": "{n} groupes fusionnés"
   },
   "reader": {
     "read": "Lire",
@@ -786,5 +793,27 @@
     "android_1": "Ouvrez le menu du navigateur",
     "android_2": "Choisissez « Installer l’application » ou « Ajouter à l’écran d’accueil »",
     "menu": "Installer comme application"
+  },
+  "dup": {
+    "title": "Doublons",
+    "intro": "Livres probablement identiques : même fichier, même ISBN, ou même titre avec un auteur commun. Les différents formats d’un même livre (p. ex. MOBI et AZW3 sur le même livre) ne sont pas des doublons.",
+    "run": "Rechercher les doublons",
+    "running": "Recherche en cours…",
+    "last_scan": "Dernière recherche : {when}",
+    "never": "Aucune recherche n’a encore été lancée.",
+    "groups": "{n} groupes",
+    "none": "Aucun doublon trouvé.",
+    "merge_all": "Tout fusionner (suggestion)",
+    "merge_all_confirm": "Fusionner les {n} groupes, chacun dans le livre suggéré ? Les autres exemplaires seront supprimés.",
+    "reason_file": "Même fichier",
+    "reason_isbn": "Même ISBN",
+    "reason_title": "Même titre et auteur",
+    "keep": "Conserver",
+    "has_description": "Avec description",
+    "no_description": "Sans description",
+    "merge_help": "Le livre sélectionné est conservé. Les formats qui lui manquent, la couverture et les informations vides (description, série, ISBN…) sont repris des autres, les étiquettes réunies, et la progression, les signets, surlignages et étagères transférés. Les autres exemplaires sont ensuite supprimés.",
+    "merge": "Fusionner",
+    "merge_confirm": "Fusionner dans le livre sélectionné ? Les autres exemplaires seront supprimés.",
+    "not_dup": "Pas des doublons"
   }
 }

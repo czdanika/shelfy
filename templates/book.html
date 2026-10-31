@@ -6,7 +6,7 @@
 
 <div class="card detail">
   <div class="big">
-    <div class="lift">{% if b.has_cover %}<img src="/book/{{ b.id }}/cover?w=520" alt="">{% else %}{{ placeholder(b) }}{% endif %}</div>
+    <div class="lift">{% if b.has_cover %}<img src="/book/{{ b.id }}/cover?v={{ (b.updated_at or 0)|int }}&w=520" alt="">{% else %}{{ placeholder(b) }}{% endif %}</div>
   </div>
   <div class="info">
     <div>

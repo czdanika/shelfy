@@ -453,7 +453,11 @@
     "hidden": "Kitap artık gizli – yalnızca yöneticiler görür.",
     "unhidden": "Kitap yeniden herkese görünür.",
     "archived": "Kitap arşivlendi – artık yalnızca “Arşivlendi” bölümünde görünür.",
-    "unarchived": "Kitap kitaplığa geri döndü."
+    "unarchived": "Kitap kitaplığa geri döndü.",
+    "dup_merged": "Kitaplar birleştirildi.",
+    "dup_ignored": "Kopya değil olarak işaretlendi – bir daha önerilmeyecek.",
+    "dup_nothing": "Birleştirilecek bir şey yok.",
+    "lookup_nocover": "Bilgiler güncellendi ancak çevrimiçi kapak indirilemedi – daha sonra yeniden deneyin veya Düzenle’den bir kapak yükleyin."
   },
   "langname": {
     "hu": "Macarca",
@@ -628,7 +632,8 @@
     "hidden": "Gizlendi: {title}",
     "unhidden": "Görünür yapıldı: {title}",
     "archived": "Arşivlendi: {title}",
-    "unarchived": "Arşivden çıkarıldı: {title}"
+    "unarchived": "Arşivden çıkarıldı: {title}",
+    "merged": "Kopyalar birleştirildi: {title} ({n} kopya, yeni biçimler: {formats})"
   },
   "theme": {
     "label": "Görünüm",
@@ -726,7 +731,9 @@
     "run_check": "Kitaplığı denetle",
     "run_duplicates": "Kopyaları bul",
     "empty": "Henüz görev yok.",
-    "system": "Sistem"
+    "system": "Sistem",
+    "kind_merge": "Kopyaları birleştir",
+    "msg_merged_n": "{n} grup birleştirildi"
   },
   "reader": {
     "read": "Oku",
@@ -786,5 +793,27 @@
     "android_1": "Tarayıcı menüsünü açın",
     "android_2": "“Uygulamayı yükle” veya “Ana ekrana ekle”yi seçin",
     "menu": "Uygulama olarak yükle"
+  },
+  "dup": {
+    "title": "Kopyalar",
+    "intro": "Muhtemelen aynı olan kitaplar: aynı dosya, aynı ISBN veya ortak yazarlı aynı başlık. Bir kitabın farklı biçimleri (ör. aynı kitaptaki MOBI ve AZW3) kopya sayılmaz.",
+    "run": "Kopyaları bul",
+    "running": "Arama sürüyor…",
+    "last_scan": "Son arama: {when}",
+    "never": "Henüz arama yapılmadı.",
+    "groups": "{n} grup",
+    "none": "Kopya bulunamadı.",
+    "merge_all": "Tümünü birleştir (önerilen)",
+    "merge_all_confirm": "{n} grubun tümü, her biri önerilen kitaba birleştirilsin mi? Diğer kopyalar silinecek.",
+    "reason_file": "Aynı dosya",
+    "reason_isbn": "Aynı ISBN",
+    "reason_title": "Aynı başlık ve yazar",
+    "keep": "Sakla",
+    "has_description": "Açıklama var",
+    "no_description": "Açıklama yok",
+    "merge_help": "Seçilen kitap kalır. Eksik biçimleri, kapak ve boş bilgiler (açıklama, seri, ISBN…) diğerlerinden alınır, etiketler birleştirilir; okuma ilerlemesi, yer imleri, vurgular ve raflar aktarılır. Ardından diğer kopyalar silinir.",
+    "merge": "Birleştir",
+    "merge_confirm": "Seçilen kitaba birleştirilsin mi? Diğer kopyalar silinecek.",
+    "not_dup": "Kopya değil"
   }
 }

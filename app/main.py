@@ -275,6 +275,8 @@ def create_app(cfg: Config | None = None, transport=None) -> FastAPI:
             base["nav_counts"] = lib.counts()
             base["pending"] = db.val("SELECT COUNT(*) FROM uploads WHERE status IN ('pending','inspecting','review')")
             base["active_tasks"] = tasks.active()
+            if user.is_admin:
+                base["nav_counts"]["dups"] = len(dup_stored().get("groups", []))
         base.update(ctx)
         resp = tpl.TemplateResponse(request, name, base, status_code=status)
         resp.headers["Cache-Control"] = "no-store"
@@ -978,8 +980,9 @@ def create_app(cfg: Config | None = None, transport=None) -> FastAPI:
                    fields=", ".join(sorted(take)) or "–")
         if "cover" in take and cand.get("cover_url"):
             data = await lookup.fetch_image(cand["cover_url"])
-            if data:
-                lib.set_cover(bid, data)
+            if not data:
+                return flash(f"/book/{bid}", "lookup_nocover")
+            lib.set_cover(bid, data)
         return flash(f"/book/{bid}", "lookup_applied")
 
     def meta_from_form(form) -> Meta:
@@ -1361,6 +1364,7 @@ def create_app(cfg: Config | None = None, transport=None) -> FastAPI:
         if not user.is_admin or kind not in ("check", "duplicates"):
             return Response(status_code=403)
         tid = tasks.create(kind, user, status="running")
+        back = (await request.form()).get("back")
 
         async def job():
             try:
@@ -1368,12 +1372,98 @@ def create_app(cfg: Config | None = None, transport=None) -> FastAPI:
                     missing = await asyncio.to_thread(bk.check_library, db, cfg.library_dir)
                     tasks.finish(tid, not missing, "check_done", n=len(missing))
                 else:
-                    groups = await asyncio.to_thread(lib.duplicate_groups)
-                    tasks.finish(tid, True, "duplicates_done", n=len(groups))
+                    n = await asyncio.to_thread(dup_scan)
+                    tasks.finish(tid, True, "duplicates_done", n=n)
             except Exception as e:
                 tasks.finish(tid, False, "exception", error=f"{e.__class__.__name__}: {e}"[:200])
         app.state.bg = asyncio.create_task(job())
-        return flash("/tasks", "task_started")
+        return flash("/admin/duplicates" if back == "dups" else "/tasks", "task_started")
+
+    # ------------------------------------------------------------------ duplikátumok keresése és egyesítése
+    def dup_scan() -> int:
+        groups = lib.duplicate_groups()
+        db.set_setting("dup_scan", json.dumps({"at": now(), "groups": groups}))
+        return len(groups)
+
+    def dup_stored() -> dict:
+        try:
+            return json.loads(db.get_setting("dup_scan") or "") or {}
+        except ValueError:
+            return {}
+
+    def dup_drop(ids) -> None:
+        """A már rendezett csoport kivétele a mentett eredményből."""
+        st = dup_stored()
+        if st:
+            ids = set(ids)
+            st["groups"] = [g for g in st.get("groups", []) if not ids & set(g["ids"])]
+            db.set_setting("dup_scan", json.dumps(st))
+
+    def dup_groups_live() -> list[dict]:
+        out = []
+        for g in dup_stored().get("groups", []):
+            books = [b for b in (lib.book(i) for i in g["ids"]) if b]
+            if len(books) < 2:
+                continue
+            keep = max(books, key=lib.merge_score)["id"]
+            out.append({"ids": [b["id"] for b in books], "books": books, "keep": keep, "reasons": g["reasons"]})
+        return out
+
+    def dup_running() -> bool:
+        return bool(db.val("SELECT 1 FROM tasks WHERE kind IN ('duplicates', 'merge') AND status IN ('queued', 'running')"))
+
+    @app.get("/admin/duplicates", response_class=HTMLResponse)
+    async def admin_duplicates(request: Request):
+        st = dup_stored()
+        return render(request, "admin_duplicates.html", groups=dup_groups_live(), scanned_at=st.get("at"),
+                      running=dup_running(), msg=request.query_params.get("msg"))
+
+    @app.post("/admin/duplicates/merge")
+    async def admin_dup_merge(request: Request):
+        form = await request.form()
+        ids = [int(x) for x in form.getlist("ids") if str(x).isdigit()]
+        keep = int(form.get("keep") or 0)
+        if keep not in ids or len(ids) < 2:
+            return flash("/admin/duplicates", "dup_nothing")
+        title = (lib.book(keep) or {}).get("title", "")
+        res = await asyncio.to_thread(lib.merge_books, keep, [i for i in ids if i != keep])
+        events.log("merged", request.state.user, keep, title=title, n=res["merged"],
+                   formats=", ".join(f.upper() for f in res["formats"]) or "–")
+        dup_drop(ids)
+        return flash(f"/admin/duplicates#g{keep}", "dup_merged")
+
+    @app.post("/admin/duplicates/ignore")
+    async def admin_dup_ignore(request: Request):
+        ids = [int(x) for x in (await request.form()).getlist("ids") if str(x).isdigit()]
+        if len(ids) > 1:
+            lib.dup_ignore(ids)
+            dup_drop(ids)
+        return flash("/admin/duplicates", "dup_ignored")
+
+    @app.post("/admin/duplicates/merge-all")
+    async def admin_dup_merge_all(request: Request):
+        user: User = request.state.user
+        groups = [(g["keep"], [i for i in g["ids"] if i != g["keep"]], g["books"][0]["title"]) for g in dup_groups_live()]
+        if not groups:
+            return flash("/admin/duplicates", "dup_nothing")
+        tid = tasks.create("merge", user, status="running", subject=str(len(groups)))
+
+        async def job():
+            done = 0
+            try:
+                for i, (keep, others, title) in enumerate(groups):
+                    title = (lib.book(keep) or {}).get("title", title)
+                    res = await asyncio.to_thread(lib.merge_books, keep, others)
+                    events.log("merged", user, keep, title=title, n=res["merged"],
+                               formats=", ".join(f.upper() for f in res["formats"]) or "–")
+                    dup_drop([keep] + others)
+                    done += 1
+                    tasks.progress(tid, 100 * (i + 1) / len(groups))
+                tasks.finish(tid, True, "merged_n", n=done)
+            except Exception as e:
+                tasks.finish(tid, False, "exception", error=f"{e.__class__.__name__}: {e}"[:200])
+        app.state.bg = asyncio.create_task(job())
+        return flash("/admin/duplicates", "task_started")
 
     # ------------------------------------------------------------------ mentés és visszaállítás
     def backup_dir() -> Path:

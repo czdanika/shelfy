@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+{% from "macros.html" import icon, placeholder %}
+{% block title %}{{ t('dup.title') }}{% endblock %}
+{% block content %}
+{% if running %}<meta http-equiv="refresh" content="3">{% endif %}
+<div class="row" style="justify-content: space-between; align-items: center">
+  <h1 style="margin: 0">{{ t('dup.title') }} <a class="helplink" href="/help#admin" title="{{ t('nav.help') }}" aria-label="{{ t('nav.help') }}">?</a></h1>
+  <div class="row">
+    {% if groups and not running %}
+    <form method="post" action="/admin/duplicates/merge-all" onsubmit="return confirm({{ t('dup.merge_all_confirm', n=groups|length)|tojson }})">
+      <button class="btn" type="submit">{{ t('dup.merge_all') }}</button></form>
+    {% endif %}
+    <form method="post" action="/tasks/run/duplicates"><input type="hidden" name="back" value="dups">
+      <button class="btn primary" type="submit" {% if running %}disabled{% endif %}>{{ icon('search', 16) }} {{ t('dup.run') }}</button></form>
+  </div>
+</div>
+<p class="small muted">{{ t('dup.intro') }}</p>
+<p class="small">
+  {% if running %}<span class="badge info">{{ t('dup.running') }}</span>
+  {% elif scanned_at %}{{ t('dup.last_scan', when=scanned_at|int|datetime) }} · <b>{{ t('dup.groups', n=groups|length) }}</b>
+  {% else %}{{ t('dup.never') }}{% endif %}
+</p>
+
+{% if scanned_at and not groups and not running %}
+<section class="card"><p style="margin: 0">{{ icon('check', 18) }} {{ t('dup.none') }}</p></section>
+{% endif %}
+
+<div class="dupgroups">
+{% for g in groups %}
+<section class="card dupgroup" id="g{{ g.keep }}">
+  <form method="post" action="/admin/duplicates/merge">
+    {% for i in g.ids %}<input type="hidden" name="ids" value="{{ i }}">{% endfor %}
+    <div class="row" style="gap: 6px; margin-bottom: 10px">
+      {% for r in g.reasons %}<span class="badge warn">{{ t('dup.reason_' ~ r) }}</span>{% endfor %}
+    </div>
+    <div class="dupbooks">
+      {% for b in g.books %}
+      <label class="dupbook">
+        <input type="radio" name="keep" value="{{ b.id }}" {% if b.id == g.keep %}checked{% endif %}>
+        <span class="dupcover">{% if b.has_cover %}<img src="/book/{{ b.id }}/cover?v={{ (b.updated_at or 0)|int }}&w=160" alt="" loading="lazy">{% else %}{{ placeholder(b) }}{% endif %}</span>
+        <span class="dupinfo">
+          <span class="keep-tag">{{ t('dup.keep') }}</span>
+          <a href="/book/{{ b.id }}" target="_blank" rel="noopener"><b>{{ b.title }}</b></a>
+          <span class="small">{{ b.authors|map(attribute='name')|join(', ') }}</span>
+          <span class="row" style="gap: 4px">{% for f in b.files %}<span class="fmt">{{ f.format|upper }} · {{ f.size|filesize }}</span>{% endfor %}</span>
+          <span class="small muted">
+            {% if b.series %}{{ b.series }}{% if b.series_index %} #{{ b.series_index|num }}{% endif %} · {% endif %}
+            {% if b.publisher %}{{ b.publisher }} · {% endif %}{% if b.year %}{{ b.year }} · {% endif %}
+            {% if b.isbn %}ISBN {{ b.isbn }} · {% endif %}{{ t('book.added') }}: {{ b.added_at|int|datetime }}
+          </span>
+          <span class="small muted">
+            {% if b.description %}✓ {{ t('dup.has_description') }}{% else %}– {{ t('dup.no_description') }}{% endif %}
+            {% if b.tags %} · {{ t('book.tags') }}: {{ b.tags|length }}{% endif %}
+            {% if b.hidden %} · {{ t('book.hidden') }}{% endif %}{% if b.archived %} · {{ t('view.archived') }}{% endif %}
+          </span>
+        </span>
+      </label>
+      {% endfor %}
+    </div>
+    <p class="small muted" style="margin: 10px 0">{{ t('dup.merge_help') }}</p>
+    <div class="row">
+      <button class="btn primary" type="submit" onclick="return confirm({{ t('dup.merge_confirm')|tojson }})">{{ t('dup.merge') }}</button>
+      <button class="btn" type="submit" formaction="/admin/duplicates/ignore">{{ t('dup.not_dup') }}</button>
+    </div>
+  </form>
+</section>
+{% endfor %}
+</div>
+{% endblock %}

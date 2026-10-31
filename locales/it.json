@@ -453,7 +453,11 @@
     "hidden": "Il libro ora è nascosto – solo gli amministratori lo vedono.",
     "unhidden": "Il libro è di nuovo visibile a tutti.",
     "archived": "Il libro è stato archiviato – ora compare solo in Archiviati.",
-    "unarchived": "Il libro è tornato nella biblioteca."
+    "unarchived": "Il libro è tornato nella biblioteca.",
+    "dup_merged": "I libri sono stati uniti.",
+    "dup_ignored": "Segnati come non duplicati – non verranno più proposti.",
+    "dup_nothing": "Niente da unire.",
+    "lookup_nocover": "Dati aggiornati, ma non è stato possibile scaricare la copertina online – riprova più tardi o caricane una in Modifica."
   },
   "langname": {
     "hu": "Ungherese",
@@ -628,7 +632,8 @@
     "hidden": "Nascosto: {title}",
     "unhidden": "Reso visibile: {title}",
     "archived": "Archiviato: {title}",
-    "unarchived": "Ripristinato dall’archivio: {title}"
+    "unarchived": "Ripristinato dall’archivio: {title}",
+    "merged": "Duplicati uniti in: {title} ({n} copie, nuovi formati: {formats})"
   },
   "theme": {
     "label": "Aspetto",
@@ -726,7 +731,9 @@
     "run_check": "Controlla biblioteca",
     "run_duplicates": "Cerca duplicati",
     "empty": "Ancora nessuna attività.",
-    "system": "Sistema"
+    "system": "Sistema",
+    "kind_merge": "Unione duplicati",
+    "msg_merged_n": "{n} gruppi uniti"
   },
   "reader": {
     "read": "Leggi",
@@ -786,5 +793,27 @@
     "android_1": "Apri il menu del browser",
     "android_2": "Scegli «Installa app» o «Aggiungi a schermata Home»",
     "menu": "Installa come app"
+  },
+  "dup": {
+    "title": "Duplicati",
+    "intro": "Libri probabilmente uguali: stesso file, stesso ISBN o stesso titolo con un autore in comune. Formati diversi dello stesso libro (es. MOBI e AZW3 sullo stesso libro) non sono duplicati.",
+    "run": "Cerca duplicati",
+    "running": "Ricerca in corso…",
+    "last_scan": "Ultima ricerca: {when}",
+    "never": "Non è ancora stata eseguita nessuna ricerca.",
+    "groups": "{n} gruppi",
+    "none": "Nessun duplicato trovato.",
+    "merge_all": "Unisci tutti (suggerito)",
+    "merge_all_confirm": "Unire tutti i {n} gruppi, ciascuno nel libro suggerito? Le altre copie verranno eliminate.",
+    "reason_file": "Stesso file",
+    "reason_isbn": "Stesso ISBN",
+    "reason_title": "Stesso titolo e autore",
+    "keep": "Mantieni",
+    "has_description": "Con descrizione",
+    "no_description": "Senza descrizione",
+    "merge_help": "Il libro selezionato viene mantenuto. I formati mancanti, la copertina e i dati vuoti (descrizione, serie, ISBN…) vengono presi dagli altri, le etichette unite, e avanzamento, segnalibri, evidenziazioni e scaffali trasferiti. Le altre copie vengono poi eliminate.",
+    "merge": "Unisci",
+    "merge_confirm": "Unire nel libro selezionato? Le altre copie verranno eliminate.",
+    "not_dup": "Non sono duplicati"
   }
 }

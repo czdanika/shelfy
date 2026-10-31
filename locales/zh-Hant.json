@@ -453,7 +453,11 @@
     "hidden": "這本書已隱藏——只有管理員看得到。",
     "unhidden": "這本書又對所有人可見了。",
     "archived": "這本書已歸檔——現在只在「已歸檔」中顯示。",
-    "unarchived": "這本書已回到書庫。"
+    "unarchived": "這本書已回到書庫。",
+    "dup_merged": "已合併。",
+    "dup_ignored": "已標記為不是重複，今後不再提示。",
+    "dup_nothing": "沒有可合併的內容。",
+    "lookup_nocover": "資訊已更新，但無法下載線上封面——請稍後再試，或在「編輯」中上傳封面。"
   },
   "langname": {
     "hu": "匈牙利語",
@@ -628,7 +632,8 @@
     "hidden": "已隱藏：{title}",
     "unhidden": "已取消隱藏：{title}",
     "archived": "已歸檔：{title}",
-    "unarchived": "已從歸檔中還原：{title}"
+    "unarchived": "已從歸檔中還原：{title}",
+    "merged": "已合併重複：{title}（{n} 個副本，新格式：{formats}）"
   },
   "theme": {
     "label": "外觀",
@@ -726,7 +731,9 @@
     "run_check": "檢查書庫",
     "run_duplicates": "尋找重複",
     "empty": "還沒有任務。",
-    "system": "系統"
+    "system": "系統",
+    "kind_merge": "合併重複",
+    "msg_merged_n": "已合併 {n} 組"
   },
   "reader": {
     "read": "閱讀",
@@ -786,5 +793,27 @@
     "android_1": "開啟瀏覽器選單",
     "android_2": "選擇「安裝應用程式」或「加到主畫面」",
     "menu": "安裝為 App"
+  },
+  "dup": {
+    "title": "重複",
+    "intro": "可能是同一本書：檔案相同、ISBN 相同，或標題相同且有共同作者。同一本書的不同格式（如同一本書的 MOBI 和 AZW3）不算重複。",
+    "run": "尋找重複",
+    "running": "正在尋找…",
+    "last_scan": "上次尋找：{when}",
+    "never": "尚未執行過尋找。",
+    "groups": "{n} 組",
+    "none": "未發現重複。",
+    "merge_all": "全部合併（建議）",
+    "merge_all_confirm": "將全部 {n} 組分別合併到建議的書中？其他副本將被刪除。",
+    "reason_file": "檔案相同",
+    "reason_isbn": "ISBN 相同",
+    "reason_title": "標題和作者相同",
+    "keep": "保留",
+    "has_description": "有簡介",
+    "no_description": "無簡介",
+    "merge_help": "保留所選的書。它缺少的格式、封面和空白資訊（簡介、叢書、ISBN 等）將從其他副本取得，標籤合併，閱讀進度、書籤、畫線和書架也會轉移。之後刪除其他副本。",
+    "merge": "合併",
+    "merge_confirm": "合併到所選的書中？其他副本將被刪除。",
+    "not_dup": "不是重複"
   }
 }

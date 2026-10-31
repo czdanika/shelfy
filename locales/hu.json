@@ -453,7 +453,11 @@
     "hidden": "A könyv rejtett lett – csak az adminisztrátorok látják.",
     "unhidden": "A könyv újra mindenkinek látható.",
     "archived": "A könyv archiválva – mostantól csak az Archivált pontban látszik.",
-    "unarchived": "A könyv visszakerült a könyvtárba."
+    "unarchived": "A könyv visszakerült a könyvtárba.",
+    "dup_merged": "A könyvek egyesítve.",
+    "dup_ignored": "Megjelölve: nem duplikátum – többé nem ajánlja fel.",
+    "dup_nothing": "Nincs mit egyesíteni.",
+    "lookup_nocover": "Az adatok frissültek, de az online borítót nem sikerült letölteni – próbáld később, vagy töltsd fel a Szerkesztésnél."
   },
   "langname": {
     "hu": "magyar",
@@ -628,7 +632,8 @@
     "hidden": "Elrejtve: {title}",
     "unhidden": "Láthatóvá téve: {title}",
     "archived": "Archiválva: {title}",
-    "unarchived": "Visszaállítva az archívumból: {title}"
+    "unarchived": "Visszaállítva az archívumból: {title}",
+    "merged": "Duplikátumok egyesítve: {title} ({n} példány, új formátumok: {formats})"
   },
   "theme": {
     "label": "Megjelenés",
@@ -726,7 +731,9 @@
     "run_check": "Könyvtár ellenőrzése",
     "run_duplicates": "Duplikátumok keresése",
     "empty": "Még nincs feladat.",
-    "system": "Rendszer"
+    "system": "Rendszer",
+    "kind_merge": "Duplikátumok egyesítése",
+    "msg_merged_n": "{n} csoport egyesítve"
   },
   "reader": {
     "read": "Olvasás",
@@ -786,5 +793,27 @@
     "android_1": "Nyisd meg a böngésző menüjét",
     "android_2": "Válaszd az „Alkalmazás telepítése” vagy a „Hozzáadás a kezdőképernyőhöz” pontot",
     "menu": "Telepítés appként"
+  },
+  "dup": {
+    "title": "Duplikátumok",
+    "intro": "Valószínűleg ugyanazok a könyvek: azonos fájl, azonos ISBN, vagy azonos cím közös szerzővel. Egy könyv több formátuma (pl. MOBI és AZW3 ugyanannál a könyvnél) nem duplikátum.",
+    "run": "Duplikátumok keresése",
+    "running": "Keresés folyamatban…",
+    "last_scan": "Utolsó keresés: {when}",
+    "never": "Még nem futott keresés.",
+    "groups": "{n} csoport",
+    "none": "Nincs duplikátum.",
+    "merge_all": "Mind egyesítése (javasolt)",
+    "merge_all_confirm": "Mind a(z) {n} csoportot egyesíted, mindegyiket a javasolt könyvbe? A többi példány törlődik.",
+    "reason_file": "Azonos fájl",
+    "reason_isbn": "Azonos ISBN",
+    "reason_title": "Azonos cím és szerző",
+    "keep": "Megtartom",
+    "has_description": "Van leírás",
+    "no_description": "Nincs leírás",
+    "merge_help": "A kijelölt könyv marad meg. A hiányzó formátumai, a borító és az üres adatai (leírás, sorozat, ISBN…) átkerülnek a többiből, a címkék összeadódnak, az olvasási állapot, könyvjelzők, kiemelések és polcok is átkerülnek. A többi példány ezután törlődik.",
+    "merge": "Egyesítés",
+    "merge_confirm": "Egyesíted a kijelölt könyvbe? A többi példány törlődik.",
+    "not_dup": "Nem duplikátum"
   }
 }

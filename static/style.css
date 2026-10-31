@@ -518,3 +518,19 @@ input[type=text],input[type=password],input[type=email],input[type=number],input
 .cover .hid{position:absolute;top:8px;right:8px;display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:999px;background:rgba(17,24,39,.82);color:#fff;font-size:11px;font-weight:600}
 .badge.hid-b{display:inline-flex;align-items:center;gap:4px;background:var(--line);color:var(--muted)}
 .hidnote{display:inline-flex;align-items:center;gap:6px;padding:4px 12px;border-radius:999px;background:var(--line);color:var(--muted);font-size:13px;font-weight:600}
+
+/* ---- duplikátumok ---- */
+.dupgroups{display:flex;flex-direction:column;gap:16px;margin-top:12px}
+.dupbooks{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:10px}
+.dupbook{display:flex;gap:12px;align-items:flex-start;padding:12px;border:2px solid var(--line);border-radius:12px;cursor:pointer;position:relative}
+.dupbook:has(input:checked){border-color:var(--accent);background:var(--accent-l)}
+.dupbook input{position:absolute;opacity:0;pointer-events:none}
+.dupcover{flex:none;width:64px;aspect-ratio:2/3;border-radius:6px;overflow:hidden;background:var(--line)}
+.dupcover img{width:100%;height:100%;object-fit:cover;display:block}
+.dupcover .ph{width:100%;height:100%;padding:6px;font-size:9px;display:flex;flex-direction:column;justify-content:space-between;color:#fff}
+.dupcover .ph b{font-size:10px;line-height:1.15}
+.dupinfo{display:flex;flex-direction:column;gap:4px;min-width:0}
+.dupinfo a{color:var(--text)}
+.keep-tag{display:none;align-self:flex-start;font-size:11px;font-weight:700;color:#fff;background:var(--accent);border-radius:999px;padding:1px 8px}
+.dupbook:has(input:checked) .keep-tag{display:inline-block}
+[data-theme="dark"] .dupbook:has(input:checked){background:rgba(91,155,213,.12)}
