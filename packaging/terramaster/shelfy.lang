@@ -2,96 +2,96 @@
 name = "Shelfy"
 auth = "Czibolya Dániel"
 descript = "面向家庭的自托管电子书库。上传任意格式的电子书,Shelfy 会检查文件,并从 Moly.hu、Google Books 和 Open Library 在线补全元数据。提供可搜索的目录、格式转换、通过邮件发送到 Kindle、适合墨水屏的 Kindle 视图、多用户和权限、备份与恢复。界面支持 14 种语言。"
-release_note = "0.4.0：浏览器内阅读器（翻页、文字设置、书签、划线与笔记、剩余时间），手机/平板自适应布局，可安装为应用。 0.3.0:14 种界面语言与语言选择、免登录浏览(可选)、独立的设置菜单、新的蓝色主题。"
+release_note = "0.5.0：可隐藏书籍（仅管理员可见）和归档书籍。 0.4.0：浏览器内阅读器（翻页、文字设置、书签、划线与笔记、剩余时间），手机/平板自适应布局，可安装为应用。"
 important = "首次打开时请创建管理员账户。发送到 Kindle 需要在 “设置”中配置 SMTP。"
 
 [zh-hk]
 name = "Shelfy"
 auth = "Czibolya Dániel"
 descript = "為家庭而設的自架電子書庫。上傳任何格式的電子書,Shelfy 會檢查檔案,並從 Moly.hu、Google Books 和 Open Library 線上補全中繼資料。提供可搜尋的目錄、格式轉換、透過電子郵件傳送到 Kindle、適合電子墨水螢幕的 Kindle 檢視、多使用者與權限、備份與還原。介面支援 14 種語言。"
-release_note = "0.4.0：瀏覽器內閱讀器（翻頁、文字設定、書籤、畫線與筆記、剩餘時間），手機／平板自適應版面，可安裝為 App。 0.3.0:14 種介面語言與語言選擇、免登入瀏覽(可選)、獨立的設定選單、新的藍色主題。"
+release_note = "0.5.0：可隱藏書籍（僅管理員可見）和歸檔書籍。 0.4.0：瀏覽器內閱讀器（翻頁、文字設定、書籤、畫線與筆記、剩餘時間），手機／平板自適應版面，可安裝為 App。"
 important = "首次開啟時請建立管理員帳戶。傳送到 Kindle 需要在 「設定」中設定 SMTP。"
 
 [en-us]
 name = "Shelfy"
 auth = "Czibolya Dániel"
 descript = "A self-hosted ebook library for the family. Upload books in any format; Shelfy inspects them and completes their metadata online from Moly.hu, Google Books and Open Library. Searchable catalogue, format conversion, Send to Kindle by e-mail, an e-ink friendly Kindle view, multiple users with permissions, backup and restore. The interface is available in 14 languages."
-release_note = "0.4.0: in-browser reader (tap paging, text settings, bookmarks, highlights and notes, time left), phone/tablet layout, install as an app. 0.3.0: 14 interface languages with a language picker, optional browsing without sign-in, Settings in its own menu item, new blue accent."
+release_note = "0.5.0: hide books (visible to administrators only) and archive books. 0.4.0: in-browser reader (tap paging, text settings, bookmarks, highlights and notes, time left), phone/tablet layout, install as an app."
 important = "Create the administrator account the first time you open it. Send to Kindle needs SMTP settings under Settings."
 
 [fr-fr]
 name = "Shelfy"
 auth = "Czibolya Dániel"
 descript = "Une bibliothèque de livres numériques auto-hébergée pour la famille. Importez des livres dans n'importe quel format : Shelfy les analyse et complète leurs métadonnées en ligne depuis Moly.hu, Google Books et Open Library. Catalogue avec recherche, conversion de formats, envoi vers Kindle par e-mail, vue Kindle adaptée à l'encre électronique, plusieurs utilisateurs avec droits, sauvegarde et restauration. Interface disponible en 14 langues."
-release_note = "0.4.0 : lecteur dans le navigateur (pages au toucher, réglages du texte, signets, surlignages et notes, temps restant), affichage téléphone/tablette, installation comme application. 0.3.0 : 14 langues d'interface avec sélecteur, navigation sans connexion (option), Paramètres dans un menu à part, nouvel accent bleu."
+release_note = "0.5.0 : masquer des livres (visibles par les administrateurs uniquement) et archiver des livres. 0.4.0 : lecteur dans le navigateur (pages au toucher, réglages du texte, signets, surlignages et notes, temps restant), affichage téléphone/tablette, installation comme application."
 important = "Créez le compte administrateur à la première ouverture. L'envoi vers Kindle nécessite les réglages SMTP dans Paramètres."
 
 [de-de]
 name = "Shelfy"
 auth = "Czibolya Dániel"
 descript = "Eine selbst gehostete E-Book-Bibliothek für die Familie. Bücher in jedem Format hochladen; Shelfy prüft sie und ergänzt die Metadaten online aus Moly.hu, Google Books und Open Library. Durchsuchbarer Katalog, Formatkonvertierung, Senden an Kindle per E-Mail, E-Ink-freundliche Kindle-Ansicht, mehrere Benutzer mit Rechten, Sicherung und Wiederherstellung. Die Oberfläche gibt es in 14 Sprachen."
-release_note = "0.4.0: Reader im Browser (Umblättern per Tippen, Texteinstellungen, Lesezeichen, Markierungen und Notizen, Restzeit), Ansicht für Smartphone/Tablet, Installation als App. 0.3.0: 14 Oberflächensprachen mit Sprachauswahl, optionales Stöbern ohne Anmeldung, Einstellungen als eigener Menüpunkt, neue blaue Akzentfarbe."
+release_note = "0.5.0: Bücher verbergen (nur für Administratoren sichtbar) und archivieren. 0.4.0: Reader im Browser (Umblättern per Tippen, Texteinstellungen, Lesezeichen, Markierungen und Notizen, Restzeit), Ansicht für Smartphone/Tablet, Installation als App."
 important = "Beim ersten Öffnen das Administratorkonto anlegen. Für „An Kindle senden“ unter Einstellungen SMTP einrichten."
 
 [it-it]
 name = "Shelfy"
 auth = "Czibolya Dániel"
 descript = "Una biblioteca di ebook self-hosted per la famiglia. Carica libri in qualsiasi formato: Shelfy li controlla e ne completa i metadati online da Moly.hu, Google Books e Open Library. Catalogo ricercabile, conversione di formato, invio a Kindle via e-mail, vista Kindle adatta all'inchiostro elettronico, più utenti con permessi, backup e ripristino. Interfaccia disponibile in 14 lingue."
-release_note = "0.4.0: lettore nel browser (pagine a tocco, impostazioni del testo, segnalibri, evidenziazioni e note, tempo rimanente), layout per telefono/tablet, installazione come app. 0.3.0: 14 lingue dell'interfaccia con selettore, navigazione senza accesso (opzionale), Impostazioni come voce di menu separata, nuovo colore blu."
+release_note = "0.5.0: nascondere libri (visibili solo agli amministratori) e archiviare libri. 0.4.0: lettore nel browser (pagine a tocco, impostazioni del testo, segnalibri, evidenziazioni e note, tempo rimanente), layout per telefono/tablet, installazione come app."
 important = "Al primo avvio crea l'account amministratore. Per l'invio a Kindle configura l'SMTP in Impostazioni."
 
 [es-es]
 name = "Shelfy"
 auth = "Czibolya Dániel"
 descript = "Una biblioteca de libros electrónicos autoalojada para la familia. Sube libros en cualquier formato: Shelfy los revisa y completa sus metadatos en línea desde Moly.hu, Google Books y Open Library. Catálogo con búsqueda, conversión de formatos, envío a Kindle por correo, vista Kindle adaptada a tinta electrónica, varios usuarios con permisos, copia de seguridad y restauración. Interfaz disponible en 14 idiomas."
-release_note = "0.4.0: lector en el navegador (pasar páginas con un toque, ajustes del texto, marcadores, subrayados y notas, tiempo restante), diseño para móvil/tableta, instalación como app. 0.3.0: 14 idiomas de interfaz con selector, exploración sin iniciar sesión (opcional), Ajustes como menú propio, nuevo color azul."
+release_note = "0.5.0: ocultar libros (solo visibles para administradores) y archivar libros. 0.4.0: lector en el navegador (pasar páginas con un toque, ajustes del texto, marcadores, subrayados y notas, tiempo restante), diseño para móvil/tableta, instalación como app."
 important = "Crea la cuenta de administrador la primera vez que la abras. El envío a Kindle requiere configurar SMTP en Ajustes."
 
 [hu-hu]
 name = "Shelfy"
 auth = "Czibolya Dániel"
 descript = "Saját szerveren futó e-könyvtár a családnak. Bármilyen formátumú könyvet feltölthetsz: a Shelfy átvizsgálja, és online kiegészíti az adatait a Moly.hu, a Google Books és az Open Library alapján. Kereshető katalógus, formátumkonvertálás, küldés Kindle-re e-mailben, e-tinta-barát Kindle nézet, több felhasználó jogosultságokkal, mentés és visszaállítás. A felület 14 nyelven érhető el."
-release_note = "0.4.0: olvasó a böngészőben (koppintásos lapozás, szövegbeállítások, könyvjelzők, kiemelések és jegyzetek, hátralévő idő), telefonos/tabletes nézet, telepítés appként. 0.3.0: 14 nyelvű felület nyelvválasztóval, opcionális böngészés bejelentkezés nélkül, a Beállítások külön menüpontban, új kék kiemelőszín."
+release_note = "0.5.0: könyvek elrejtése (csak adminisztrátorok látják) és archiválása. 0.4.0: olvasó a böngészőben (koppintásos lapozás, szövegbeállítások, könyvjelzők, kiemelések és jegyzetek, hátralévő idő), telefonos/tabletes nézet, telepítés appként."
 important = "Első megnyitáskor hozd létre az adminisztrátori fiókot. A Kindle-re küldéshez a Beállítások oldalon add meg az SMTP-adatokat."
 
 [ja-jp]
 name = "Shelfy"
 auth = "Czibolya Dániel"
 descript = "家族のためのセルフホスト型電子書籍ライブラリ。どの形式の本でもアップロードでき、Shelfy がファイルを検査して Moly.hu、Google Books、Open Library からメタデータをオンラインで補完します。検索できる目録、形式の変換、メールでの Kindle への送信、電子ペーパー向けの Kindle 表示、権限付きの複数ユーザー、バックアップと復元に対応。画面は 14 言語に対応しています。"
-release_note = "0.4.0：ブラウザー内リーダー（タップでページめくり、文字の設定、しおり・ハイライト・メモ、残り時間）、スマートフォン/タブレット向け表示、アプリとしてインストール。 0.3.0:言語選択付きの 14 の表示言語、ログインなしの閲覧(任意)、設定を独立したメニューに、新しい青のアクセント。"
+release_note = "0.5.0：本の非表示（管理者のみ表示）とアーカイブ。 0.4.0：ブラウザー内リーダー（タップでページめくり、文字の設定、しおり・ハイライト・メモ、残り時間）、スマートフォン/タブレット向け表示、アプリとしてインストール。"
 important = "初回起動時に管理者アカウントを作成してください。Kindle への送信には 「設定」で SMTP の設定が必要です。"
 
 [ko-kr]
 name = "Shelfy"
 auth = "Czibolya Dániel"
 descript = "가족을 위한 자체 호스팅 전자책 서재입니다. 어떤 형식의 책이든 업로드하면 Shelfy가 파일을 검사하고 Moly.hu, Google Books, Open Library에서 메타데이터를 온라인으로 보완합니다. 검색 가능한 목록, 형식 변환, 이메일로 Kindle에 보내기, 전자잉크에 맞춘 Kindle 보기, 권한이 있는 여러 사용자, 백업과 복원을 지원합니다. 인터페이스는 14개 언어로 제공됩니다."
-release_note = "0.4.0: 브라우저 리더(탭으로 페이지 넘기기, 텍스트 설정, 북마크·하이라이트·메모, 남은 시간), 휴대폰/태블릿 화면, 앱으로 설치. 0.3.0: 언어 선택이 있는 14개 인터페이스 언어, 로그인 없이 둘러보기(선택), 설정을 별도 메뉴로, 새 파란색 강조."
+release_note = "0.5.0: 책 숨기기(관리자만 보임)와 보관. 0.4.0: 브라우저 리더(탭으로 페이지 넘기기, 텍스트 설정, 북마크·하이라이트·메모, 남은 시간), 휴대폰/태블릿 화면, 앱으로 설치."
 important = "처음 열 때 관리자 계정을 만드세요. Kindle로 보내려면 설정에서 SMTP를 설정해야 합니다."
 
 [pl-pl]
 name = "Shelfy"
 auth = "Czibolya Dániel"
 descript = "Samodzielnie hostowana biblioteka e-booków dla rodziny. Prześlij książki w dowolnym formacie – Shelfy je sprawdzi i uzupełni metadane online z Moly.hu, Google Books i Open Library. Katalog z wyszukiwaniem, konwersja formatów, wysyłka na Kindle e-mailem, widok Kindle przyjazny dla e-papieru, wielu użytkowników z uprawnieniami, kopia zapasowa i przywracanie. Interfejs dostępny w 14 językach."
-release_note = "0.4.0: czytnik w przeglądarce (przewracanie stron stuknięciem, ustawienia tekstu, zakładki, zaznaczenia i notatki, pozostały czas), widok na telefon/tablet, instalacja jako aplikacja. 0.3.0: 14 języków interfejsu z wyborem języka, opcjonalne przeglądanie bez logowania, Ustawienia jako osobna pozycja menu, nowy niebieski akcent."
+release_note = "0.5.0: ukrywanie książek (widoczne tylko dla administratorów) i archiwizacja. 0.4.0: czytnik w przeglądarce (przewracanie stron stuknięciem, ustawienia tekstu, zakładki, zaznaczenia i notatki, pozostały czas), widok na telefon/tablet, instalacja jako aplikacja."
 important = "Przy pierwszym uruchomieniu utwórz konto administratora. Wysyłka na Kindle wymaga ustawień SMTP w Ustawieniach."
 
 [ru-ru]
 name = "Shelfy"
 auth = "Czibolya Dániel"
 descript = "Библиотека электронных книг на собственном сервере для всей семьи. Загружайте книги в любом формате: Shelfy проверит их и дополнит метаданные из Moly.hu, Google Books и Open Library. Каталог с поиском, конвертация форматов, отправка на Kindle по электронной почте, вид для Kindle с электронными чернилами, несколько пользователей с правами, резервное копирование и восстановление. Интерфейс доступен на 14 языках."
-release_note = "0.4.0: читалка в браузере (листание касанием, настройки текста, закладки, выделения и заметки, оставшееся время), вид для телефона/планшета, установка как приложение. 0.3.0: 14 языков интерфейса с выбором языка, просмотр без входа (по желанию), «Настройки» отдельным пунктом меню, новый синий акцент."
+release_note = "0.5.0: скрытие книг (видны только администраторам) и архивирование. 0.4.0: читалка в браузере (листание касанием, настройки текста, закладки, выделения и заметки, оставшееся время), вид для телефона/планшета, установка как приложение."
 important = "При первом открытии создайте учётную запись администратора. Для отправки на Kindle настройте SMTP в разделе «Настройки»."
 
 [tr-tr]
 name = "Shelfy"
 auth = "Czibolya Dániel"
 descript = "Aile için kendi sunucunuzda çalışan bir e-kitap kitaplığı. Her biçimde kitap yükleyin; Shelfy onları denetler ve üst verilerini Moly.hu, Google Books ve Open Library üzerinden çevrimiçi tamamlar. Aranabilir katalog, biçim dönüştürme, e-postayla Kindle'a gönderme, e-mürekkebe uygun Kindle görünümü, izinli çoklu kullanıcı, yedekleme ve geri yükleme. Arayüz 14 dilde kullanılabilir."
-release_note = "0.4.0: tarayıcıda okuyucu (dokunarak sayfa çevirme, metin ayarları, yer imleri, vurgular ve notlar, kalan süre), telefon/tablet görünümü, uygulama olarak yükleme. 0.3.0: dil seçicili 14 arayüz dili, isteğe bağlı giriş yapmadan göz atma, Ayarlar ayrı menü öğesi, yeni mavi vurgu rengi."
+release_note = "0.5.0: kitap gizleme (yalnızca yöneticiler görür) ve arşivleme. 0.4.0: tarayıcıda okuyucu (dokunarak sayfa çevirme, metin ayarları, yer imleri, vurgular ve notlar, kalan süre), telefon/tablet görünümü, uygulama olarak yükleme."
 important = "İlk açılışta yönetici hesabını oluşturun. Kindle'a gönderme için Ayarlar bölümünde SMTP ayarlarını yapın."
 
 [pt-pt]
 name = "Shelfy"
 auth = "Czibolya Dániel"
 descript = "Uma biblioteca de livros digitais auto-alojada para a família. Carregue livros em qualquer formato: o Shelfy verifica-os e completa os metadados online a partir de Moly.hu, Google Books e Open Library. Catálogo pesquisável, conversão de formatos, envio para o Kindle por e-mail, vista Kindle adequada a tinta eletrónica, vários utilizadores com permissões, cópia de segurança e restauro. Interface disponível em 14 idiomas."
-release_note = "0.4.0: leitor no navegador (virar páginas com um toque, definições do texto, marcadores, destaques e notas, tempo restante), esquema para telemóvel/tablet, instalação como app. 0.3.0: 14 idiomas de interface com seletor, navegação sem iniciar sessão (opcional), Definições num menu próprio, novo destaque azul."
+release_note = "0.5.0: ocultar livros (visíveis só para administradores) e arquivar livros. 0.4.0: leitor no navegador (virar páginas com um toque, definições do texto, marcadores, destaques e notas, tempo restante), esquema para telemóvel/tablet, instalação como app."
 important = "Crie a conta de administrador na primeira abertura. O envio para o Kindle requer as definições SMTP em Definições."
