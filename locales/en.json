@@ -122,7 +122,11 @@
     "hidden_note": "Hidden – only administrators can see this book",
     "hide": "Hide",
     "unhide": "Make visible",
-    "hide_help": "Hidden books are only visible to administrators"
+    "hide_help": "Hidden books are only visible to administrators",
+    "archived_note": "Archived – not shown in the library, only under Archived",
+    "archive": "Archive",
+    "unarchive": "Restore from archive",
+    "archive_help": "Archived books leave the library lists but stay available under Archived"
   },
   "action": {
     "download": "Download",
@@ -447,7 +451,9 @@
     "task_started": "The task has started in the background.",
     "reader_unsupported": "This book cannot be read in the browser; download it instead.",
     "hidden": "The book is now hidden – only administrators can see it.",
-    "unhidden": "The book is visible to everyone again."
+    "unhidden": "The book is visible to everyone again.",
+    "archived": "The book has been archived – it is now only listed under Archived.",
+    "unarchived": "The book is back in the library."
   },
   "langname": {
     "hu": "Hungarian",
@@ -620,7 +626,9 @@
     "backup_restored": "Restored from backup: {name} – {books} books, {files} files",
     "backup_failed": "Backup failed",
     "hidden": "Hidden: {title}",
-    "unhidden": "Made visible: {title}"
+    "unhidden": "Made visible: {title}",
+    "archived": "Archived: {title}",
+    "unarchived": "Restored from archive: {title}"
   },
   "theme": {
     "label": "Appearance",

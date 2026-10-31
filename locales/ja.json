@@ -122,7 +122,11 @@
     "hidden_note": "非表示 – この本は管理者だけが見られます",
     "hide": "非表示にする",
     "unhide": "表示する",
-    "hide_help": "非表示の本は管理者だけが見られます"
+    "hide_help": "非表示の本は管理者だけが見られます",
+    "archived_note": "アーカイブ済み – ライブラリには表示されず、アーカイブにのみ表示",
+    "archive": "アーカイブする",
+    "unarchive": "アーカイブから戻す",
+    "archive_help": "アーカイブした本はライブラリの一覧から外れますが、アーカイブから引き続き開けます"
   },
   "action": {
     "download": "ダウンロード",
@@ -447,7 +451,9 @@
     "task_started": "タスクをバックグラウンドで開始しました。",
     "reader_unsupported": "この本はブラウザーで読めません。ダウンロードしてください。",
     "hidden": "本を非表示にしました。管理者だけが見られます。",
-    "unhidden": "本が再び全員に表示されます。"
+    "unhidden": "本が再び全員に表示されます。",
+    "archived": "本をアーカイブしました。今後はアーカイブにのみ表示されます。",
+    "unarchived": "本がライブラリに戻りました。"
   },
   "langname": {
     "hu": "ハンガリー語",
@@ -620,7 +626,9 @@
     "backup_restored": "バックアップから復元：{name} – {books} 冊、{files} ファイル",
     "backup_failed": "バックアップに失敗",
     "hidden": "非表示にしました：{title}",
-    "unhidden": "表示にしました：{title}"
+    "unhidden": "表示にしました：{title}",
+    "archived": "アーカイブしました：{title}",
+    "unarchived": "アーカイブから戻しました：{title}"
   },
   "theme": {
     "label": "外観",

@@ -268,7 +268,7 @@ class Library:
         if view == "archived":
             where = ["b.archived = 1"] + ([] if SHOW_HIDDEN.get() else ["b.hidden = 0"])
         elif view == "hidden":
-            where.append("b.hidden = 1")
+            where = ["b.hidden = 1"] + ([] if SHOW_HIDDEN.get() else ["b.hidden = 0"])
         if q:
             like = f"%{q.strip()}%"
             where.append("""(b.title LIKE ? OR b.isbn = ? OR s.name LIKE ? OR p.name LIKE ?
@@ -310,7 +310,7 @@ class Library:
         base = f"""FROM books b LEFT JOIN series s ON s.id = b.series_id LEFT JOIN publishers p ON p.id = b.publisher_id
                    WHERE {' AND '.join(where)}"""
         total = self.db.val(f"SELECT COUNT(*) {base}", args)
-        rows = self.db.q(f"""SELECT b.id, b.title, b.hidden, b.year, b.rating, b.has_cover, b.added_at, b.series_index, b.language,
+        rows = self.db.q(f"""SELECT b.id, b.title, b.hidden, b.archived, b.year, b.rating, b.has_cover, b.added_at, b.series_index, b.language,
                    s.name AS series, s.id AS series_id, p.name AS publisher, p.id AS publisher_id,
                    substr(b.description, 1, 1200) AS description,
                    (SELECT a.sort FROM book_authors ba JOIN authors a ON a.id = ba.author_id WHERE ba.book_id = b.id
@@ -369,6 +369,8 @@ class Library:
             "books": self.db.val(f"SELECT COUNT(*) FROM books b WHERE {visible()}"),
             "size": self.db.val(f"SELECT COALESCE(SUM(f.size), 0) FROM files f JOIN books b ON b.id = f.book_id WHERE {visible()}") or 0,
             "hidden": self.db.val("SELECT COUNT(*) FROM books WHERE hidden = 1") if SHOW_HIDDEN.get() else 0,
+            "archived": self.db.val("SELECT COUNT(*) FROM books b WHERE b.archived = 1"
+                                    + ("" if SHOW_HIDDEN.get() else " AND b.hidden = 0")),
         }
 
     def stats(self) -> dict:

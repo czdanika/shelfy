@@ -122,7 +122,11 @@
     "hidden_note": "Rejtett – ezt a könyvet csak az adminisztrátorok látják",
     "hide": "Elrejtés",
     "unhide": "Láthatóvá tétel",
-    "hide_help": "A rejtett könyveket csak az adminisztrátorok látják"
+    "hide_help": "A rejtett könyveket csak az adminisztrátorok látják",
+    "archived_note": "Archivált – nem látszik a könyvtárban, csak az Archivált pontban",
+    "archive": "Archiválás",
+    "unarchive": "Visszaállítás az archívumból",
+    "archive_help": "Az archivált könyvek kikerülnek a könyvtár listáiból, de az Archivált pontban elérhetők maradnak"
   },
   "action": {
     "download": "Letöltés",
@@ -447,7 +451,9 @@
     "task_started": "A feladat elindult a háttérben.",
     "reader_unsupported": "Ez a könyv nem olvasható a böngészőben, töltsd le helyette.",
     "hidden": "A könyv rejtett lett – csak az adminisztrátorok látják.",
-    "unhidden": "A könyv újra mindenkinek látható."
+    "unhidden": "A könyv újra mindenkinek látható.",
+    "archived": "A könyv archiválva – mostantól csak az Archivált pontban látszik.",
+    "unarchived": "A könyv visszakerült a könyvtárba."
   },
   "langname": {
     "hu": "magyar",
@@ -620,7 +626,9 @@
     "backup_restored": "Visszaállítás mentésből: {name} – {books} könyv, {files} fájl",
     "backup_failed": "Mentés sikertelen",
     "hidden": "Elrejtve: {title}",
-    "unhidden": "Láthatóvá téve: {title}"
+    "unhidden": "Láthatóvá téve: {title}",
+    "archived": "Archiválva: {title}",
+    "unarchived": "Visszaállítva az archívumból: {title}"
   },
   "theme": {
     "label": "Megjelenés",

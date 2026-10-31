@@ -122,7 +122,11 @@
     "hidden_note": "Gizli – bu kitabı yalnızca yöneticiler görür",
     "hide": "Gizle",
     "unhide": "Görünür yap",
-    "hide_help": "Gizli kitapları yalnızca yöneticiler görür"
+    "hide_help": "Gizli kitapları yalnızca yöneticiler görür",
+    "archived_note": "Arşivlendi – kitaplıkta görünmez, yalnızca “Arşivlendi” bölümünde",
+    "archive": "Arşivle",
+    "unarchive": "Arşivden çıkar",
+    "archive_help": "Arşivlenen kitaplar kitaplık listelerinden çıkar ama “Arşivlendi” bölümünde erişilebilir kalır"
   },
   "action": {
     "download": "İndir",
@@ -447,7 +451,9 @@
     "task_started": "Görev arka planda başlatıldı.",
     "reader_unsupported": "Bu kitap tarayıcıda okunamıyor; bunun yerine indirin.",
     "hidden": "Kitap artık gizli – yalnızca yöneticiler görür.",
-    "unhidden": "Kitap yeniden herkese görünür."
+    "unhidden": "Kitap yeniden herkese görünür.",
+    "archived": "Kitap arşivlendi – artık yalnızca “Arşivlendi” bölümünde görünür.",
+    "unarchived": "Kitap kitaplığa geri döndü."
   },
   "langname": {
     "hu": "Macarca",
@@ -620,7 +626,9 @@
     "backup_restored": "Yedekten geri yüklendi: {name} – {books} kitap, {files} dosya",
     "backup_failed": "Yedekleme başarısız",
     "hidden": "Gizlendi: {title}",
-    "unhidden": "Görünür yapıldı: {title}"
+    "unhidden": "Görünür yapıldı: {title}",
+    "archived": "Arşivlendi: {title}",
+    "unarchived": "Arşivden çıkarıldı: {title}"
   },
   "theme": {
     "label": "Görünüm",

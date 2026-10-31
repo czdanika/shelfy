@@ -122,7 +122,11 @@
     "hidden_note": "Verborgen – nur Administratoren sehen dieses Buch",
     "hide": "Verbergen",
     "unhide": "Sichtbar machen",
-    "hide_help": "Verborgene Bücher sehen nur Administratoren"
+    "hide_help": "Verborgene Bücher sehen nur Administratoren",
+    "archived_note": "Archiviert – nicht in der Bibliothek, nur unter Archiviert",
+    "archive": "Archivieren",
+    "unarchive": "Aus dem Archiv holen",
+    "archive_help": "Archivierte Bücher verschwinden aus den Bibliothekslisten, bleiben aber unter Archiviert erreichbar"
   },
   "action": {
     "download": "Herunterladen",
@@ -447,7 +451,9 @@
     "task_started": "Die Aufgabe wurde im Hintergrund gestartet.",
     "reader_unsupported": "Dieses Buch kann nicht im Browser gelesen werden – lade es stattdessen herunter.",
     "hidden": "Das Buch ist jetzt verborgen – nur Administratoren sehen es.",
-    "unhidden": "Das Buch ist wieder für alle sichtbar."
+    "unhidden": "Das Buch ist wieder für alle sichtbar.",
+    "archived": "Das Buch wurde archiviert – es steht jetzt nur noch unter Archiviert.",
+    "unarchived": "Das Buch ist wieder in der Bibliothek."
   },
   "kindle": {
     "settings": "Einstellungen",
@@ -558,7 +564,9 @@
     "backup_restored": "Aus Sicherung wiederhergestellt: {name} – {books} Bücher, {files} Dateien",
     "backup_failed": "Sicherung fehlgeschlagen",
     "hidden": "Verborgen: {title}",
-    "unhidden": "Sichtbar gemacht: {title}"
+    "unhidden": "Sichtbar gemacht: {title}",
+    "archived": "Archiviert: {title}",
+    "unarchived": "Aus dem Archiv geholt: {title}"
   },
   "theme": {
     "label": "Darstellung",

@@ -177,3 +177,19 @@ def test_hidden_books_only_for_admin(admin, tmp_path):
     admin.post(f"/book/{bid}/hide", data={"hidden": "0"})
     login(admin, "olvaso", "olvaso123")
     assert admin.get(f"/book/{bid}").status_code == 200
+
+
+def test_archive_books_admin_only(admin, tmp_path):
+    from test_backup import add_book
+    bid = add_book(admin, tmp_path, "Régi kötet")
+    make_user(admin, "olvaso", can_download=True)
+    assert admin.post(f"/book/{bid}/archive", data={"archived": "1"}, follow_redirects=False).status_code == 303
+    assert "Régi kötet" not in admin.get("/books").text
+    assert "Régi kötet" in admin.get("/books?view=archived").text
+    login(admin, "olvaso", "olvaso123")
+    assert "Régi kötet" not in admin.get("/books").text and "Régi kötet" in admin.get("/books?view=archived").text
+    assert admin.get(f"/book/{bid}").status_code == 200
+    assert admin.post(f"/book/{bid}/archive", data={"archived": "0"}, follow_redirects=False).status_code == 403
+    login(admin, "admin", "jelszo123")
+    admin.post(f"/book/{bid}/archive", data={"archived": "0"})
+    assert "Régi kötet" in admin.get("/books").text

@@ -122,7 +122,11 @@
     "hidden_note": "Oculto: solo los administradores ven este libro",
     "hide": "Ocultar",
     "unhide": "Hacer visible",
-    "hide_help": "Los libros ocultos solo los ven los administradores"
+    "hide_help": "Los libros ocultos solo los ven los administradores",
+    "archived_note": "Archivado: no aparece en la biblioteca, solo en Archivados",
+    "archive": "Archivar",
+    "unarchive": "Sacar del archivo",
+    "archive_help": "Los libros archivados salen de las listas de la biblioteca, pero siguen disponibles en Archivados"
   },
   "action": {
     "download": "Descargar",
@@ -447,7 +451,9 @@
     "task_started": "La tarea se ha iniciado en segundo plano.",
     "reader_unsupported": "Este libro no se puede leer en el navegador; descárgalo.",
     "hidden": "El libro está oculto: solo los administradores lo ven.",
-    "unhidden": "El libro vuelve a ser visible para todos."
+    "unhidden": "El libro vuelve a ser visible para todos.",
+    "archived": "El libro se ha archivado: ahora solo aparece en Archivados.",
+    "unarchived": "El libro ha vuelto a la biblioteca."
   },
   "langname": {
     "hu": "Húngaro",
@@ -620,7 +626,9 @@
     "backup_restored": "Restaurado desde copia: {name} – {books} libros, {files} archivos",
     "backup_failed": "La copia de seguridad falló",
     "hidden": "Ocultado: {title}",
-    "unhidden": "Hecho visible: {title}"
+    "unhidden": "Hecho visible: {title}",
+    "archived": "Archivado: {title}",
+    "unarchived": "Sacado del archivo: {title}"
   },
   "theme": {
     "label": "Apariencia",

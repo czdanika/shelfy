@@ -122,7 +122,11 @@
     "hidden_note": "Nascosto – solo gli amministratori vedono questo libro",
     "hide": "Nascondi",
     "unhide": "Rendi visibile",
-    "hide_help": "I libri nascosti sono visibili solo agli amministratori"
+    "hide_help": "I libri nascosti sono visibili solo agli amministratori",
+    "archived_note": "Archiviato – non compare nella biblioteca, solo in Archiviati",
+    "archive": "Archivia",
+    "unarchive": "Ripristina dall’archivio",
+    "archive_help": "I libri archiviati escono dagli elenchi della biblioteca ma restano disponibili in Archiviati"
   },
   "action": {
     "download": "Scarica",
@@ -447,7 +451,9 @@
     "task_started": "L'attività è stata avviata in background.",
     "reader_unsupported": "Questo libro non si può leggere nel browser: scaricalo.",
     "hidden": "Il libro ora è nascosto – solo gli amministratori lo vedono.",
-    "unhidden": "Il libro è di nuovo visibile a tutti."
+    "unhidden": "Il libro è di nuovo visibile a tutti.",
+    "archived": "Il libro è stato archiviato – ora compare solo in Archiviati.",
+    "unarchived": "Il libro è tornato nella biblioteca."
   },
   "langname": {
     "hu": "Ungherese",
@@ -620,7 +626,9 @@
     "backup_restored": "Ripristinato dal backup: {name} – {books} libri, {files} file",
     "backup_failed": "Backup non riuscito",
     "hidden": "Nascosto: {title}",
-    "unhidden": "Reso visibile: {title}"
+    "unhidden": "Reso visibile: {title}",
+    "archived": "Archiviato: {title}",
+    "unarchived": "Ripristinato dall’archivio: {title}"
   },
   "theme": {
     "label": "Aspetto",

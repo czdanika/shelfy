@@ -122,7 +122,11 @@
     "hidden_note": "숨김 – 이 책은 관리자만 볼 수 있습니다",
     "hide": "숨기기",
     "unhide": "보이게 하기",
-    "hide_help": "숨긴 책은 관리자만 볼 수 있습니다"
+    "hide_help": "숨긴 책은 관리자만 볼 수 있습니다",
+    "archived_note": "보관됨 – 서재에는 보이지 않고 ‘보관됨’에만 표시됩니다",
+    "archive": "보관하기",
+    "unarchive": "보관 해제",
+    "archive_help": "보관한 책은 서재 목록에서 빠지지만 ‘보관됨’에서 계속 볼 수 있습니다"
   },
   "action": {
     "download": "다운로드",
@@ -447,7 +451,9 @@
     "task_started": "작업을 백그라운드에서 시작했습니다.",
     "reader_unsupported": "이 책은 브라우저에서 읽을 수 없습니다. 대신 다운로드하세요.",
     "hidden": "책을 숨겼습니다. 관리자만 볼 수 있습니다.",
-    "unhidden": "책이 다시 모두에게 보입니다."
+    "unhidden": "책이 다시 모두에게 보입니다.",
+    "archived": "책을 보관했습니다. 이제 ‘보관됨’에만 표시됩니다.",
+    "unarchived": "책이 서재로 돌아왔습니다."
   },
   "langname": {
     "hu": "헝가리어",
@@ -620,7 +626,9 @@
     "backup_restored": "백업에서 복원: {name} – {books}권, 파일 {files}개",
     "backup_failed": "백업 실패",
     "hidden": "숨김: {title}",
-    "unhidden": "보이게 함: {title}"
+    "unhidden": "보이게 함: {title}",
+    "archived": "보관함: {title}",
+    "unarchived": "보관 해제: {title}"
   },
   "theme": {
     "label": "화면 모드",

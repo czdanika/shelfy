@@ -122,7 +122,11 @@
     "hidden_note": "Ukryta – tę książkę widzą tylko administratorzy",
     "hide": "Ukryj",
     "unhide": "Pokaż wszystkim",
-    "hide_help": "Ukryte książki widzą tylko administratorzy"
+    "hide_help": "Ukryte książki widzą tylko administratorzy",
+    "archived_note": "Zarchiwizowana – nie widać jej w bibliotece, tylko w sekcji „Zarchiwizowane”",
+    "archive": "Archiwizuj",
+    "unarchive": "Przywróć z archiwum",
+    "archive_help": "Zarchiwizowane książki znikają z list biblioteki, ale pozostają dostępne w sekcji „Zarchiwizowane”"
   },
   "action": {
     "download": "Pobierz",
@@ -447,7 +451,9 @@
     "task_started": "Zadanie zostało uruchomione w tle.",
     "reader_unsupported": "Tej książki nie można czytać w przeglądarce – pobierz ją.",
     "hidden": "Książka jest teraz ukryta – widzą ją tylko administratorzy.",
-    "unhidden": "Książka jest znowu widoczna dla wszystkich."
+    "unhidden": "Książka jest znowu widoczna dla wszystkich.",
+    "archived": "Książka została zarchiwizowana – teraz widać ją tylko w sekcji „Zarchiwizowane”.",
+    "unarchived": "Książka wróciła do biblioteki."
   },
   "langname": {
     "hu": "węgierski",
@@ -620,7 +626,9 @@
     "backup_restored": "Przywrócono z kopii: {name} – książki: {books}, pliki: {files}",
     "backup_failed": "Kopia zapasowa nieudana",
     "hidden": "Ukryto: {title}",
-    "unhidden": "Odkryto: {title}"
+    "unhidden": "Odkryto: {title}",
+    "archived": "Zarchiwizowano: {title}",
+    "unarchived": "Przywrócono z archiwum: {title}"
   },
   "theme": {
     "label": "Wygląd",

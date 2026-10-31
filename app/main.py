@@ -864,6 +864,18 @@ def create_app(cfg: Config | None = None, transport=None) -> FastAPI:
         events.log("hidden" if hidden else "unhidden", user, bid, title=b["title"])
         return flash(f"/book/{bid}", "hidden" if hidden else "unhidden")
 
+    @app.post("/book/{bid}/archive")
+    async def archive_book(request: Request, bid: int, archived: int = Form(1)):
+        user: User = request.state.user
+        if not user.is_admin:
+            return Response(status_code=403)
+        b = lib.book(bid)
+        if not b:
+            return Response(status_code=404)
+        db.run("UPDATE books SET archived = ?, updated_at = ? WHERE id = ?", (1 if archived else 0, now(), bid))
+        events.log("archived" if archived else "unarchived", user, bid, title=b["title"])
+        return flash(f"/book/{bid}", "archived" if archived else "unarchived")
+
     @app.post("/book/{bid}/delete")
     async def delete(request: Request, bid: int):
         if not request.state.user.can("can_delete"):

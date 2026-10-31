@@ -122,7 +122,11 @@
     "hidden_note": "已隱藏——只有管理員看得到這本書",
     "hide": "隱藏",
     "unhide": "取消隱藏",
-    "hide_help": "隱藏的書只有管理員看得到"
+    "hide_help": "隱藏的書只有管理員看得到",
+    "archived_note": "已歸檔——不在書庫中顯示，只在「已歸檔」中顯示",
+    "archive": "歸檔",
+    "unarchive": "從歸檔中還原",
+    "archive_help": "歸檔的書會從書庫列表中移除，但仍可在「已歸檔」中找到"
   },
   "action": {
     "download": "下載",
@@ -447,7 +451,9 @@
     "task_started": "任務已在背景啟動。",
     "reader_unsupported": "這本書無法在瀏覽器中閱讀，請下載後閱讀。",
     "hidden": "這本書已隱藏——只有管理員看得到。",
-    "unhidden": "這本書又對所有人可見了。"
+    "unhidden": "這本書又對所有人可見了。",
+    "archived": "這本書已歸檔——現在只在「已歸檔」中顯示。",
+    "unarchived": "這本書已回到書庫。"
   },
   "langname": {
     "hu": "匈牙利語",
@@ -620,7 +626,9 @@
     "backup_restored": "已從備份還原：{name} – {books} 本書，{files} 個檔案",
     "backup_failed": "備份失敗",
     "hidden": "已隱藏：{title}",
-    "unhidden": "已取消隱藏：{title}"
+    "unhidden": "已取消隱藏：{title}",
+    "archived": "已歸檔：{title}",
+    "unarchived": "已從歸檔中還原：{title}"
   },
   "theme": {
     "label": "外觀",

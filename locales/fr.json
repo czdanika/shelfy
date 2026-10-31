@@ -122,7 +122,11 @@
     "hidden_note": "Masqué – seuls les administrateurs voient ce livre",
     "hide": "Masquer",
     "unhide": "Rendre visible",
-    "hide_help": "Les livres masqués ne sont visibles que par les administrateurs"
+    "hide_help": "Les livres masqués ne sont visibles que par les administrateurs",
+    "archived_note": "Archivé – absent de la bibliothèque, visible seulement dans Archivés",
+    "archive": "Archiver",
+    "unarchive": "Sortir de l’archive",
+    "archive_help": "Les livres archivés quittent les listes de la bibliothèque mais restent accessibles dans Archivés"
   },
   "action": {
     "download": "Télécharger",
@@ -447,7 +451,9 @@
     "task_started": "La tâche a démarré en arrière-plan.",
     "reader_unsupported": "Ce livre ne peut pas être lu dans le navigateur ; téléchargez-le plutôt.",
     "hidden": "Le livre est maintenant masqué – seuls les administrateurs le voient.",
-    "unhidden": "Le livre est de nouveau visible par tous."
+    "unhidden": "Le livre est de nouveau visible par tous.",
+    "archived": "Le livre a été archivé – il n’apparaît plus que dans Archivés.",
+    "unarchived": "Le livre est de retour dans la bibliothèque."
   },
   "kindle": {
     "settings": "Paramètres",
@@ -558,7 +564,9 @@
     "backup_restored": "Restauration depuis une sauvegarde : {name} – {books} livres, {files} fichiers",
     "backup_failed": "Échec de la sauvegarde",
     "hidden": "Masqué : {title}",
-    "unhidden": "Rendu visible : {title}"
+    "unhidden": "Rendu visible : {title}",
+    "archived": "Archivé : {title}",
+    "unarchived": "Sorti de l’archive : {title}"
   },
   "theme": {
     "label": "Apparence",
