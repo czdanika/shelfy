@@ -438,7 +438,8 @@
     "restore_corrupt": "備份中的資料庫已損壞。",
     "restore_confirm": "請勾選確認後再還原。",
     "restore_nofile": "請選擇備份檔案。",
-    "task_started": "任務已在背景啟動。"
+    "task_started": "任務已在背景啟動。",
+    "reader_unsupported": "這本書無法在瀏覽器中閱讀，請下載後閱讀。"
   },
   "langname": {
     "hu": "匈牙利語",
@@ -708,5 +709,21 @@
     "run_duplicates": "尋找重複",
     "empty": "還沒有任務。",
     "system": "系統"
+  },
+  "reader": {
+    "read": "閱讀",
+    "continue": "繼續閱讀 · {pct}%",
+    "back": "返回圖書",
+    "toc": "目錄",
+    "settings": "閱讀設定",
+    "loading": "正在開啟圖書…",
+    "error": "無法在瀏覽器中開啟這本書，但仍可下載。",
+    "font_size": "字級",
+    "font": "字型",
+    "font_serif": "襯線",
+    "font_sans": "無襯線",
+    "font_book": "與書中一致",
+    "theme": "背景",
+    "sepia": "護眼"
   }
 }

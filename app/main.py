@@ -481,7 +481,9 @@ def create_app(cfg: Config | None = None, transport=None) -> FastAPI:
         if b["authors"]:
             more, _ = lib.list_books(author=b["authors"][0]["id"], per_page=12)
             more = [m for m in more if m["id"] != bid][:10]
+        pos = db.one("SELECT percent FROM reading_pos WHERE user_id = ? AND book_id = ?", (user.id, bid))
         return render(request, "book.html", b=b, read_state=state, more=more, msg=request.query_params.get("msg"),
+                      can_read=reader_kind(b) is not None, read_pct=pos["percent"] if pos else None,
                       can_mail=not user.is_guest and mail_settings(request.state.user)[0] is not None,
                       can_convert=converter.has_convert,
                       history=events.query(book_id=bid, per_page=15)[0] if request.state.user.can("can_edit") else [])
@@ -589,6 +591,79 @@ def create_app(cfg: Config | None = None, transport=None) -> FastAPI:
             return FileResponse(tmp, media_type=MIME.get(fmt, "application/octet-stream"), headers=disposition(name),
                                 background=BackgroundTask(tmp.unlink, missing_ok=True))
         return FileResponse(p, media_type=MIME.get(fmt, "application/octet-stream"), headers=disposition(name))
+
+    # ------------------------------------------------------------------ olvasó (böngészőben)
+    def reader_kind(b: dict) -> str | None:
+        """Mit tud megnyitni az olvasó: EPUB (közvetlenül vagy konvertálva) vagy PDF (a böngésző saját nézőjében)."""
+        if "epub" in b["formats"] or (converter.has_convert and any(f in b["formats"] for f in SOURCE_ORDER if f != "pdf")):
+            return "epub"
+        if "pdf" in b["formats"]:
+            return "pdf"
+        return None
+
+    @app.get("/book/{bid}/reader", response_class=HTMLResponse)
+    async def reader(request: Request, bid: int):
+        user: User = request.state.user
+        b = lib.book(bid)
+        if not b:
+            return Response(status_code=404)
+        if not user.can("can_download"):
+            return Response(status_code=403)
+        kind = reader_kind(b)
+        if kind == "pdf":
+            return RedirectResponse(f"/book/{bid}/reader/book.pdf", status_code=303)
+        if not kind:
+            return flash(f"/book/{bid}", "reader_unsupported")
+        pos = db.one("SELECT cfi, percent FROM reading_pos WHERE user_id = ? AND book_id = ?", (user.id, bid))
+        if not db.val("SELECT 1 FROM read_state WHERE user_id = ? AND book_id = ?", (user.id, bid)):
+            db.run("INSERT INTO read_state(user_id, book_id, status, updated_at) VALUES(?, ?, 'reading', ?)", (user.id, bid, now()))
+        return render(request, "reader.html", b=b, cfi=pos["cfi"] if pos else None, percent=pos["percent"] if pos else None)
+
+    @app.get("/book/{bid}/reader/book.epub")
+    async def reader_epub(request: Request, bid: int):
+        user: User = request.state.user
+        b = lib.book(bid)
+        if not b or not user.can("can_download"):
+            return Response(status_code=404)
+        try:
+            if "epub" not in b["formats"]:
+                with tasks.track("convert", user, f"{b['title']} → EPUB"):
+                    p = await ensure_format(bid, "epub")
+            else:
+                p = await ensure_format(bid, "epub")
+        except RuntimeError:
+            return Response(status_code=500)
+        if not p:
+            return Response(status_code=404)
+        return FileResponse(p, media_type="application/epub+zip", headers={"Cache-Control": "private, max-age=86400"})
+
+    @app.get("/book/{bid}/reader/book.pdf")
+    async def reader_pdf(request: Request, bid: int):
+        user: User = request.state.user
+        p = lib.file_path(bid, "pdf")
+        if not user.can("can_download") or not p or not p.exists():
+            return Response(status_code=404)
+        return FileResponse(p, media_type="application/pdf", headers={"Content-Disposition": "inline"})
+
+    @app.post("/book/{bid}/reader/pos")
+    async def reader_pos(request: Request, bid: int):
+        user: User = request.state.user
+        if user.is_guest:
+            return Response(status_code=403)
+        data = await request.json()
+        cfi = str(data.get("cfi") or "")[:500] or None
+        try:
+            pct = max(0.0, min(1.0, float(data.get("percent") or 0)))
+        except (TypeError, ValueError):
+            pct = 0.0
+        db.run("INSERT INTO reading_pos(user_id, book_id, cfi, percent, updated_at) VALUES(?, ?, ?, ?, ?) "
+               "ON CONFLICT(user_id, book_id) DO UPDATE SET cfi = excluded.cfi, percent = excluded.percent, "
+               "updated_at = excluded.updated_at", (user.id, bid, cfi, pct, now()))
+        if pct >= 0.98:  # a végére ért
+            db.run("INSERT INTO read_state(user_id, book_id, status, updated_at) VALUES(?, ?, 'read', ?) "
+                   "ON CONFLICT(user_id, book_id) DO UPDATE SET status = 'read', updated_at = excluded.updated_at",
+                   (user.id, bid, now()))
+        return {"ok": True}
 
     @app.post("/book/{bid}/convert")
     async def convert(request: Request, bid: int, target: str = Form(...)):

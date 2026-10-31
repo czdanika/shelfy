@@ -438,7 +438,8 @@
     "restore_corrupt": "备份中的数据库已损坏。",
     "restore_confirm": "请勾选确认后再恢复。",
     "restore_nofile": "请选择备份文件。",
-    "task_started": "任务已在后台启动。"
+    "task_started": "任务已在后台启动。",
+    "reader_unsupported": "这本书无法在浏览器中阅读，请下载后阅读。"
   },
   "langname": {
     "hu": "匈牙利语",
@@ -708,5 +709,21 @@
     "run_duplicates": "查找重复",
     "empty": "还没有任务。",
     "system": "系统"
+  },
+  "reader": {
+    "read": "阅读",
+    "continue": "继续阅读 · {pct}%",
+    "back": "返回图书",
+    "toc": "目录",
+    "settings": "阅读设置",
+    "loading": "正在打开图书…",
+    "error": "无法在浏览器中打开这本书，但仍可下载。",
+    "font_size": "字号",
+    "font": "字体",
+    "font_serif": "衬线",
+    "font_sans": "无衬线",
+    "font_book": "与书中一致",
+    "theme": "背景",
+    "sepia": "护眼"
   }
 }

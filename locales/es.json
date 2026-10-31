@@ -438,7 +438,8 @@
     "restore_corrupt": "La base de datos de la copia está dañada.",
     "restore_confirm": "Marca la confirmación para restaurar.",
     "restore_nofile": "Elige un archivo de copia de seguridad.",
-    "task_started": "La tarea se ha iniciado en segundo plano."
+    "task_started": "La tarea se ha iniciado en segundo plano.",
+    "reader_unsupported": "Este libro no se puede leer en el navegador; descárgalo."
   },
   "langname": {
     "hu": "Húngaro",
@@ -708,5 +709,21 @@
     "run_duplicates": "Buscar duplicados",
     "empty": "Aún no hay tareas.",
     "system": "Sistema"
+  },
+  "reader": {
+    "read": "Leer",
+    "continue": "Seguir leyendo · {pct} %",
+    "back": "Volver al libro",
+    "toc": "Índice",
+    "settings": "Ajustes de lectura",
+    "loading": "Abriendo el libro…",
+    "error": "No se pudo abrir el libro en el navegador. Aún puedes descargarlo.",
+    "font_size": "Tamaño del texto",
+    "font": "Tipo de letra",
+    "font_serif": "Con serifa",
+    "font_sans": "Sin serifa",
+    "font_book": "Como en el libro",
+    "theme": "Fondo",
+    "sepia": "Sepia"
   }
 }

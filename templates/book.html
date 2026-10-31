@@ -17,9 +17,12 @@
     </div>
 
     <div class="row">
+      {% if can_read and user.can('can_download') %}
+      <a class="btn primary" href="/book/{{ b.id }}/reader">{{ icon('read', 16) }} {% if read_pct and read_pct < 0.98 %}{{ t('reader.continue', pct=(read_pct * 100)|round|int) }}{% else %}{{ t('reader.read') }}{% endif %}</a>
+      {% endif %}
       {% if user.can('can_download') and b.formats %}
       <details class="menu">
-        <summary class="btn primary">{{ icon('download', 16) }} {{ t('action.download') }} {{ icon('chev', 14) }}</summary>
+        <summary class="btn{% if not can_read %} primary{% endif %}">{{ icon('download', 16) }} {{ t('action.download') }} {{ icon('chev', 14) }}</summary>
         <div class="pop">{% for f in b.files %}<a href="/book/{{ b.id }}/download/{{ f.format }}">{{ f.format|upper }} · {{ f.size|filesize }}</a>{% endfor %}
           {% if can_convert %}{% for f in ['azw3', 'mobi', 'epub'] if f not in b.formats %}<a href="/book/{{ b.id }}/download/{{ f }}">{{ f|upper }} <span class="small muted">· {{ t('book.dl_' ~ f) }}</span></a>{% endfor %}{% endif %}</div>
       </details>

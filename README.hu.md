@@ -30,6 +30,7 @@ A felület **14 nyelven** érhető el – angol, magyar, német, francia, olasz,
 - **Online adatfrissítés** a már felvett könyveknél: adatonként összeveti a jelenlegit és az online értéket, és csak azt veszi át, amit kijelölsz.
 - **Konvertálás** az e-könyv formátumok között. Letöltéskor a hiányzó Kindle-formátumot (MOBI/AZW3/EPUB) magától elkészíti.
 - **Küldés Kindle-re e-mailben**, minden felhasználónak a saját Kindle-címére.
+- **Olvasás a böngészőben**: beépített olvasó EPUB-hoz (a MOBI, AZW3 és más formátumokat menet közben átalakítja) és PDF-hez – tartalomjegyzék, betűméret, betűtípus, világos/szépia/sötét háttér, lapozás koppintással és húzással. Megjegyzi, hol tartasz, így másik eszközön is folytathatod; telefonra telepítve olvasóalkalmazásként működik.
 - **Kindle-nézet** (`/kindle`): JavaScript nélküli, e-ink-barát felület. Kindle böngészőből magától ez nyílik meg, a régi Kindle MOBI-t kap.
 - **Felhasználók és szerepkörök**: adminisztrátor, szerkesztő, olvasó, egyenként állítható jogokkal (feltöltés, szerkesztés, letöltés, törlés).
 - **Vendég-böngészés** (kapcsoló a Beállításokban): bejelentkezés nélkül is végig lehet nézni és keresni a könyvtárban, de letölteni, küldeni vagy módosítani nem lehet.

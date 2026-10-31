@@ -438,7 +438,8 @@
     "restore_corrupt": "バックアップ内のデータベースが壊れています。",
     "restore_confirm": "復元するには確認にチェックを入れてください。",
     "restore_nofile": "バックアップファイルを選択してください。",
-    "task_started": "タスクをバックグラウンドで開始しました。"
+    "task_started": "タスクをバックグラウンドで開始しました。",
+    "reader_unsupported": "この本はブラウザーで読めません。ダウンロードしてください。"
   },
   "langname": {
     "hu": "ハンガリー語",
@@ -708,5 +709,21 @@
     "run_duplicates": "重複を検索",
     "empty": "タスクはまだありません。",
     "system": "システム"
+  },
+  "reader": {
+    "read": "読む",
+    "continue": "続きから読む · {pct}%",
+    "back": "本のページに戻る",
+    "toc": "目次",
+    "settings": "表示設定",
+    "loading": "本を開いています…",
+    "error": "ブラウザーで本を開けませんでした。ダウンロードは可能です。",
+    "font_size": "文字サイズ",
+    "font": "書体",
+    "font_serif": "明朝体",
+    "font_sans": "ゴシック体",
+    "font_book": "本の指定どおり",
+    "theme": "背景",
+    "sepia": "セピア"
   }
 }

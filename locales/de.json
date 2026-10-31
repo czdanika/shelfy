@@ -438,7 +438,8 @@
     "restore_corrupt": "Die Datenbank in der Sicherung ist beschädigt.",
     "restore_confirm": "Zum Wiederherstellen die Bestätigung ankreuzen.",
     "restore_nofile": "Wähle eine Sicherungsdatei.",
-    "task_started": "Die Aufgabe wurde im Hintergrund gestartet."
+    "task_started": "Die Aufgabe wurde im Hintergrund gestartet.",
+    "reader_unsupported": "Dieses Buch kann nicht im Browser gelesen werden – lade es stattdessen herunter."
   },
   "kindle": {
     "settings": "Einstellungen",
@@ -708,5 +709,21 @@
     "run_duplicates": "Duplikate suchen",
     "empty": "Noch keine Aufgaben.",
     "system": "System"
+  },
+  "reader": {
+    "read": "Lesen",
+    "continue": "Weiterlesen · {pct} %",
+    "back": "Zurück zum Buch",
+    "toc": "Inhalt",
+    "settings": "Leseeinstellungen",
+    "loading": "Buch wird geöffnet…",
+    "error": "Das Buch konnte im Browser nicht geöffnet werden. Herunterladen kannst du es trotzdem.",
+    "font_size": "Schriftgröße",
+    "font": "Schriftart",
+    "font_serif": "Serifen",
+    "font_sans": "Serifenlos",
+    "font_book": "Wie im Buch",
+    "theme": "Hintergrund",
+    "sepia": "Sepia"
   }
 }

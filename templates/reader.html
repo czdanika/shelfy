@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="{{ lang }}">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#111827">
+<link rel="manifest" href="/static/manifest.webmanifest">
+<title>{{ b.title }} – {{ t('app.name') }}</title>
+<style>
+:root{--bg:#fbfaf7;--fg:#1d1d1f;--muted:#6b7280;--bar:#ffffffee;--line:#e5e7eb;--accent:#2F6690}
+:root[data-rtheme=sepia]{--bg:#f4ecd8;--fg:#3b2f20;--muted:#7a6a55;--bar:#efe5cdee;--line:#dccfae}
+:root[data-rtheme=dark]{--bg:#15171a;--fg:#d9dbde;--muted:#8b919a;--bar:#1d2025ee;--line:#2c3036;--accent:#5B9BD5}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:var(--bg);color:var(--fg);font-family:"Source Sans 3","Helvetica Neue",Arial,sans-serif}
+.bar{position:fixed;left:0;right:0;display:flex;align-items:center;gap:6px;padding:8px 10px;background:var(--bar);
+  border-color:var(--line);z-index:5;transition:transform .2s;backdrop-filter:blur(6px)}
+.bar.top{top:0;border-bottom:1px solid var(--line);padding-top:max(8px,env(safe-area-inset-top))}
+.bar.bottom{bottom:0;border-top:1px solid var(--line);padding-bottom:max(8px,env(safe-area-inset-bottom))}
+body.hide .bar.top{transform:translateY(-110%)} body.hide .bar.bottom{transform:translateY(110%)}
+.bar .t{flex:1;min-width:0;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--muted);text-align:center}
+.bar button,.bar a{background:none;border:1px solid transparent;color:var(--fg);font:inherit;font-size:15px;padding:7px 10px;border-radius:6px;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:6px}
+.bar button:hover,.bar a:hover{border-color:var(--line)}
+.bar svg{width:18px;height:18px}
+#area{position:fixed;top:52px;bottom:52px;left:0;right:0;max-width:900px;margin:0 auto}
+#loading{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:16px;text-align:center;padding:20px}
+.prog{flex:1;display:flex;align-items:center;gap:10px;font-size:13px;color:var(--muted)}
+.prog input{flex:1;accent-color:var(--accent)}
+.panel{position:fixed;top:52px;right:8px;width:min(340px,calc(100% - 16px));max-height:calc(100% - 120px);overflow:auto;background:var(--bg);
+  border:1px solid var(--line);border-radius:10px;box-shadow:0 10px 30px rgba(0,0,0,.18);padding:12px;z-index:6;display:none}
+.panel.on{display:block}
+.panel.left{left:8px;right:auto}
+.panel h3{margin:4px 0 10px;font-size:14px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.5px}
+.toc a{display:block;padding:7px 6px;color:var(--fg);text-decoration:none;border-radius:6px;font-size:15px}
+.toc a:hover{background:var(--line)} .toc a.sub{padding-left:22px;font-size:14px}
+.row{display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap}
+.row button{flex:1;padding:8px;border:1px solid var(--line);background:none;color:var(--fg);border-radius:6px;font:inherit;cursor:pointer}
+.row button.on{border-color:var(--accent);color:var(--accent);font-weight:600}
+</style>
+</head>
+<body>
+<div class="bar top">
+  <a href="/book/{{ b.id }}" title="{{ t('reader.back') }}" aria-label="{{ t('reader.back') }}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M15 5l-7 7 7 7"/></svg></a>
+  <button id="btoc" title="{{ t('reader.toc') }}" aria-label="{{ t('reader.toc') }}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h10"/></svg></button>
+  <div class="t">{{ b.title }}{% if b.authors %} · {{ b.authors[0].name }}{% endif %}</div>
+  <button id="bset" title="{{ t('reader.settings') }}" aria-label="{{ t('reader.settings') }}"><span style="font-size:17px">A</span><span style="font-size:12px">A</span></button>
+</div>
+<div id="area"></div>
+<div id="loading">{{ t('reader.loading') }}</div>
+<div class="bar bottom">
+  <button id="prev" aria-label="{{ t('pager.prev') }}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M15 5l-7 7 7 7"/></svg></button>
+  <div class="prog"><input id="slider" type="range" min="0" max="1000" value="0" disabled aria-label="%"><span id="pct">–</span></div>
+  <button id="next" aria-label="{{ t('pager.next') }}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M9 5l7 7-7 7"/></svg></button>
+</div>
+<div id="ptoc" class="panel left"><h3>{{ t('reader.toc') }}</h3><div class="toc" id="toc"></div></div>
+<div id="pset" class="panel">
+  <h3>{{ t('reader.font_size') }}</h3>
+  <div class="row"><button data-fs="-1">A−</button><button data-fs="0" id="fsv">100%</button><button data-fs="1">A+</button></div>
+  <h3>{{ t('reader.font') }}</h3>
+  <div class="row"><button data-ff="serif" style="font-family:Georgia,serif">{{ t('reader.font_serif') }}</button><button data-ff="sans">{{ t('reader.font_sans') }}</button><button data-ff="book">{{ t('reader.font_book') }}</button></div>
+  <h3>{{ t('reader.theme') }}</h3>
+  <div class="row"><button data-th="light">{{ t('theme.light') }}</button><button data-th="sepia">{{ t('reader.sepia') }}</button><button data-th="dark">{{ t('theme.dark') }}</button></div>
+</div>
+<script src="/static/reader/jszip.min.js"></script>
+<script src="/static/reader/epub.min.js"></script>
+<script>
+(function () {
+  var BID = {{ b.id }}, START = {{ (cfi or '')|tojson }}, KEY = 'shelfy-reader';
+  var prefs = {fs: 100, ff: 'book', th: (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')};
+  try { Object.assign(prefs, JSON.parse(localStorage.getItem(KEY) || '{}')); } catch (e) {}
+  function savePrefs() { try { localStorage.setItem(KEY, JSON.stringify(prefs)); } catch (e) {} }
+  var THEMES = {light: ['#1d1d1f', '#fbfaf7'], sepia: ['#3b2f20', '#f4ecd8'], dark: ['#d9dbde', '#15171a']};
+  var FONTS = {serif: 'Georgia, "Times New Roman", serif', sans: '"Source Sans 3", "Helvetica Neue", Arial, sans-serif', book: ''};
+
+  var book = ePub('/book/' + BID + '/reader/book.epub', {openAs: 'epub'});
+  var rendition = book.renderTo('area', {width: '100%', height: '100%', spread: 'auto', flow: 'paginated', allowScriptedContent: false});
+
+  function applyPrefs() {
+    document.documentElement.dataset.rtheme = prefs.th;
+    var c = THEMES[prefs.th];
+    var rules = {body: {color: c[0] + ' !important', background: c[1] + ' !important', 'font-size': prefs.fs + '% !important'},
+                 'a': {color: 'inherit !important'}};
+    if (FONTS[prefs.ff]) { rules.body['font-family'] = FONTS[prefs.ff] + ' !important'; rules['p, div, span'] = {'font-family': 'inherit !important'}; }
+    rendition.themes.register('shelfy', rules);
+    rendition.themes.select('shelfy');
+    document.getElementById('fsv').textContent = prefs.fs + '%';
+    document.querySelectorAll('[data-ff]').forEach(function (b) { b.classList.toggle('on', b.dataset.ff === prefs.ff); });
+    document.querySelectorAll('[data-th]').forEach(function (b) { b.classList.toggle('on', b.dataset.th === prefs.th); });
+  }
+  applyPrefs();
+
+  rendition.display(START || undefined).then(function () {
+    document.getElementById('loading').style.display = 'none';
+  }).catch(function () {
+    document.getElementById('loading').textContent = {{ t('reader.error')|tojson }};
+  });
+  book.loaded.navigation.then(function (nav) {
+    var box = document.getElementById('toc');
+    function add(items, sub) {
+      items.forEach(function (it) {
+        var a = document.createElement('a'); a.href = '#'; a.textContent = (it.label || '').trim();
+        if (sub) a.className = 'sub';
+        a.onclick = function (e) { e.preventDefault(); rendition.display(it.href); closePanels(); };
+        box.appendChild(a);
+        if (it.subitems && it.subitems.length) add(it.subitems, true);
+      });
+    }
+    add(nav.toc, false);
+  });
+
+  // százalék: a helyek kiszámítása lassú lehet, ezért eszközönként megjegyezzük
+  var LK = 'shelfy-loc-' + BID, slider = document.getElementById('slider'), pctEl = document.getElementById('pct');
+  book.ready.then(function () {
+    var saved = null;
+    try { saved = localStorage.getItem(LK); } catch (e) {}
+    if (saved) { book.locations.load(saved); return; }
+    return book.locations.generate(1600).then(function () { try { localStorage.setItem(LK, book.locations.save()); } catch (e) {} });
+  }).then(function () { slider.disabled = false; update(rendition.currentLocation()); });
+
+  var timer = null, last = null;
+  function update(loc) {
+    if (!loc || !loc.start) return;
+    var p = book.locations.length() ? book.locations.percentageFromCfi(loc.start.cfi) : null;
+    if (p != null) { slider.value = Math.round(p * 1000); pctEl.textContent = Math.round(p * 100) + '%'; }
+    last = {cfi: loc.start.cfi, percent: p != null ? p : null};
+    clearTimeout(timer);
+    timer = setTimeout(savePos, 1500);
+  }
+  function savePos() {
+    if (!last) return;
+    fetch('/book/' + BID + '/reader/pos', {method: 'POST', headers: {'Content-Type': 'application/json'},
+      credentials: 'same-origin', body: JSON.stringify(last), keepalive: true}).catch(function () {});
+  }
+  rendition.on('relocated', update);
+  window.addEventListener('pagehide', savePos);
+  slider.addEventListener('change', function () { rendition.display(book.locations.cfiFromPercentage(slider.value / 1000)); });
+
+  function next() { rendition.next(); } function prev() { rendition.prev(); }
+  document.getElementById('next').onclick = next; document.getElementById('prev').onclick = prev;
+  function key(e) {
+    if (e.key === 'ArrowRight' || e.key === 'PageDown' || e.key === ' ') { e.preventDefault(); next(); }
+    if (e.key === 'ArrowLeft' || e.key === 'PageUp') { e.preventDefault(); prev(); }
+    if (e.key === 'Escape') closePanels();
+  }
+  document.addEventListener('keydown', key);
+  rendition.on('keydown', key);
+  // érintés: bal harmad vissza, jobb harmad előre, közép a sávok elrejtése; húzás lapoz
+  var sx = null, sy = null;
+  rendition.on('touchstart', function (e) { var t = e.changedTouches[0]; sx = t.screenX; sy = t.screenY; });
+  rendition.on('touchend', function (e) {
+    var t = e.changedTouches[0]; if (sx == null) return;
+    var dx = t.screenX - sx, dy = t.screenY - sy; sx = null;
+    if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy)) { dx < 0 ? next() : prev(); }
+  });
+  rendition.on('click', function (e) {
+    if (e.target.closest && e.target.closest('a')) return;
+    var w = window.innerWidth, x = e.screenX % w;
+    if (anyOpen()) { closePanels(); return; }
+    if (x < w * 0.3) prev(); else if (x > w * 0.7) next(); else document.body.classList.toggle('hide');
+  });
+
+  var ptoc = document.getElementById('ptoc'), pset = document.getElementById('pset');
+  function anyOpen() { return ptoc.classList.contains('on') || pset.classList.contains('on'); }
+  function closePanels() { ptoc.classList.remove('on'); pset.classList.remove('on'); }
+  document.getElementById('btoc').onclick = function () { pset.classList.remove('on'); ptoc.classList.toggle('on'); };
+  document.getElementById('bset').onclick = function () { ptoc.classList.remove('on'); pset.classList.toggle('on'); };
+  pset.addEventListener('click', function (e) {
+    var b = e.target.closest('button'); if (!b) return;
+    if (b.dataset.fs) prefs.fs = b.dataset.fs === '0' ? 100 : Math.max(70, Math.min(200, prefs.fs + 10 * Number(b.dataset.fs)));
+    if (b.dataset.ff) prefs.ff = b.dataset.ff;
+    if (b.dataset.th) prefs.th = b.dataset.th;
+    savePrefs(); applyPrefs();
+  });
+})();
+</script>
+</body>
+</html>

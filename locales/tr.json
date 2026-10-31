@@ -438,7 +438,8 @@
     "restore_corrupt": "Yedekteki veritabanı bozuk.",
     "restore_confirm": "Geri yüklemek için onay kutusunu işaretleyin.",
     "restore_nofile": "Bir yedek dosyası seçin.",
-    "task_started": "Görev arka planda başlatıldı."
+    "task_started": "Görev arka planda başlatıldı.",
+    "reader_unsupported": "Bu kitap tarayıcıda okunamıyor; bunun yerine indirin."
   },
   "langname": {
     "hu": "Macarca",
@@ -708,5 +709,21 @@
     "run_duplicates": "Kopyaları bul",
     "empty": "Henüz görev yok.",
     "system": "Sistem"
+  },
+  "reader": {
+    "read": "Oku",
+    "continue": "Okumaya devam et · %{pct}",
+    "back": "Kitaba dön",
+    "toc": "İçindekiler",
+    "settings": "Okuma ayarları",
+    "loading": "Kitap açılıyor…",
+    "error": "Kitap tarayıcıda açılamadı. Yine de indirebilirsiniz.",
+    "font_size": "Yazı boyutu",
+    "font": "Yazı tipi",
+    "font_serif": "Tırnaklı",
+    "font_sans": "Tırnaksız",
+    "font_book": "Kitaptaki gibi",
+    "theme": "Arka plan",
+    "sepia": "Sepya"
   }
 }

@@ -438,7 +438,8 @@
     "restore_corrupt": "A mentésben lévő adatbázis sérült.",
     "restore_confirm": "A visszaállításhoz jelöld be a megerősítést.",
     "restore_nofile": "Válassz ki egy mentésfájlt.",
-    "task_started": "A feladat elindult a háttérben."
+    "task_started": "A feladat elindult a háttérben.",
+    "reader_unsupported": "Ez a könyv nem olvasható a böngészőben, töltsd le helyette."
   },
   "langname": {
     "hu": "magyar",
@@ -708,5 +709,21 @@
     "run_duplicates": "Duplikátumok keresése",
     "empty": "Még nincs feladat.",
     "system": "Rendszer"
+  },
+  "reader": {
+    "read": "Olvasás",
+    "continue": "Olvasás folytatása · {pct}%",
+    "back": "Vissza a könyvhöz",
+    "toc": "Tartalom",
+    "settings": "Olvasási beállítások",
+    "loading": "A könyv megnyitása…",
+    "error": "A könyvet nem sikerült megnyitni a böngészőben. Letölteni ettől még le tudod.",
+    "font_size": "Betűméret",
+    "font": "Betűtípus",
+    "font_serif": "Talpas",
+    "font_sans": "Talpatlan",
+    "font_book": "Ahogy a könyvben",
+    "theme": "Háttér",
+    "sepia": "Szépia"
   }
 }

@@ -115,3 +115,20 @@ def test_online_lookup_for_existing_book(admin, book):
 
 def test_lookup_cover_proxy_requires_signature(admin, book):
     assert admin.get(f"/book/{book}/lookup/cover?url=https://img.example/kek.jpg&sig=bad").status_code == 404
+
+
+def test_reader_epub_and_position(admin, tmp_path):
+    from test_backup import add_book
+    bid = add_book(admin, tmp_path, "Olvasnivaló")
+    page = admin.get(f"/book/{bid}").text
+    assert f"/book/{bid}/reader" in page
+    r = admin.get(f"/book/{bid}/reader")
+    assert r.status_code == 200 and "epub.min.js" in r.text
+    r = admin.get(f"/book/{bid}/reader/book.epub")
+    assert r.status_code == 200 and r.content[:2] == b"PK"
+    assert admin.post(f"/book/{bid}/reader/pos", json={"cfi": "epubcfi(/6/4!/4/2/1:0)", "percent": 0.42}).json()["ok"]
+    assert "42%" in admin.get(f"/book/{bid}").text
+    db = admin.app.state.db
+    assert db.val("SELECT status FROM read_state WHERE book_id = ?", (bid,)) == "reading"
+    admin.post(f"/book/{bid}/reader/pos", json={"cfi": "x", "percent": 1})
+    assert db.val("SELECT status FROM read_state WHERE book_id = ?", (bid,)) == "read"

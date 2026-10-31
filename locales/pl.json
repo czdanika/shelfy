@@ -438,7 +438,8 @@
     "restore_corrupt": "Baza danych w kopii jest uszkodzona.",
     "restore_confirm": "Zaznacz potwierdzenie, aby przywrócić.",
     "restore_nofile": "Wybierz plik kopii zapasowej.",
-    "task_started": "Zadanie zostało uruchomione w tle."
+    "task_started": "Zadanie zostało uruchomione w tle.",
+    "reader_unsupported": "Tej książki nie można czytać w przeglądarce – pobierz ją."
   },
   "langname": {
     "hu": "węgierski",
@@ -708,5 +709,21 @@
     "run_duplicates": "Szukaj duplikatów",
     "empty": "Brak zadań.",
     "system": "System"
+  },
+  "reader": {
+    "read": "Czytaj",
+    "continue": "Czytaj dalej · {pct}%",
+    "back": "Wróć do książki",
+    "toc": "Spis treści",
+    "settings": "Ustawienia czytania",
+    "loading": "Otwieranie książki…",
+    "error": "Nie udało się otworzyć książki w przeglądarce. Nadal możesz ją pobrać.",
+    "font_size": "Rozmiar tekstu",
+    "font": "Krój pisma",
+    "font_serif": "Szeryfowy",
+    "font_sans": "Bezszeryfowy",
+    "font_book": "Jak w książce",
+    "theme": "Tło",
+    "sepia": "Sepia"
   }
 }

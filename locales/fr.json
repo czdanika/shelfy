@@ -438,7 +438,8 @@
     "restore_corrupt": "La base de données de la sauvegarde est endommagée.",
     "restore_confirm": "Cochez la confirmation pour restaurer.",
     "restore_nofile": "Choisissez un fichier de sauvegarde.",
-    "task_started": "La tâche a démarré en arrière-plan."
+    "task_started": "La tâche a démarré en arrière-plan.",
+    "reader_unsupported": "Ce livre ne peut pas être lu dans le navigateur ; téléchargez-le plutôt."
   },
   "kindle": {
     "settings": "Paramètres",
@@ -708,5 +709,21 @@
     "run_duplicates": "Chercher les doublons",
     "empty": "Aucune tâche pour l’instant.",
     "system": "Système"
+  },
+  "reader": {
+    "read": "Lire",
+    "continue": "Reprendre la lecture · {pct} %",
+    "back": "Retour au livre",
+    "toc": "Sommaire",
+    "settings": "Réglages de lecture",
+    "loading": "Ouverture du livre…",
+    "error": "Le livre n'a pas pu être ouvert dans le navigateur. Vous pouvez toujours le télécharger.",
+    "font_size": "Taille du texte",
+    "font": "Police",
+    "font_serif": "Avec empattements",
+    "font_sans": "Sans empattements",
+    "font_book": "Comme dans le livre",
+    "theme": "Fond",
+    "sepia": "Sépia"
   }
 }

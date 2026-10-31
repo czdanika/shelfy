@@ -438,7 +438,8 @@
     "restore_corrupt": "The database in the backup is damaged.",
     "restore_confirm": "Tick the confirmation to restore.",
     "restore_nofile": "Choose a backup file.",
-    "task_started": "The task has started in the background."
+    "task_started": "The task has started in the background.",
+    "reader_unsupported": "This book cannot be read in the browser; download it instead."
   },
   "langname": {
     "hu": "Hungarian",
@@ -708,5 +709,21 @@
     "run_duplicates": "Find duplicates",
     "empty": "No tasks yet.",
     "system": "System"
+  },
+  "reader": {
+    "read": "Read",
+    "continue": "Continue reading · {pct}%",
+    "back": "Back to the book",
+    "toc": "Contents",
+    "settings": "Reading settings",
+    "loading": "Opening the book…",
+    "error": "The book could not be opened in the browser. You can still download it.",
+    "font_size": "Text size",
+    "font": "Typeface",
+    "font_serif": "Serif",
+    "font_sans": "Sans-serif",
+    "font_book": "As in the book",
+    "theme": "Background",
+    "sepia": "Sepia"
   }
 }
