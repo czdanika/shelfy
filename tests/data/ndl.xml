@@ -1,0 +1,88 @@
+<rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:openSearch="http://a9.com/-/spec/opensearchrss/1.0/" xmlns:dcndl="http://ndl.go.jp/dcndl/terms/" xmlns:dcmitype="http://purl.org/dc/dcmitype/" xmlns:dcterms="http://purl.org/dc/terms/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" version="2.0">
+  <channel>
+    <title>ノルウェイの森 村上春樹 - 国立国会図書館サーチ OpenSearch</title>
+    <link>https://ios-v2-prod-eks-alb.ndlsearch.ndl.go.jp/api/opensearch?title=%E3%83%8E%E3%83%AB%E3%82%A6%E3%82%A7%E3%82%A4%E3%81%AE%E6%A3%AE&amp;creator=%E6%9D%91%E4%B8%8A%E6%98%A5%E6%A8%B9&amp;cnt=3</link>
+    <description>Search results for title=ノルウェイの森 creator=村上春樹 cnt=3</description>
+    <language>ja</language>
+    <openSearch:totalResults>229</openSearch:totalResults>
+    <openSearch:startIndex>1</openSearch:startIndex>
+    <openSearch:itemsPerPage>3</openSearch:itemsPerPage>
+    <item>
+      <title>■威的森林</title>
+      <link>https://ndlsearch.ndl.go.jp/books/R100000001-I23111160171610</link>
+      <description><![CDATA[<p>時報文化,1997,957-13-2300-4<p><ul><li>タイトル：■威的森林</li><li>責任表示：村上春樹著</li><li>シリーズ名：藍小説 ; 913</li><li>NDC(9)：913.6</li></ul>]]></description>
+      <author>村上, 春樹,村上春樹著</author>
+      <category>図書</category>
+      <category>紙</category>
+      <guid isPermaLink="true">https://ndlsearch.ndl.go.jp/books/R100000001-I23111160171610</guid>
+      <pubDate>Sat, 21 Jul 2001 00:00:00 +0900</pubDate>
+      <dc:title>■威的森林</dc:title>
+      <dc:creator>村上, 春樹</dc:creator>
+      <dcndl:creatorTranscription>ﾑﾗｶﾐ, ﾊﾙｷ</dcndl:creatorTranscription>
+      <dcndl:seriesTitle>藍小説 ; 913</dcndl:seriesTitle>
+      <dc:publisher>時報文化</dc:publisher>
+      <dc:date xsi:type="dcterms:W3CDTF">1997</dc:date>
+      <dcterms:issued>1997.6</dcterms:issued>
+      <dcndl:price>280元</dcndl:price>
+      <dc:extent>380p ; 21cm</dc:extent>
+      <dc:identifier xsi:type="dcndl:ISBN">957-13-2300-4</dc:identifier>
+      <dc:identifier xsi:type="dcndl:ISBN13">957-13-2300-4</dc:identifier>
+      <dc:subject xsi:type="dcndl:NDC9">913.6</dc:subject>
+      <dc:description>訳:頼明珠</dc:description>
+      <dc:description>本文は中国語</dc:description>
+      <rdfs:seeAlso rdf:resource="http://websv.aichi-pref-library.jp/winj/opac/switch-detail-iccap.do?bibid=1160171610"/>
+      <rdfs:seeAlso rdf:resource="https://www.toshokan.city.fukuoka.lg.jp/winj/opac/switch-detail-iccap.do?bibid=1103843951"/>
+      <dc:description> 1997</dc:description>
+    </item>
+    <item>
+      <title>挪威的森林</title>
+      <link>https://ndlsearch.ndl.go.jp/books/R100000136-I1970023484981429579</link>
+      <description><![CDATA[<p>漓江出版社,1996,7540704608<p><ul><li>タイトル：挪威的森林</li><li>タイトル（読み）：ノールウェー テキ シンリン</li><li>責任表示：(日本) 村上春樹著 ; 林少華譯</li></ul>]]></description>
+      <author>村上, 春樹,林, 少華,(日本) 村上春樹著 ; 林少華譯</author>
+      <category>図書</category>
+      <category>紙</category>
+      <guid isPermaLink="true">https://ndlsearch.ndl.go.jp/books/R100000136-I1970023484981429579</guid>
+      <pubDate>Fri, 25 Sep 2026 11:13:32 +0900</pubDate>
+      <dc:title>挪威的森林</dc:title>
+      <dcndl:titleTranscription>ノールウェー テキ シンリン</dcndl:titleTranscription>
+      <dc:creator>村上, 春樹</dc:creator>
+      <dc:creator>林, 少華</dc:creator>
+      <dcndl:creatorTranscription>ムラカミ, ハルキ</dcndl:creatorTranscription>
+      <dcndl:creatorTranscription>リン, ショウカ</dcndl:creatorTranscription>
+      <dc:publisher>漓江出版社</dc:publisher>
+      <dcndl:publicationPlace>CN</dcndl:publicationPlace>
+      <dc:date xsi:type="dcterms:W3CDTF">1996</dc:date>
+      <dcterms:issued>1996.7</dcterms:issued>
+      <dc:identifier xsi:type="dcndl:ISBN">7540704608</dc:identifier>
+      <dc:identifier xsi:type="dcndl:NIIBibID">BA68086690</dc:identifier>
+      <dc:description>附録: 專家評傳: p321-353, 作家訪談: 354-361, 村上春樹年譜: p362-374</dc:description>
+      <dc:description>情報源の表記は中国簡化字による</dc:description>
+      <rdfs:seeAlso rdf:resource="https://cir.nii.ac.jp/crid/1970023484981429579"/>
+      <dc:description> 1996</dc:description>
+    </item>
+    <item>
+      <title>挪威的森林</title>
+      <link>https://ndlsearch.ndl.go.jp/books/R100000136-I1971712334709931404</link>
+      <description><![CDATA[<p>時報文化,1997,9571323004<p><ul><li>タイトル：挪威的森林</li><li>タイトル（読み）：ノールウェー テキ シンリン</li><li>責任表示：村上春樹著 ; 頼明珠譯</li></ul>]]></description>
+      <author>村上, 春樹,頼, 明珠,村上春樹著 ; 頼明珠譯</author>
+      <category>図書</category>
+      <category>紙</category>
+      <guid isPermaLink="true">https://ndlsearch.ndl.go.jp/books/R100000136-I1971712334709931404</guid>
+      <pubDate>Fri, 25 Sep 2026 11:13:32 +0900</pubDate>
+      <dc:title>挪威的森林</dc:title>
+      <dcndl:titleTranscription>ノールウェー テキ シンリン</dcndl:titleTranscription>
+      <dc:creator>村上, 春樹</dc:creator>
+      <dc:creator>頼, 明珠</dc:creator>
+      <dcndl:creatorTranscription>ムラカミ, ハルキ</dcndl:creatorTranscription>
+      <dcndl:creatorTranscription>ライ, メイシュ</dcndl:creatorTranscription>
+      <dc:publisher>時報文化</dc:publisher>
+      <dcndl:publicationPlace>TW</dcndl:publicationPlace>
+      <dc:date xsi:type="dcterms:W3CDTF">1997</dc:date>
+      <dcterms:issued>1997.6</dcterms:issued>
+      <dc:identifier xsi:type="dcndl:ISBN">9571323004</dc:identifier>
+      <dc:identifier xsi:type="dcndl:NIIBibID">BA86696842</dc:identifier>
+      <rdfs:seeAlso rdf:resource="https://cir.nii.ac.jp/crid/1971712334709931404"/>
+      <dc:description> 1997</dc:description>
+    </item>
+  </channel>
+</rss>

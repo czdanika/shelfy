@@ -62,9 +62,86 @@ A felület **14 nyelven** érhető el – angol, magyar, német, francia, olasz,
 |---|---|
 | ![](docs/hu/kindle_list.png) | ![](docs/hu/kindle_book.png) |
 
-## Telepítés (Portainer / Docker Compose)
+## Telepítés
 
-Lásd: [`docker-compose.example.yml`](docker-compose.example.yml).
+A Shelfy egyetlen Docker-konténerként fut. A példák Docker Compose formátumúak: bemásolhatók a **Portainer → Stacks → Add stack** szerkesztőbe vagy a NAS Docker / Container Manager alkalmazásába.
+
+### Gyors indulás NAS-on
+
+**1. Hozz létre két mappát** a NAS-on, például a `docker` megosztásban:
+
+| Mappa | Mi kerül bele |
+|---|---|
+| `/Volume1/docker/shelfy` | minden, amit a Shelfy tárol: adatbázis, beállítások, mentések, borító-gyorsítótár, és a `library` almappában a könyvfájlok |
+| `/Volume1/docker/shelfy-ingest` | a *figyelt mappa*: az ide másolt e-könyveket magától felveszi (nem kötelező) |
+
+**2. Hozd létre a stacket** ezzel a compose fájllal. A `volumes` soroknál csak a kettőspont előtti részt írd át a saját mappáidra:
+
+```yaml
+services:
+  shelfy:
+    image: ghcr.io/czdanika/shelfy:latest
+    container_name: shelfy
+    restart: unless-stopped
+    ports:
+      - "18200:8080"                                  # a NAS 18200-as portján lesz elérhető
+    volumes:
+      - /Volume1/docker/shelfy:/data                  # adatbázis, beállítások, mentések, könyvfájlok
+      - /Volume1/docker/shelfy-ingest:/ingest         # figyelt mappa (nem kötelező)
+    environment:
+      - TZ=Europe/Budapest                            # időzóna a napló időbélyegeihez
+      - DEFAULT_LANGUAGE=hu                           # en hu de fr it es pt pl ru tr ja ko zh-Hans zh-Hant
+      - INGEST_DIR=/ingest                            # bekapcsolja a figyelt mappát (a fenti kötet konténer felőli oldala)
+      # - PUID=1026                                   # nem kötelező: a mappák tulajdonosa a NAS-on (lásd lent)
+      # - PGID=100
+```
+
+**3. Nyisd meg** a `http://<nas-ip>:18200` címet, és hozd létre az adminisztrátori fiókot.
+
+**4. A Shelfyben:**
+
+1. **Beállítások** (bal oldali menü): alapnyelv, online források és sorrendjük, valamint az e-mail (SMTP) fiók a Kindle-re küldéshez. Az oldalon lépésről lépésre Gmail-útmutató is van. A feladó címét az Amazon-fiókban fel kell venni a jóváhagyott feladók közé.
+2. **Adminisztráció → Felhasználók**: vedd fel a családtagokat.
+3. Tölts fel néhány könyvet, vagy másold be őket a figyelt mappába.
+
+> A régi Kindle-böngészők sok modern HTTPS-oldalt nem tudnak megnyitni (pl. Cloudflare mögött). Otthon a helyi címet használd: `http://<nas-ip>:18200`.
+
+### Mit jelentenek a sorok
+
+| Sor | Jelentés |
+|---|---|
+| `image` | a hivatalos image, `linux/amd64` és `linux/arm64` (Raspberry Pi, ARM-os NAS) változatban, a konvertáló eszközökkel együtt |
+| `ports: "18200:8080"` | a bal oldali szám a NAS portja – írd át, ha a 18200 foglalt. A jobb oldali 8080 marad. |
+| `/…/shelfy:/data` | **az egyetlen mappa, amit meg kell őrizni.** Ha ezt mented, a Shelfy bárhol visszaállítható. |
+| `/…/shelfy-ingest:/ingest` + `INGEST_DIR=/ingest` | a figyelt mappa. Az ide másolt e-könyveket (almappákból is) felveszi, majd kiveszi a mappából; más fájlokhoz nem nyúl. Ha nem kell, mindkét sort hagyd ki. |
+| `TZ` | időzóna, pl. `Europe/Budapest` |
+| `DEFAULT_LANGUAGE` | a kezdő nyelv; később a Beállításokban átállítható, és mindenki választhat sajátot |
+| `PUID` / `PGID` | melyik felhasználó nevében írja a fájlokat. Alapból `1000`/`1000`. Ha *permission denied* hibát látsz, vagy azt szeretnéd, hogy a fájlok a NAS-felhasználódé legyenek, add meg az ő azonosítóit (SSH-n: `id <felhasználónév>`). Indításkor a Shelfy rendbe teszi a mappák tulajdonosát. |
+
+### Mappaútvonalak népszerű rendszereken
+
+| Rendszer | Példa adatmappa |
+|---|---|
+| TerraMaster TOS | `/Volume1/docker/shelfy` |
+| Synology DSM | `/volume1/docker/shelfy` |
+| QNAP QTS | `/share/Container/shelfy` |
+| Unraid | `/mnt/user/appdata/shelfy` |
+| OpenMediaVault | `/srv/dev-disk-by-uuid-…/docker/shelfy` |
+| Raspberry Pi / Linux | `/home/<felhasználó>/shelfy` vagy `./data` a compose fájl mellett |
+
+### Változatok
+
+**A könyvfájlok külön megosztásban** – például ha a könyvek a `Konyvek` megosztásba kerüljenek, amit amúgy is mentesz:
+
+```yaml
+    volumes:
+      - /Volume1/docker/shelfy:/data
+      - /Volume1/Konyvek/Shelfy:/data/library          # könyvfájlok és borítók (Szerző/Cím (id)/…)
+```
+
+**Figyelt mappa nélkül** – hagyd ki az `/ingest` kötetet és az `INGEST_DIR` sort.
+
+**A legegyszerűbb változat** – Docker által kezelt kötet NAS-mappa helyett (ezt a NAS fájlkezelőjéből nehezebb elérni):
 
 ```yaml
 services:
@@ -74,22 +151,48 @@ services:
     ports: ["18200:8080"]
     volumes:
       - shelfy-data:/data
-    environment:
 volumes:
   shelfy-data:
 ```
 
-Az első megnyitáskor létrehozod az admin fiókot. Utána:
+**Első adminisztrátor a stackből** – add meg az `ADMIN_USER` és `ADMIN_PASSWORD` változót (legalább 8 karakter). Csak addig számít, amíg nincs felhasználó.
 
-1. **Beállítások** (bal oldali menü): SMTP a Kindle-küldéshez. A feladó címét az Amazon-fiókban fel kell venni a jóváhagyott feladók közé.
-2. **Adminisztráció → Felhasználók**: a családtagok fiókjai.
+### Mi van az adatmappában
 
-> A régi Kindle böngészője a Cloudflare-en át nem mindig tölt be (TLS). Otthon a helyi címmel nyisd meg: `http://<nas-ip>:18200`.
+```text
+shelfy/
+├── shelfy.db         adatbázis: könyvadatok, felhasználók, polcok, olvasási állapot, napló, beállítások
+├── secret.key        titkosító kulcs (munkamenetek, tárolt jelszavak) – az adatbázissal együtt őrizd
+├── library/          könyvfájlok és borítók: Szerző/Cím (id)/…
+├── backups/          napi automatikus adatbázis-mentések
+├── cache/            borító-bélyegképek és konvertált fájlok (törölhető)
+├── uploads/          átnézésre váró feltöltések
+└── locales/          a felületen szerkesztett fordítások
+```
+
+### Frissítés
+
+- **Portainer:** nyisd meg a stacket, és válaszd az *Update the stack* gombot *Re-pull image* opcióval (vagy *Pull and redeploy*).
+- **Parancssor:** `docker compose pull && docker compose up -d`
+
+Az adataid az adatmappában maradnak; az adatbázist indításkor magától frissíti.
+
+### Hibaelhárítás
+
+| Probléma | Megoldás |
+|---|---|
+| *Permission denied* a konténer naplójában, vagy nem megy a feltöltés | állítsd a `PUID`/`PGID` értékét a mappák tulajdonosára, vagy adj annak a felhasználónak írási jogot |
+| Nem jön be az oldal | szabad a port? Fut a konténer (`docker ps`)? Nézd meg a naplót: `docker logs shelfy` |
+| A figyelt mappa nem csinál semmit | az `INGEST_DIR` a kötet konténer felőli oldala legyen (`/ingest`), és a Beállításokban legyen bekapcsolva a *Figyelt mappa figyelése* |
+| A Google Books soha nem talál semmit | a Google közös ingyenes kvótája gyakran elfogy – adj meg egy ingyenes API-kulcsot a *Beállítások → Online források* résznél, vagy hagyatkozz a többi forrásra |
+| Nem megy a küldés Kindle-re | az okot a *Feladatok* oldal és a tevékenységnapló mutatja; többnyire a feladó nincs jóváhagyva az Amazonnál, vagy rossz az SMTP-jelszó (Gmailnél alkalmazásjelszó kell) |
 
 ### Környezeti változók
 
 | Változó | Alapérték | Leírás |
 |---|---|---|
+| `TZ` | – | időzóna, pl. `Europe/Budapest` |
+| `PUID`, `PGID` | `1000` | a felhasználó és csoport, amelynek nevében a fájlokat írja (a mappák NAS-os tulajdonosa) |
 | `DATA_DIR` | `/data` | adatbázis, gyorsítótár, titkosító kulcs |
 | `LIBRARY_DIR` | `/data/library` | a könyvek fájljai (Szerző/Cím (id)/…) |
 | `INGEST_DIR` | – | figyelt mappa almappákkal együtt: az ide másolt e-könyveket magától felveszi (és kiveszi innen) |

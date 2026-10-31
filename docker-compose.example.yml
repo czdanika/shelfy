@@ -1,35 +1,37 @@
 # Shelfy – example deployment (Docker Compose / Portainer stack)
 #
-#   1. Portainer: Stacks → Add stack → Web editor, paste this file
-#   2. Adjust the volumes to your own folders
-#   3. Open http://<server>:18200 and create the administrator account
+#   1. Create the folders on your NAS (see the volumes below)
+#   2. Portainer: Stacks → Add stack → Web editor, paste this file
+#      (or use the Docker / Container Manager app of your NAS)
+#   3. Change the left side of the volume lines to your own folders
+#   4. Open http://<nas-ip>:18200 and create the administrator account
+#
+# Folder examples: TerraMaster /Volume1/docker/shelfy · Synology /volume1/docker/shelfy ·
+#                  QNAP /share/Container/shelfy · Unraid /mnt/user/appdata/shelfy
 
 services:
   shelfy:
     image: ghcr.io/czdanika/shelfy:latest
     container_name: shelfy
     restart: unless-stopped
-    # user: "1026:100"                           # optional: run as the NAS user that owns the folders below (id <user>)
     ports:
-      - "18200:8080"
+      - "18200:8080"                                  # NAS port : container port (change only the left one)
     volumes:
-      - shelfy-data:/data                        # database, library, caches
-      # - /srv/books/shelfy:/data/library         # keep the book files in a separate folder (optional)
-      # - /srv/books/inbox:/ingest                # watched folder (with subfolders): ebooks copied here are imported, then removed from here
+      - /Volume1/docker/shelfy:/data                  # database, settings, backups and the book files – back this up
+      - /Volume1/docker/shelfy-ingest:/ingest         # watched folder: ebooks copied here are imported (optional)
+      # - /Volume1/Books/Shelfy:/data/library         # keep the book files in a separate share (optional)
     environment:
+      - TZ=Europe/Budapest                            # time zone for the timestamps
       # Default interface language (also used for category tags). Each user can still pick their own.
       #   en English   hu Magyar     de Deutsch    fr Français   it Italiano   es Español   pt Português
       #   pl Polski    ru Русский    tr Türkçe     ja 日本語      ko 한국어      zh-Hans 简体中文  zh-Hant 繁體中文
-      #   Region codes work too: en-us, hu-hu, zh-cn, zh-hk, zh-tw …
       - DEFAULT_LANGUAGE=en
-      # - INGEST_DIR=/ingest
-      # Online lookup and its sources can be changed later in Settings; these are only the starting values.
-      # - ONLINE_LOOKUP=true
-      # - METADATA_PROVIDERS=moly,google,openlibrary   # moly google openlibrary dnb bnf bn_pl ndl (default: by language)
-      # First admin from environment variables (otherwise create it in the browser):
+      - INGEST_DIR=/ingest                            # turns the watched folder on – remove with the /ingest volume
+      # Which user writes the files (default 1000/1000). Set these to the owner of the folders above
+      # if you see "permission denied" (find them with: id <username>).
+      # - PUID=1026
+      # - PGID=100
+      # First admin from the stack (otherwise create it in the browser):
       # - ADMIN_USER=admin
       # - ADMIN_PASSWORD=at-least-8-characters
-      # SMTP for Send to Kindle is configured in the UI: Settings (left menu)
-
-volumes:
-  shelfy-data:
+      # Online lookup, its sources and the e-mail (SMTP) account are set in the UI: Settings (left menu).

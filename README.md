@@ -61,9 +61,86 @@ The interface ships in **14 languages** – English, Hungarian, German, French, 
 |---|---|
 | ![](docs/kindle_list.png) | ![](docs/kindle_book.png) |
 
-## Installation (Docker Compose / Portainer)
+## Installation
 
-See [`docker-compose.example.yml`](docker-compose.example.yml).
+Shelfy runs as a single Docker container. The examples use Docker Compose, which you can paste straight into **Portainer → Stacks → Add stack** or into the Docker / Container Manager app of your NAS.
+
+### Quick start on a NAS
+
+**1. Create two folders** on the NAS, for example in the `docker` share:
+
+| Folder | What goes there |
+|---|---|
+| `/Volume1/docker/shelfy` | everything Shelfy keeps: the database, settings, backups, cover cache and – in its `library` subfolder – the book files |
+| `/Volume1/docker/shelfy-ingest` | the *watched folder*: ebooks you copy here are imported automatically (optional) |
+
+**2. Create the stack** with this compose file. Change only the left side of the `volumes` lines (the part before the `:`) to your own folders:
+
+```yaml
+services:
+  shelfy:
+    image: ghcr.io/czdanika/shelfy:latest
+    container_name: shelfy
+    restart: unless-stopped
+    ports:
+      - "18200:8080"                                  # open Shelfy on port 18200 of the NAS
+    volumes:
+      - /Volume1/docker/shelfy:/data                  # database, settings, backups, book files
+      - /Volume1/docker/shelfy-ingest:/ingest         # watched folder (optional)
+    environment:
+      - TZ=Europe/Budapest                            # your time zone, for the timestamps in the log
+      - DEFAULT_LANGUAGE=hu                           # en hu de fr it es pt pl ru tr ja ko zh-Hans zh-Hant
+      - INGEST_DIR=/ingest                            # turns the watched folder on (container side of the volume above)
+      # - PUID=1026                                   # optional: the NAS user that owns the folders above (see below)
+      # - PGID=100
+```
+
+**3. Open** `http://<nas-ip>:18200` and create the administrator account.
+
+**4. In Shelfy:**
+
+1. **Settings** (left menu): default language, online sources and their order, and the e-mail (SMTP) account for Send to Kindle. There is a step-by-step Gmail guide on the page. Add the sender address to the approved senders in your Amazon account.
+2. **Administration → Users**: add your family members.
+3. Upload a few books, or copy them into the watched folder.
+
+> Old Kindle browsers often cannot open modern HTTPS sites (for example behind Cloudflare). At home, use the local address: `http://<nas-ip>:18200`.
+
+### What the lines mean
+
+| Line | Meaning |
+|---|---|
+| `image` | the official image, built for `linux/amd64` and `linux/arm64` (Raspberry Pi, ARM NAS), with the conversion tools included |
+| `ports: "18200:8080"` | the left number is the port on the NAS – change it if 18200 is taken. The right number stays 8080. |
+| `/…/shelfy:/data` | **the only folder you must keep.** Back it up, and Shelfy can be restored anywhere. |
+| `/…/shelfy-ingest:/ingest` + `INGEST_DIR=/ingest` | the watched folder. Ebooks copied here (subfolders included) are imported and then moved out; other files are left alone. Leave both lines out if you do not need it. |
+| `TZ` | time zone, e.g. `Europe/London`, `Europe/Berlin`, `America/New_York` |
+| `DEFAULT_LANGUAGE` | the starting language; it can be changed later in Settings, and every user can pick their own |
+| `PUID` / `PGID` | which user the container writes files as. The default is `1000`/`1000`. If you see *permission denied* errors, or want the files to belong to your NAS user, set these to that user's IDs (`id <username>` over SSH). Shelfy fixes the folder ownership on start. |
+
+### Folder paths on popular systems
+
+| System | Example data folder |
+|---|---|
+| TerraMaster TOS | `/Volume1/docker/shelfy` |
+| Synology DSM | `/volume1/docker/shelfy` |
+| QNAP QTS | `/share/Container/shelfy` |
+| Unraid | `/mnt/user/appdata/shelfy` |
+| OpenMediaVault | `/srv/dev-disk-by-uuid-…/docker/shelfy` |
+| Raspberry Pi / Linux | `/home/<user>/shelfy` or `./data` next to the compose file |
+
+### Variations
+
+**Book files on a separate share** – for example, if the books should live in your `Books` share, which is backed up anyway:
+
+```yaml
+    volumes:
+      - /Volume1/docker/shelfy:/data
+      - /Volume1/Books/Shelfy:/data/library            # book files and covers (Author/Title (id)/…)
+```
+
+**Without a watched folder** – leave out the `/ingest` volume and `INGEST_DIR`.
+
+**Simplest possible setup** – a Docker-managed volume instead of a NAS folder (harder to reach from the NAS file manager):
 
 ```yaml
 services:
@@ -73,25 +150,48 @@ services:
     ports: ["18200:8080"]
     volumes:
       - shelfy-data:/data
-    environment:
-      - DEFAULT_LANGUAGE=en                     # en hu de fr it es pt pl ru tr ja ko zh-Hans zh-Hant
 volumes:
   shelfy-data:
 ```
 
-Open `http://<server>:18200` and create the administrator account. Then:
+**First administrator from the stack** – add `ADMIN_USER` and `ADMIN_PASSWORD` (at least 8 characters). They are only used while there are no users yet.
 
-1. **Settings** (left menu) is where you set up SMTP for Send to Kindle. Add the sender address to the approved senders in your Amazon account.
-2. **Administration → Users** is where you add your family members.
+### What is inside the data folder
 
-> Old Kindle browsers often cannot open modern TLS sites (for example behind Cloudflare). At home, use the local address: `http://<server-ip>:18200`.
+```text
+shelfy/
+├── shelfy.db         database: metadata, users, shelves, reading status, log, settings
+├── secret.key        encryption key (sessions, stored passwords) – keep it with the database
+├── library/          book files and covers: Author/Title (id)/…
+├── backups/          daily automatic database backups
+├── cache/            cover thumbnails and converted files (can be deleted)
+├── uploads/          files waiting for review
+└── locales/          translations edited in the interface
+```
 
-The image is built for `linux/amd64` and `linux/arm64`, with the conversion tools included.
+### Updating
+
+- **Portainer:** open the stack and choose *Update the stack* with *Re-pull image* (or *Pull and redeploy*).
+- **Command line:** `docker compose pull && docker compose up -d`
+
+Your data stays in the data folder; the database is upgraded automatically on start.
+
+### Troubleshooting
+
+| Problem | Solution |
+|---|---|
+| *Permission denied* in the container log, or uploads fail | set `PUID`/`PGID` to the owner of the folders, or give that user write access to them |
+| The page does not open | is the port free? Is the container running (`docker ps`)? Check the log: `docker logs shelfy` |
+| The watched folder does nothing | `INGEST_DIR` must be the container side of the volume (`/ingest`), and *Watch the import folder* must be on in Settings |
+| Google Books never finds anything | Google's shared free quota is often used up – add a free API key under *Settings → Online sources*, or rely on the other sources |
+| Sending to Kindle fails | the reason is shown in *Tasks* and in the activity log; usually the sender is not approved at Amazon, or the SMTP password is wrong (Gmail needs an app password) |
 
 ### Environment variables
 
 | Variable | Default | Description |
 |---|---|---|
+| `TZ` | – | time zone, e.g. `Europe/Budapest` |
+| `PUID`, `PGID` | `1000` | user and group the container writes files as (set them to the NAS user that owns the folders) |
 | `DATA_DIR` | `/data` | database, caches, secret key |
 | `LIBRARY_DIR` | `/data/library` | book files (`Author/Title (id)/…`) |
 | `INGEST_DIR` | – | watched folder, including subfolders: ebook files copied here are imported automatically (and moved out of it) |
