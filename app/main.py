@@ -10,10 +10,11 @@ import json
 import math
 import re
 import tempfile
+import unicodedata
 from contextlib import asynccontextmanager
 from functools import partial
 from pathlib import Path
-from urllib.parse import urlencode, urlsplit
+from urllib.parse import quote, urlencode, urlsplit
 
 from fastapi import FastAPI, File, Form, Request, UploadFile
 from fastapi.responses import FileResponse, HTMLResponse, JSONResponse, RedirectResponse, Response, StreamingResponse
@@ -1427,17 +1428,69 @@ def create_app(cfg: Config | None = None, transport=None) -> FastAPI:
                 "can_mail": mail_settings(request.state.user)[0] is not None,
                 "can_convert": converter.has_convert, "msg": request.query_params.get("msg")}
 
+    KFACETS = {"authors": "author", "series": "series", "tags": "tag", "publishers": "publisher",
+               "languages": "lang", "ratings": "rating"}
+
+    def initial(name: str) -> str:
+        n = unicodedata.normalize("NFKD", str(name or "").strip())
+        c = next((ch for ch in n if ch.isalnum()), "")
+        return c.upper() if c.isalpha() else "#"
+
     @app.get("/kindle", response_class=HTMLResponse)
-    async def kindle_home(request: Request, q: str = "", page: int = 1, view: str = "all", sort: str = "added_new"):
+    async def kindle_home(request: Request, q: str = "", page: int = 1, view: str = "all", sort: str = "added_new",
+                          author: int | None = None, series: int | None = None, tag: int | None = None,
+                          publisher: int | None = None, lang: str | None = None, rating: int | None = None):
         user: User = request.state.user
         page = max(1, page)
         if sort not in SORTS:
             sort = "added_new"
-        if view not in ("all", "new", "reading", "unread", "read"):
+        if view not in ("all", "new", "hot", "top", "reading", "unread", "read"):
             view = "all"
-        rows, total = lib.list_books(sort=sort, q=q or None, view=view, user_id=user.id, page=page, per_page=KPER)
+        filt = {k: v for k, v in dict(author=author, series=series, tag=tag, publisher=publisher,
+                                      language=lang, rating=rating).items() if v not in (None, "")}
+        rows, total = lib.list_books(sort=sort, q=q or None, view=view, user_id=user.id, page=page, per_page=KPER, **filt)
+        # szűrő neve a címhez (pl. egy címke vagy szerző könyvei)
+        heading, fq = None, ""
+        for kind, param in KFACETS.items():
+            val = request.query_params.get(param)
+            if val:
+                item = next((i for i in lib.facet(kind) if str(i["id"]) == val), None)
+                name = item["name"] if item else val
+                if kind == "languages":
+                    k = f"langname.{str(name)[:3]}"
+                    name = i18n.t(lang_of(request, user), k) if i18n.t(lang_of(request, user), k) != k else name
+                if kind == "ratings":
+                    name = "★" * int(val)
+                heading = f"{tr(request, 'browse.' + kind)}: {name}"
+                fq = f"&{param}={quote(val)}"
         return render(request, "kindle/list.html", books=rows, total=total, page=page,
-                      pages=max(1, math.ceil(total / KPER)), q=q, view=view, sort=sort, **kindle_ctx(request))
+                      pages=max(1, math.ceil(total / KPER)), q=q, view=view, sort=sort, heading=heading, fq=fq,
+                      **kindle_ctx(request))
+
+    @app.get("/kindle/browse/{kind}", response_class=HTMLResponse)
+    async def kindle_browse(request: Request, kind: str, letter: str = ""):
+        """Böngészés e-ink kijelzőre: ABC-sorrend, hosszú listánál kezdőbetű szerint lapozva."""
+        if kind not in KFACETS:
+            return Response(status_code=404)
+        items = lib.facet(kind)
+        user = request.state.user
+        if kind == "languages":
+            lng = lang_of(request, user)
+            for it in items:
+                k = f"langname.{str(it['name'])[:3]}"
+                it["name"] = i18n.t(lng, k) if i18n.t(lng, k) != k else it["name"]
+            items.sort(key=lambda i: unicodedata.normalize("NFKD", str(i["name"])).casefold())
+        letters, by_letter = [], {}
+        if kind != "ratings":
+            for it in items:
+                by_letter.setdefault(initial(it.get("sort") or it["name"]), []).append(it)
+            letters = sorted(by_letter, key=lambda c: (c == "#", c))
+        paged = len(items) > 60 and kind != "ratings"
+        if paged:
+            letter = letter.upper() if letter.upper() in by_letter else letters[0]
+            items = by_letter[letter]
+        return render(request, "kindle/browse.html", kind=kind, items=items, param=KFACETS[kind], letters=letters if paged else [],
+                      letter=letter if paged else "", **kindle_ctx(request))
 
     @app.get("/kindle/book/{bid}", response_class=HTMLResponse)
     async def kindle_book(request: Request, bid: int):

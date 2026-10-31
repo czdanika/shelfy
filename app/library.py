@@ -327,7 +327,7 @@ class Library:
     def facet(self, kind: str) -> list[dict]:
         """Böngészési listák darabszámmal."""
         if kind == "authors":
-            sql = """SELECT a.id, a.name, COUNT(*) AS n FROM authors a JOIN book_authors ba ON ba.author_id = a.id
+            sql = """SELECT a.id, a.name, a.sort, COUNT(*) AS n FROM authors a JOIN book_authors ba ON ba.author_id = a.id
                      JOIN books b ON b.id = ba.book_id AND b.archived = 0 GROUP BY a.id ORDER BY a.sort COLLATE HU"""
         elif kind == "series":
             sql = """SELECT s.id, s.name, COUNT(*) AS n FROM series s JOIN books b ON b.series_id = s.id AND b.archived = 0

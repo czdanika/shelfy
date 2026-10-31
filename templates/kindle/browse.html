@@ -1,0 +1,18 @@
+{% extends "kindle/base.html" %}
+{% block title %}{{ t('browse.' ~ kind) }}{% endblock %}
+{% block content %}
+{% include "kindle/_nav.html" %}
+<h1>{{ t('browse.' ~ kind) }}{% if letter %} – {{ letter }}{% endif %}</h1>
+{% if letters %}
+<div class="views letters">{% for c in letters %}{% if c == letter %}<b>{{ c }}</b>{% else %}<a href="/kindle/browse/{{ kind }}?letter={{ c|urlencode }}">{{ c }}</a>{% endif %}{% endfor %}</div>
+{% endif %}
+{% if items %}
+<table class="list">
+{% for it in items %}
+<tr><td><a href="/kindle?{{ param }}={{ it.id|string|urlencode }}">{% if kind == 'ratings' %}{{ '★' * it.name|int }}{{ '☆' * (5 - it.name|int) }}{% else %}{{ it.name }}{% endif %}</a></td><td class="n">{{ it.n }}</td></tr>
+{% endfor %}
+</table>
+{% else %}
+<p>{{ t('browse.empty') }}</p>
+{% endif %}
+{% endblock %}

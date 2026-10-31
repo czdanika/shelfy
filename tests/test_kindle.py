@@ -141,3 +141,16 @@ def test_mobi_only_book_converts_to_epub_and_sends(admin, tmp_path, monkeypatch)
     # tartós konvertálás MOBI → EPUB is működik
     r = admin.post(f"/book/{bid}/convert", data={"target": "epub"}, follow_redirects=False)
     assert "converted" in r.headers["location"] and "epub" in lib.book(bid)["formats"]
+
+
+def test_kindle_browse_menus(admin, tmp_path):
+    from test_backup import add_book
+    add_book(admin, tmp_path, "Elso")
+    for kind in ("authors", "series", "tags", "publishers", "languages", "ratings"):
+        r = admin.get(f"/kindle/browse/{kind}")
+        assert r.status_code == 200, kind
+    page = admin.get("/kindle/browse/authors").text
+    assert "/kindle?author=" in page
+    aid = admin.app.state.db.val("SELECT id FROM authors LIMIT 1")
+    r = admin.get(f"/kindle?author={aid}")
+    assert r.status_code == 200 and "Elso" in r.text and "Próba Anna" in r.text

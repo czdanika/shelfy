@@ -1,13 +1,13 @@
 {% extends "kindle/base.html" %}
-{% block title %}{{ t('view.' ~ view) }}{% endblock %}
+{% block title %}{{ heading or t('view.' ~ view) }}{% endblock %}
 {% block content %}
 <form class="search" action="/kindle" method="get">
   <input type="text" name="q" value="{{ q }}" placeholder="{{ t('search.placeholder') }}" autocomplete="off">
   <button type="submit">{{ t('search.label') }}</button>
 </form>
-<div class="views">{% for v in ['all', 'new', 'reading', 'unread', 'read'] %}{% if v == view %}<b>{{ t('view.' ~ v) }}</b>{% else %}<a href="/kindle?view={{ v }}{% if q %}&q={{ q|urlencode }}{% endif %}">{{ t('view.' ~ v) }}</a>{% endif %}{% endfor %}</div>
-<div class="views">{{ t('sort.label') }}: {% for s, label in [('added_new', 'sort.added'), ('title_az', 'sort.title'), ('author_az', 'sort.author'), ('series', 'sort.series')] %}{% if s == sort %}<b>{{ t(label) }}</b>{% else %}<a href="/kindle?view={{ view }}&sort={{ s }}{% if q %}&q={{ q|urlencode }}{% endif %}">{{ t(label) }}</a>{% endif %}{% endfor %}</div>
-<h1>{% if q %}{{ t('search.results', q=q) }}{% else %}{{ t('view.' ~ view) }}{% endif %} <span class="muted">({{ t('library.count', n=total) }})</span></h1>
+{% include "kindle/_nav.html" %}
+<div class="views">{{ t('sort.label') }}: {% for s, label in [('added_new', 'sort.added'), ('title_az', 'sort.title'), ('author_az', 'sort.author'), ('series', 'sort.series')] %}{% if s == sort %}<b>{{ t(label) }}</b>{% else %}<a href="/kindle?view={{ view }}&sort={{ s }}{{ fq }}{% if q %}&q={{ q|urlencode }}{% endif %}">{{ t(label) }}</a>{% endif %}{% endfor %}</div>
+<h1>{% if q %}{{ t('search.results', q=q) }}{% elif heading %}{{ heading }}{% else %}{{ t('view.' ~ view) }}{% endif %} <span class="muted">({{ t('library.count', n=total) }})</span></h1>
 {% if books %}
 <table class="books">
 {% for b in books %}
@@ -25,8 +25,8 @@
 {% endif %}
 {% if pages > 1 %}
 <div class="pager">
-  {% if page > 1 %}<a class="btn" href="/kindle?view={{ view }}&sort={{ sort }}&page={{ page - 1 }}{% if q %}&q={{ q|urlencode }}{% endif %}">‹ {{ t('pager.prev') }}</a>{% endif %}
-  {% if page < pages %}<a class="btn" href="/kindle?view={{ view }}&sort={{ sort }}&page={{ page + 1 }}{% if q %}&q={{ q|urlencode }}{% endif %}">{{ t('pager.next') }} ›</a>{% endif %}
+  {% if page > 1 %}<a class="btn" href="/kindle?view={{ view }}&sort={{ sort }}&page={{ page - 1 }}{{ fq }}{% if q %}&q={{ q|urlencode }}{% endif %}">‹ {{ t('pager.prev') }}</a>{% endif %}
+  {% if page < pages %}<a class="btn" href="/kindle?view={{ view }}&sort={{ sort }}&page={{ page + 1 }}{{ fq }}{% if q %}&q={{ q|urlencode }}{% endif %}">{{ t('pager.next') }} ›</a>{% endif %}
   <div class="muted">{{ page }} / {{ pages }}</div>
 </div>
 {% endif %}

@@ -1,0 +1,2 @@
+<div class="views">{% for v in ['all', 'new', 'hot', 'top', 'reading', 'unread', 'read'] %}{% if v == view and not heading %}<b>{{ t('view.' ~ v) }}</b>{% else %}<a href="/kindle{% if v != 'all' %}?view={{ v }}{% endif %}">{{ t('view.' ~ v) }}</a>{% endif %}{% endfor %}</div>
+<div class="views">{{ t('nav.browse') }}: {% for k in ['authors', 'series', 'tags', 'publishers', 'languages', 'ratings'] %}{% if kind == k %}<b>{{ t('browse.' ~ k) }}</b>{% else %}<a href="/kindle/browse/{{ k }}">{{ t('browse.' ~ k) }}</a>{% endif %}{% endfor %}</div>
