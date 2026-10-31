@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block title %}{{ t('about.title') }}{% endblock %}
+{% block content %}
+<div class="about card">
+  <div class="about-logo">
+    <img class="mark-light" src="/static/icons/shelfy-mark-light.svg" width="72" height="63" alt="">
+    <img class="mark-dark-only" src="/static/icons/shelfy-mark-dark.svg" width="72" height="63" alt="">
+    <div>
+      <h1 style="margin: 0">Shelfy</h1>
+      <div class="muted">{{ t('about.version', v=version) }}</div>
+    </div>
+  </div>
+  <p class="about-lead">{{ t('about.lead') }}</p>
+  <table class="meta">
+    <tr><th>{{ t('about.author') }}</th><td>{{ author }}</td></tr>
+    <tr><th>{{ t('about.source') }}</th><td><a href="{{ url }}" target="_blank" rel="noopener">{{ url|replace('https://', '') }} ↗</a></td></tr>
+    <tr><th>{{ t('about.issues') }}</th><td><a href="{{ url }}/issues" target="_blank" rel="noopener">{{ t('about.issues_link') }} ↗</a></td></tr>
+    <tr><th>{{ t('about.languages') }}</th><td>{% for code, name in languages %}{{ name }}{% if not loop.last %}, {% endif %}{% endfor %}</td></tr>
+    <tr><th>{{ t('about.library') }}</th><td>{{ t('library.count', n=counts.books) }} · {{ counts.size|filesize }}</td></tr>
+  </table>
+
+  <h2>{{ t('about.credits') }}</h2>
+  <ul class="about-credits">
+    <li>{{ t('about.credit_metadata') }}: Moly.hu, Google Books, Open Library</li>
+    <li>{{ t('about.credit_convert') }}: <span class="mono">ebook-meta</span>, <span class="mono">ebook-convert</span></li>
+    <li>{{ t('about.credit_font') }}: Source Sans 3 (SIL Open Font License 1.1)</li>
+    <li>{{ t('about.credit_stack') }}: Python, FastAPI, Jinja2, SQLite, Pillow, httpx</li>
+  </ul>
+
+  <h2>{{ t('about.system') }}</h2>
+  <table class="meta small">
+    <tr><th>Shelfy</th><td>{{ version }}</td></tr>
+    <tr><th>Python</th><td>{{ python }}</td></tr>
+    <tr><th>{{ t('about.platform') }}</th><td>{{ platform }}</td></tr>
+    {% for k, ok in tools.items() %}<tr><th class="mono">{{ k }}</th><td>{{ t('about.available') if ok else t('about.missing') }}</td></tr>{% endfor %}
+  </table>
+  <p class="small muted" style="margin: 16px 0 0"><a href="/help">{{ t('nav.help') }}</a></p>
+</div>
+{% endblock %}

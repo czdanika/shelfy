@@ -87,6 +87,36 @@
 <p>Egy felhasználó jelszavát az admin a Felhasználók oldalon állíthatja vissza. Ha az admin a sajátját felejtette el, a szerveren:</p>
 <pre>docker exec -it shelfy python -m app.reset_password &lt;felhasználónév&gt;</pre>
 
+<h2 id="backup">Mentés, visszaállítás, költözés</h2>
+<p>A Shelfy két részből áll:</p>
+<ul>
+  <li><strong>adatbázis</strong> (<code>shelfy.db</code> az adatmappában): könyvadatok, felhasználók, polcok, olvasási állapot, napló, beállítások – kicsi, néhány MB;</li>
+  <li><strong>könyvtár mappa</strong>: a könyvfájlok és borítók <code>Szerző/Cím (azonosító)/</code> szerkezetben – ez a nagy rész. Az adatbázis ezekre a fájlokra hivatkozik.</li>
+</ul>
+<p>A kettő együtt adja a teljes könyvtárat. Az <em>Adminisztráció → Mentés</em> oldalon:</p>
+<ul>
+  <li><strong>Csak az adatbázis</strong> – kis ZIP. Akkor elég, ha a könyvtár mappa a NAS-on van, és azt a NAS saját mentése (pl. másik kötetre vagy felhőbe) menti.</li>
+  <li><strong>Teljes mentés</strong> – adatbázis + minden könyvfájl és borító egy ZIP-ben (100 könyv kb. 100 MB). Ezzel egyben költöztethető az egész Shelfy.</li>
+  <li><strong>Automatikus mentés</strong> – naponta adatbázis-mentés az adatmappa <code>backups</code> mappájába; beállítható, hány napot tartson meg.</li>
+</ul>
+<h3>Költözés másik gépre</h3>
+<ol>
+  <li>A régi Shelfyben töltsd le a <strong>teljes mentést</strong>.</li>
+  <li>Az új helyen indítsd el a Shelfyt, hozz létre egy ideiglenes admin fiókot.</li>
+  <li><em>Adminisztráció → Mentés → Visszaállítás</em>: töltsd fel a ZIP-et. Az adatbázis és a könyvfájlok a helyükre kerülnek, a régi felhasználókkal és jelszavakkal be lehet lépni.</li>
+</ol>
+<p>Másik út: a könyvtár mappát a NAS-on egyszerűen átmásolod az új helyre, és csak az adatbázis-mentést állítod vissza. Utána a <em>Könyvtár ellenőrzése</em> megmutatja, ha valamelyik fájl hiányzik.</p>
+<h3>Nagy könyvtárnál parancssorból</h3>
+<pre>docker exec shelfy python -m app.backup create --full      # teljes mentés a backups mappába
+docker exec shelfy python -m app.backup check              # hiányzó fájlok keresése
+docker compose stop shelfy
+docker compose run --rm shelfy python -m app.backup restore /data/backups/&lt;fájl&gt;.zip
+docker compose start shelfy</pre>
+<p class="tip">A mentés a jelszavak kivonatát és a titkosítás kulcsát is tartalmazza – biztonságos helyen tárold. Visszaállítás előtt a Shelfy mindig ment egyet a mostani állapotról (<code>before-restore-…zip</code>).</p>
+
+<h2 id="tasks">Háttérfeladatok</h2>
+<p>A hosszabb műveletek – feltöltések vizsgálata, konvertálás, Kindle-re küldés, mentés, visszaállítás – a <a href="/tasks">Feladatok</a> oldalon követhetők: ki indította, mi az állapota, mennyi ideig futott és mi lett az eredménye. Az oldalsávon a futó feladatok száma is látszik. Az adminisztrátor innen indíthatja a könyvtár ellenőrzését (hiányzó fájlok) és a duplikátumok keresését. A feladatok 14 napig maradnak a listában.</p>
+
 <h2 id="faq">Gyakori kérdések</h2>
 <dl>
   <dt>Nem jön meg a könyv a Kindle-re.</dt>

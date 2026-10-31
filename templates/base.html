@@ -54,9 +54,10 @@
       {% if user.can('can_upload') %}<a class="item {% if path.startswith('/upload') %}on{% endif %}" href="/upload"><span>{{ t('nav.upload') }}</span>{% if pending %}<span class="n">{{ pending }}</span>{% endif %}</a>{% endif %}
       <a class="item {% if v == 'incomplete' %}on{% endif %}" href="/books?view=incomplete">{{ t('view.incomplete') }}</a>
       <a class="item {% if v == 'archived' %}on{% endif %}" href="/books?view=archived">{{ t('view.archived') }}</a>
+      <a class="item {% if path == '/tasks' %}on{% endif %}" href="/tasks"><span>{{ t('nav.tasks') }}</span>{% if active_tasks %}<span class="n">{{ active_tasks }}</span>{% endif %}</a>
       {% if user.is_admin %}<a class="item {% if path.startswith('/admin') %}on{% endif %}" href="/admin">{{ t('nav.admin') }}</a>{% endif %}
     </div>
-    <div class="sidestats">{{ t('library.count', n=nav_counts.books) }} · {{ nav_counts.size|filesize }}</div>
+    <div class="sidestats">{{ t('library.count', n=nav_counts.books) }} · {{ nav_counts.size|filesize }}<br><a href="/about">Shelfy {{ version }}</a></div>
   </nav>
 
   <div class="main">
@@ -80,6 +81,7 @@
           <span class="small muted" style="padding: 6px 12px">{{ user.display_name }} · {{ t('role.' ~ user.role) }}</span>
           <a href="/me">{{ t('nav.profile') }}</a>
           <a href="/help">{{ t('nav.help') }}</a>
+          <a href="/about">{{ t('about.title') }}</a>
           <a href="/kindle">{{ t('nav.kindle') }}</a>
           {% if user.is_admin %}<a href="/admin">{{ t('nav.admin') }}</a>{% endif %}
           <a href="/logout">{{ t('nav.logout') }}</a>
@@ -87,7 +89,7 @@
       </details>
     </header>
     <main class="content">
-      {% if msg %}<div class="flash {% if msg.endswith('error') or msg in ('mail_off', 'mail_noaddr', 'mail_nofmt', 'convert_nosrc', 'self_delete', 'short_password', 'mail_toobig', 'lang_error', 'lookup_gone') %}err{% endif %}" role="status">{{ t('msg.' ~ msg) }}{% if msg in ('approved', 'format_added', 'rejected') and pending and not path.startswith('/upload/') %} · <a href="/upload">{{ t('upload.waiting_link', n=pending) }}</a>{% endif %}</div>{% endif %}
+      {% if msg %}<div class="flash {% if msg.endswith('error') or msg in ('mail_off', 'mail_noaddr', 'mail_nofmt', 'convert_nosrc', 'self_delete', 'short_password', 'mail_toobig', 'lang_error', 'lookup_gone') or msg.startswith('restore_') %}err{% endif %}" role="status">{{ t('msg.' ~ msg) }}{% if msg in ('approved', 'format_added', 'rejected') and pending and not path.startswith('/upload/') %} · <a href="/upload">{{ t('upload.waiting_link', n=pending) }}</a>{% endif %}</div>{% endif %}
       {% block content %}{% endblock %}
     </main>
   </div>

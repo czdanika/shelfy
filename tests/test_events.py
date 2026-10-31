@@ -6,7 +6,7 @@ from test_admin import login, make_user
 
 
 def kinds(c):
-    return [r["kind"] for r in c.app.state.db.q("SELECT kind FROM events ORDER BY id")]
+    return [r["kind"] for r in c.app.state.db.q("SELECT kind FROM events WHERE kind NOT LIKE 'backup_%' ORDER BY id")]
 
 
 def test_activity_is_logged_and_shown(admin, tmp_path, monkeypatch):

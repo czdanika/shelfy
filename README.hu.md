@@ -34,6 +34,9 @@ A felület magyar, angol, német és francia nyelvű, mindegyikhez beépített h
 - **Felhasználók és szerepkörök**: adminisztrátor, szerkesztő, olvasó, egyenként állítható jogokkal (feltöltés, szerkesztés, letöltés, törlés).
 - **E-mail felhasználónként**: közös SMTP-fiók, és ha kell, mindenkinek saját (beépített Gmail-útmutatóval). Az SMTP-jelszavak titkosítva tárolódnak.
 - **Napló**: feltöltés, felvétel, küldés (a sikertelen is, okkal), letöltés, belépés és beállításváltozás időbélyeggel, szűrhetően. Minden könyvnek saját előzményei vannak, mindenki látja a saját tevékenységét.
+- **Mentés és visszaállítás**: adatbázis-mentés (kicsi, másodpercek alatt) vagy teljes mentés az összes könyvfájllal, napi automatikus mentés a szerveren, visszaállítás az admin felületről vagy parancssorból. Minden visszaállítás előtt biztonsági mentés készül, a könyvtár-ellenőrzés pedig kilistázza, mely könyveknél hiányzik fájl.
+- **Háttérfeladatok**: a vizsgálatok, konvertálások, küldések, mentések és visszaállítások a *Feladatok* oldalon követhetők állapottal, haladással, futásidővel és eredménnyel. Az adminisztrátor innen indíthat könyvtár-ellenőrzést és duplikátumkeresést.
+- **Névjegy oldal** verziószámmal, készítővel, forráskód-linkkel és rendszerinformációval.
 - **Világos és sötét téma** (automatikus, a rendszert követi, vagy kézzel választható).
 - **Beépített súgó** minden nyelven, a megfelelő oldalakról linkelve.
 - **Telefonra telepíthető** (webalkalmazás-leíró és ikonok).
@@ -49,6 +52,10 @@ A felület magyar, angol, német és francia nyelvű, mindegyikhez beépített h
 | Napló | Súgó |
 |---|---|
 | ![](docs/hu/log.png) | ![](docs/hu/help.png) |
+
+| Háttérfeladatok | |
+|---|---|
+| ![](docs/tasks.png) | |
 
 | Kindle lista | Kindle adatlap |
 |---|---|
@@ -103,6 +110,27 @@ docker exec -it shelfy python -m app.reset_password daniel --admin   # …és ad
 ```
 
 Utána a felhasználó minden eszközről kijelentkezik.
+
+### Mentés, visszaállítás, költözés
+
+Az adatbázis kicsi, a könyvfájlok a `LIBRARY_DIR` mappában vannak. Az *Adminisztráció → Mentés* oldalon:
+
+- letölthetsz **adatbázis-mentést** (adatok, felhasználók, polcok, beállítások) vagy **teljes mentést**, ami a könyvfájlokat is tartalmazza;
+- bekapcsolhatod a **napi automatikus adatbázis-mentést** a `DATA_DIR/backups` mappába (megadod, hányat őrizzen meg);
+- **visszaállíthatsz** feltöltött vagy a szerveren tárolt mentésből. Előtte a jelenlegi állapotról biztonsági mentés készül.
+
+Nagy könyvtárnál a könyvmappát a NAS saját mentőeszközeivel érdemes menteni, Shelfyvel csak az adatbázist. Költözéskor: másold át a könyvmappát, indítsd el az új Shelfyt, állítsd vissza az adatbázis-mentést, majd futtasd a *Könyvtár ellenőrzése* feladatot. Parancssorból:
+
+```bash
+docker exec shelfy python -m app.backup create                          # csak adatbázis, a DATA_DIR/backups mappába
+docker exec shelfy python -m app.backup create --full -o /data/full.zip # könyvfájlokkal együtt
+docker exec shelfy python -m app.backup check                           # hiányzó fájlú könyvek
+
+# parancssori visszaállítás: előbb állítsd le a Shelfyt, aztán egy egyszeri konténerrel
+docker compose stop shelfy
+docker compose run --rm shelfy python -m app.backup restore /data/backups/<fájl>.zip
+docker compose start shelfy
+```
 
 ## Fordítás
 

@@ -87,6 +87,36 @@
 <p>Ein Administrator kann das Passwort eines Benutzers auf der Seite Benutzer zurücksetzen. Hat der Administrator sein eigenes vergessen, auf dem Server ausführen:</p>
 <pre>docker exec -it shelfy python -m app.reset_password &lt;Benutzername&gt;</pre>
 
+<h2 id="backup">Sicherung, Wiederherstellung, Umzug</h2>
+<p>Shelfy besteht aus zwei Teilen:</p>
+<ul>
+  <li>der <strong>Datenbank</strong> (<code>shelfy.db</code> im Datenordner): Buchdaten, Benutzer, Regale, Lesestatus, Protokoll, Einstellungen – klein, wenige MB;</li>
+  <li>dem <strong>Bibliotheksordner</strong>: Buchdateien und Cover in <code>Autor/Titel (ID)/</code>-Ordnern – der große Teil. Die Datenbank verweist auf diese Dateien.</li>
+</ul>
+<p>Beides zusammen ergibt die ganze Bibliothek. Unter <em>Administration → Sicherung</em>:</p>
+<ul>
+  <li><strong>Nur Datenbank</strong> – eine kleine ZIP-Datei. Reicht, wenn der Bibliotheksordner auf dem NAS liegt und dessen eigene Sicherung (z. B. auf ein anderes Volume oder in die Cloud) ihn erfasst.</li>
+  <li><strong>Vollständige Sicherung</strong> – Datenbank + alle Buchdateien und Cover in einer ZIP-Datei (100 Bücher sind etwa 100 MB). Damit zieht ganz Shelfy in einem Schritt um.</li>
+  <li><strong>Automatische Sicherung</strong> – täglich eine Datenbanksicherung im Ordner <code>backups</code> des Datenordners; einstellbar, wie viele Tage aufbewahrt werden.</li>
+</ul>
+<h3>Umzug auf einen anderen Rechner</h3>
+<ol>
+  <li>Im alten Shelfy eine <strong>vollständige Sicherung</strong> herunterladen.</li>
+  <li>Shelfy am neuen Ort starten und ein vorübergehendes Administratorkonto anlegen.</li>
+  <li><em>Administration → Sicherung → Wiederherstellen</em>: die ZIP-Datei hochladen. Datenbank und Buchdateien kommen an ihren Platz, die alten Benutzer melden sich mit ihren Passwörtern an.</li>
+</ol>
+<p>Alternativ den Bibliotheksordner auf dem NAS an den neuen Ort kopieren und nur die Datenbanksicherung wiederherstellen. <em>Bibliothek prüfen</em> zeigt danach fehlende Dateien.</p>
+<h3>Über die Kommandozeile bei großen Bibliotheken</h3>
+<pre>docker exec shelfy python -m app.backup create --full      # vollständige Sicherung in den Ordner backups
+docker exec shelfy python -m app.backup check              # fehlende Dateien suchen
+docker compose stop shelfy
+docker compose run --rm shelfy python -m app.backup restore /data/backups/&lt;Datei&gt;.zip
+docker compose start shelfy</pre>
+<p class="tip">Eine Sicherung enthält Passwort-Hashes und den Verschlüsselungsschlüssel – sicher aufbewahren. Vor dem Wiederherstellen sichert Shelfy immer zuerst den aktuellen Stand (<code>before-restore-…zip</code>).</p>
+
+<h2 id="tasks">Hintergrundaufgaben</h2>
+<p>Längere Vorgänge – Prüfung von Uploads, Konvertierung, Versand an Kindle, Sicherung, Wiederherstellung – lassen sich auf der Seite <a href="/tasks">Aufgaben</a> verfolgen: wer sie gestartet hat, Status, Laufzeit und Ergebnis. Die Seitenleiste zeigt, wie viele gerade laufen. Administratoren können dort eine Bibliotheksprüfung (fehlende Dateien) und eine Duplikatsuche starten. Aufgaben bleiben 14 Tage in der Liste.</p>
+
 <h2 id="faq">Häufige Fragen</h2>
 <dl>
   <dt>Das Buch kommt nicht auf dem Kindle an.</dt>

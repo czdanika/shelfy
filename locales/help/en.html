@@ -87,6 +87,36 @@
 <p>An administrator can reset a user's password on the Users page. If the administrator has forgotten their own, run this on the server:</p>
 <pre>docker exec -it shelfy python -m app.reset_password &lt;username&gt;</pre>
 
+<h2 id="backup">Backup, restore, moving</h2>
+<p>Shelfy has two parts:</p>
+<ul>
+  <li>the <strong>database</strong> (<code>shelfy.db</code> in the data folder): book metadata, users, shelves, reading status, activity log, settings – small, a few MB;</li>
+  <li>the <strong>library folder</strong>: book files and covers in <code>Author/Title (id)/</code> folders – the big part. The database points to these files.</li>
+</ul>
+<p>Together they make up the whole library. On <em>Administration → Backup</em>:</p>
+<ul>
+  <li><strong>Database only</strong> – a small ZIP. Enough if the library folder lives on the NAS and the NAS's own backup (e.g. to another volume or the cloud) covers it.</li>
+  <li><strong>Full backup</strong> – database + all book files and covers in one ZIP (100 books are roughly 100 MB). Moves the whole of Shelfy in one go.</li>
+  <li><strong>Automatic backup</strong> – a daily database backup into the <code>backups</code> folder of the data folder; choose how many days to keep.</li>
+</ul>
+<h3>Moving to another machine</h3>
+<ol>
+  <li>In the old Shelfy, download a <strong>full backup</strong>.</li>
+  <li>Start Shelfy in the new place and create a temporary admin account.</li>
+  <li><em>Administration → Backup → Restore</em>: upload the ZIP. The database and the book files are put in place, and the old users can sign in with their passwords.</li>
+</ol>
+<p>Alternatively, copy the library folder to the new place on the NAS and restore only the database backup. <em>Check the library</em> then shows any missing files.</p>
+<h3>From the command line for large libraries</h3>
+<pre>docker exec shelfy python -m app.backup create --full      # full backup into the backups folder
+docker exec shelfy python -m app.backup check              # look for missing files
+docker compose stop shelfy
+docker compose run --rm shelfy python -m app.backup restore /data/backups/&lt;file&gt;.zip
+docker compose start shelfy</pre>
+<p class="tip">A backup contains password hashes and the encryption key – keep it somewhere safe. Before restoring, Shelfy always saves the current state first (<code>before-restore-…zip</code>).</p>
+
+<h2 id="tasks">Background tasks</h2>
+<p>Longer operations – inspecting uploads, conversion, sending to Kindle, backups, restores – can be followed on the <a href="/tasks">Tasks</a> page: who started them, their status, how long they ran and the result. The sidebar shows how many are running. Administrators can start a library check (missing files) and a duplicate search from there. Tasks stay in the list for 14 days.</p>
+
 <h2 id="faq">Frequently asked questions</h2>
 <dl>
   <dt>The book does not arrive on my Kindle.</dt>

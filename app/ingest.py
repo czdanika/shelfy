@@ -43,7 +43,7 @@ def check(key: str, status: str, **params) -> dict:
 
 class Ingest:
     def __init__(self, db: Database, lib: Library, converter: Converter, lookup: Lookup, upload_dir: Path,
-                 online: bool = True, default_lang: str = "en", translate=None, events=None) -> None:
+                 online: bool = True, default_lang: str = "en", translate=None, events=None, tasks=None) -> None:
         self.db, self.lib, self.converter, self.lookup = db, lib, converter, lookup
         self.dir = upload_dir
         self.dir.mkdir(parents=True, exist_ok=True)
@@ -51,6 +51,8 @@ class Ingest:
         self.default_lang = default_lang
         self.translate = translate or (lambda lang, key: key)
         self.events = events
+        self.tasks = tasks
+        self.task_of: dict[int, int] = {}  # feltöltés → háttérfeladat
         self.queue: asyncio.Queue[int] = asyncio.Queue()
         self.worker: asyncio.Task | None = None
         self.watcher: asyncio.Task | None = None
@@ -73,10 +75,24 @@ class Ingest:
     async def _work(self) -> None:
         while True:
             uid = await self.queue.get()
+            tid = self.task_of.pop(uid, None)
+            if self.tasks and tid is None:
+                up = self.db.one("SELECT filename, user_id, status FROM uploads WHERE id = ?", (uid,))
+                if up and up["status"] in ("pending", "inspecting"):
+                    tid = self.tasks.create("inspect", user_id=up["user_id"], subject=up["filename"])
+            if self.tasks and tid:
+                self.tasks.start(tid)
             try:
                 await self.inspect(uid)
+                if self.tasks and tid:
+                    st = self.db.one("SELECT status, candidates FROM uploads WHERE id = ?", (uid,))
+                    cands = json.loads(st["candidates"] or "[]") if st else []
+                    self.tasks.finish(tid, st is not None and st["status"] != "error", "inspected" if st and st["status"] != "error" else "unsupported",
+                                      best=f"{round(cands[0]['score'] * 100)}%" if cands else "–")
             except Exception as e:  # ne álljon le a feldolgozó egy hibás fájl miatt
                 self._set(uid, status="error", message=f"{e.__class__.__name__}: {e}"[:500])
+                if self.tasks and tid:
+                    self.tasks.finish(tid, False, "exception", error=f"{e.__class__.__name__}: {e}"[:200])
                 self._log_upload(uid, "inspect_error", ok=False, error=f"{e.__class__.__name__}: {e}"[:200])
 
     async def _watch(self, folder: Path) -> None:
@@ -125,6 +141,8 @@ class Ingest:
         self.db.run("UPDATE uploads SET stored_path = ? WHERE id = ?", (str(dst), uid))
         if self.events:
             self.events.log("upload", user_id=user_id, file=filename, source=source)
+        if self.tasks:
+            self.task_of[uid] = self.tasks.create("inspect", user_id=user_id, subject=filename)
         self.queue.put_nowait(uid)
         return uid
 

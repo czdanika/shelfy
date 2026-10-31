@@ -128,6 +128,7 @@ class Library:
         self.db = db
         self.root = root
         db.conn.create_collation("HU", hu_collate)
+        db.after_open.append(lambda d: d.conn.create_collation("HU", hu_collate))  # visszaállítás utáni újranyitáskor is
 
     # ------------------------------------------------------------------ tárolás
     def book_dir(self, book_id: int) -> Path:

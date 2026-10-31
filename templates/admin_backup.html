@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+{% from "macros.html" import icon %}
+{% block title %}{{ t('admin.nav_backup') }}{% endblock %}
+{% block content %}
+{% include "_adminnav.html" %}
+
+{% if result %}
+<div class="flash" role="status">{{ t('backup.restored', books=result.books, files=result.files, safety=result.safety) }}
+  {% if result.missing and result.missing != '0' %}<br><span style="color: var(--danger)">{{ t('backup.restored_missing', n=result.missing) }}</span> <a href="/admin/backup?check=1#check">{{ t('backup.check_link') }}</a>{% endif %}</div>
+{% endif %}
+
+<div class="row" style="align-items: flex-start; gap: 18px">
+  <div style="flex: 999 1 520px; display: flex; flex-direction: column; gap: 18px">
+    <section class="card" style="display: flex; flex-direction: column; gap: 14px">
+      <h2>{{ t('backup.create_title') }} <a class="helplink" href="/help#backup" title="{{ t('nav.help') }}" aria-label="{{ t('nav.help') }}">?</a></h2>
+      <p class="small muted" style="margin: 0">{{ t('backup.intro') }}</p>
+      <div class="bk-options">
+        <div class="bk-opt">
+          <strong>{{ t('backup.db_only') }}</strong>
+          <span class="small muted">{{ t('backup.db_only_help', size=db_size|filesize) }}</span>
+          <div class="row">
+            <a class="btn primary" href="/admin/backup/download?full=0">{{ icon('download', 16) }} {{ t('action.download') }}</a>
+            <form method="post" action="/admin/backup/now"><button class="btn" type="submit">{{ t('backup.save_server') }}</button></form>
+          </div>
+        </div>
+        <div class="bk-opt">
+          <strong>{{ t('backup.full') }}</strong>
+          <span class="small muted">{{ t('backup.full_help', size=lib_size|filesize) }}</span>
+          <div class="row">
+            <a class="btn primary" href="/admin/backup/download?full=1">{{ icon('download', 16) }} {{ t('action.download') }}</a>
+            <form method="post" action="/admin/backup/now"><input type="hidden" name="full" value="1"><button class="btn" type="submit">{{ t('backup.save_server') }}</button></form>
+          </div>
+        </div>
+      </div>
+      <p class="small muted" style="margin: 0">{{ t('backup.secret_note') }}</p>
+    </section>
+
+    <section class="card" style="display: flex; flex-direction: column; gap: 12px">
+      <h2>{{ t('backup.restore_title') }}</h2>
+      <p class="small muted" style="margin: 0">{{ t('backup.restore_help') }}</p>
+      <form method="post" action="/admin/backup/restore" enctype="multipart/form-data" style="display: flex; flex-direction: column; gap: 10px">
+        <div class="field"><label for="bkfile">{{ t('backup.restore_file') }}</label><input id="bkfile" name="file" type="file" accept=".zip"></div>
+        <label class="check"><input type="checkbox" name="library" value="1" checked> {{ t('backup.restore_library') }}</label>
+        <label class="check"><input type="checkbox" name="confirm" value="1" required> {{ t('backup.restore_confirm') }}</label>
+        <div class="row"><button class="btn danger" type="submit">{{ t('backup.restore_button') }}</button></div>
+      </form>
+    </section>
+
+    <section class="card" style="display: flex; flex-direction: column; gap: 10px" id="check">
+      <h2>{{ t('backup.check_title') }}</h2>
+      <p class="small muted" style="margin: 0">{{ t('backup.check_help') }}</p>
+      {% if missing is none %}
+      <div><a class="btn" href="/admin/backup?check=1#check">{{ t('backup.check_run') }}</a></div>
+      {% elif missing %}
+      <div class="flash err">{{ t('backup.check_missing', n=missing|length) }}</div>
+      <ul class="small" style="margin: 0; padding-left: 18px">{% for m in missing[:100] %}<li><a href="/book/{{ m.id }}">{{ m.title }}</a> · {{ m.format|upper }} · <span class="mono">{{ m.file }}</span></li>{% endfor %}</ul>
+      {% else %}
+      <div class="flash">{{ t('backup.check_ok') }}</div>
+      {% endif %}
+    </section>
+  </div>
+
+  <div style="flex: 1 1 320px; display: flex; flex-direction: column; gap: 18px">
+    <section class="card" style="display: flex; flex-direction: column; gap: 12px">
+      <h2>{{ t('backup.auto_title') }}</h2>
+      <form method="post" action="/admin/backup/settings" style="display: flex; flex-direction: column; gap: 10px">
+        <label class="check"><input type="checkbox" name="auto" value="1" {% if auto %}checked{% endif %}> {{ t('backup.auto_on') }}</label>
+        <div class="field"><label for="keep">{{ t('backup.keep') }}</label><input id="keep" name="keep" type="number" min="1" max="365" value="{{ keep }}" style="max-width: 120px"></div>
+        <div><button class="btn primary small" type="submit">{{ t('action.save') }}</button></div>
+      </form>
+      <h3 style="font-size: 15px; margin: 6px 0 0">{{ t('backup.saved_title') }}</h3>
+      {% if backups %}
+      <ul class="bklist">
+        {% for b in backups %}
+        <li><a href="/admin/backup/file/{{ b.name }}" class="mono">{{ b.name }}</a>
+          <span class="small muted">{{ b.at|datetime }} · {{ b.size|filesize }}</span>
+          <span class="row" style="gap: 4px">
+            <form method="post" action="/admin/backup/restore" onsubmit="return confirm('{{ t('backup.restore_confirm_js')|e }}')"><input type="hidden" name="name" value="{{ b.name }}"><input type="hidden" name="confirm" value="1"><input type="hidden" name="library" value="1"><button class="btn small" type="submit">{{ t('backup.restore_short') }}</button></form>
+            <form method="post" action="/admin/backup/file/{{ b.name }}/delete"><button class="btn small danger" type="submit" aria-label="{{ t('action.delete') }}">{{ icon('trash', 14) }}</button></form>
+          </span></li>
+        {% endfor %}
+      </ul>
+      {% else %}<p class="small muted" style="margin: 0">{{ t('backup.none') }}</p>{% endif %}
+      <p class="small muted" style="margin: 0">{{ t('backup.where', path=data_dir ~ '/backups') }}</p>
+    </section>
+    <section class="card small" style="display: flex; flex-direction: column; gap: 8px">
+      <h2 style="font-size: 16px">{{ t('backup.cli_title') }}</h2>
+      <p class="muted" style="margin: 0">{{ t('backup.cli_help') }}</p>
+      <pre class="mono" style="margin: 0; white-space: pre-wrap; background: var(--subtle); padding: 8px 10px">docker exec shelfy python -m app.backup create --full
+docker exec shelfy python -m app.backup check</pre>
+    </section>
+  </div>
+</div>
+{% endblock %}

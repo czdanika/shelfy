@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% block title %}{{ t('tasks.title') }}{% endblock %}
+{% block content %}
+<div class="row" style="justify-content: space-between; align-items: center">
+  <h1 style="margin: 0">{{ t('tasks.title') }}</h1>
+  {% if user.is_admin %}
+  <div class="row">
+    <form method="post" action="/tasks/run/check"><button class="btn small" type="submit">{{ t('tasks.run_check') }}</button></form>
+    <form method="post" action="/tasks/run/duplicates"><button class="btn small" type="submit">{{ t('tasks.run_duplicates') }}</button></form>
+  </div>
+  {% endif %}
+</div>
+<p class="small muted">{{ t('tasks.intro') }}</p>
+<section class="card" style="padding: 0; overflow-x: auto">
+  {% if rows %}
+  <table class="tasktable">
+    <thead><tr>
+      {% if user.is_admin %}<th>{{ t('tasks.col_user') }}</th>{% endif %}
+      <th>{{ t('tasks.col_task') }}</th><th>{{ t('tasks.col_status') }}</th><th>{{ t('tasks.col_progress') }}</th>
+      <th>{{ t('tasks.col_duration') }}</th><th>{{ t('tasks.col_started') }}</th><th>{{ t('tasks.col_message') }}</th>
+    </tr></thead>
+    <tbody>
+    {% for r in rows %}
+    <tr data-id="{{ r.id }}" class="st-{{ r.status }}">
+      {% if user.is_admin %}<td>{{ r.user_name or t('tasks.system') }}</td>{% endif %}
+      <td><b>{{ t('tasks.kind_' ~ r.kind) }}</b>{% if r.subject %}<div class="small muted subj">{{ r.subject }}</div>{% endif %}</td>
+      <td><span class="badge {{ {'done': 'ok', 'error': 'err', 'running': 'info', 'queued': 'warn'}[r.status] }}">{{ t('tasks.status_' ~ r.status) }}</span></td>
+      <td><div class="pbar" title="{{ r.progress }}%"><i style="width: {{ r.progress }}%"></i></div><span class="small muted pct">{{ r.progress }}%</span></td>
+      <td class="small">{% if r.duration is not none %}{% if r.duration < 60 %}{{ '%.1f'|format(r.duration) }} s{% else %}{{ (r.duration // 60)|int }} min {{ (r.duration % 60)|int }} s{% endif %}{% else %}–{% endif %}</td>
+      <td class="small">{{ (r.started_at or r.created_at)|datetime }}</td>
+      <td class="small">{{ r.text }}</td>
+    </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p class="muted" style="padding: 16px 20px">{{ t('tasks.empty') }}</p>
+  {% endif %}
+</section>
+{% if busy %}
+<script>
+(function () {
+  var known = {};
+  document.querySelectorAll('tr[data-id]').forEach(function (tr) { known[tr.dataset.id] = tr.className; });
+  function poll() {
+    fetch('/tasks.json', {credentials: 'same-origin'}).then(function (r) { return r.json(); }).then(function (d) {
+      var changed = d.items.some(function (it) { return !known[it.id] || known[it.id] !== 'st-' + it.status; });
+      if (changed) { location.replace('/tasks'); return; }
+      d.items.forEach(function (it) {
+        var tr = document.querySelector('tr[data-id="' + it.id + '"]');
+        if (!tr) return;
+        tr.querySelector('.pbar i').style.width = it.progress + '%';
+        tr.querySelector('.pct').textContent = it.progress + '%';
+      });
+      setTimeout(poll, 2000);
+    }).catch(function () { setTimeout(poll, 5000); });
+  }
+  setTimeout(poll, 2000);
+})();
+</script>
+{% endif %}
+{% endblock %}

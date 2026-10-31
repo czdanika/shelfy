@@ -33,6 +33,9 @@ The interface ships in **English, German, French and Hungarian**, with a built-i
 - **Users and roles**: administrator, editor and reader, with per-user permissions for upload, edit, download and delete.
 - **E-mail per user**: a shared SMTP account, and optionally each user's own (with a built-in Gmail guide). SMTP passwords are stored encrypted.
 - **Activity log**: uploads, additions, sends (including failures and the reason), downloads, sign-ins and settings changes, with timestamps and filters. Every book has its own history, and every user sees their own activity.
+- **Backup and restore**: download a database backup (small, seconds) or a full backup with every book file, keep daily automatic backups on the server, and restore from the admin area or the command line. A safety backup is taken before every restore, and a library check lists books whose files are missing.
+- **Background tasks**: inspections, conversions, sends, backups and restores show up on the *Tasks* page with status, progress, run time and result. Administrators can start a library check or a duplicate search from there.
+- **About page** with version, author, source link and system information.
 - **Light and dark theme** (automatic, following the system, or chosen by hand).
 - **Built-in help** in every language, with links from the relevant pages.
 - **Installable on phones** (web app manifest and icons).
@@ -48,6 +51,10 @@ The interface ships in **English, German, French and Hungarian**, with a built-i
 | Activity log | Help |
 |---|---|
 | ![](docs/log.png) | ![](docs/help.png) |
+
+| Background tasks | |
+|---|---|
+| ![](docs/tasks.png) | |
 
 | Kindle list | Kindle book page |
 |---|---|
@@ -105,6 +112,27 @@ docker exec -it shelfy python -m app.reset_password daniel --admin   # …and ma
 ```
 
 The user is signed out on every device afterwards.
+
+### Backup, restore and moving to another server
+
+The database is small; the book files live in `LIBRARY_DIR`. Under *Administration → Backup* you can:
+
+- download a **database backup** (metadata, users, shelves, settings, cover references) or a **full backup** that also contains every book file;
+- keep **automatic daily database backups** in `DATA_DIR/backups` (you choose how many are kept);
+- **restore** an uploaded or stored backup. A safety backup of the current state is written first.
+
+For a large library, back up the book folder with your usual NAS tools and only the database through Shelfy. To move to a new server: copy the library folder over, start Shelfy there, restore the database backup, then run *Check library*. From the command line:
+
+```bash
+docker exec shelfy python -m app.backup create                          # database only, into DATA_DIR/backups
+docker exec shelfy python -m app.backup create --full -o /data/full.zip # with book files
+docker exec shelfy python -m app.backup check                           # books with missing files
+
+# restoring from the command line: stop Shelfy first, then run a one-off container
+docker compose stop shelfy
+docker compose run --rm shelfy python -m app.backup restore /data/backups/<file>.zip
+docker compose start shelfy
+```
 
 ## Translations
 

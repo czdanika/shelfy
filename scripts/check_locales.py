@@ -40,12 +40,17 @@ def dynamic() -> set[str]:
             keys |= {short, title}
     keys |= {f"upload.src_{s}" for s in ("web", "folder")}
     keys |= {f"upload.status_{s}" for s in ("pending", "inspecting", "review", "done", "error", "rejected")}
-    keys |= {f"admin.nav_{s}" for s in ("users", "settings", "languages", "log")}
+    keys |= {f"admin.nav_{s}" for s in ("users", "settings", "languages", "log", "backup")}
     keys |= {f"admin.sec_{s}" for s in ("starttls", "ssl", "none")}
     keys |= {f"book.dl_{f}" for f in ("mobi", "azw3", "epub")}
     from app.events import GROUPS, KINDS
     keys |= {f"log.{k}" for k in KINDS} | {f"log.group_{g}" for g in GROUPS}
+    from app.tasks import KINDS as TASK_KINDS, STATUSES as TASK_STATUSES
+    keys |= {f"tasks.kind_{k}" for k in TASK_KINDS} | {f"tasks.status_{k}" for k in TASK_STATUSES}
+    keys |= {f"tasks.msg_{k}" for k in ("inspected", "unsupported", "exception", "interrupted", "sent", "failed", "approved_n",
+                                         "backup_done", "restored", "check_done", "duplicates_done")}
     keys |= {f"log.period_{p}" for p in ("1", "7", "30", "365", "all")}
+    keys |= {f"msg.restore_{k}" for k in ("notzip", "notshelfy", "corrupt", "confirm", "nofile")}
     keys |= {f"mail.src_{s}" for s in ("own", "global", "none")}
     keys |= {f"insp.src_{s}" for s in ("ok", "empty", "error")}
     keys |= {f"book.{f}" for f in ("title", "authors", "language", "publisher", "year", "isbn", "series", "description",

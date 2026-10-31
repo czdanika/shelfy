@@ -96,14 +96,40 @@ CREATE TABLE IF NOT EXISTS settings (key TEXT PRIMARY KEY, value TEXT);
 class Database:
     def __init__(self, path: Path) -> None:
         self.path = path
-        self.conn = sqlite3.connect(str(path), check_same_thread=False, isolation_level=None)
+        self.lock = threading.RLock()
+        self.after_open: list = []  # további sémák (pl. eseménynapló) újranyitáskor
+        self._open()
+
+    def _open(self) -> None:
+        self.conn = sqlite3.connect(str(self.path), check_same_thread=False, isolation_level=None)
         self.conn.row_factory = sqlite3.Row
         self.conn.execute("PRAGMA foreign_keys = ON")
         self.conn.execute("PRAGMA journal_mode = WAL")
-        self.lock = threading.RLock()
         with self.lock:
             self.conn.executescript(SCHEMA)
             self._migrate()
+            for fn in self.after_open:
+                fn(self)
+
+    def snapshot(self, dst: Path) -> None:
+        """Konzisztens másolat a futó adatbázisról (SQLite online backup)."""
+        with self.lock:
+            out = sqlite3.connect(str(dst))
+            try:
+                self.conn.backup(out)
+            finally:
+                out.close()
+
+    def replace_with(self, src: Path) -> None:
+        """A teljes adatbázis cseréje egy másik fájlra (visszaállítás); a kapcsolat újranyílik."""
+        with self.lock:
+            self.conn.close()
+            for suffix in ("-wal", "-shm"):
+                Path(str(self.path) + suffix).unlink(missing_ok=True)
+            tmp = self.path.with_suffix(".restore")
+            tmp.write_bytes(src.read_bytes())
+            tmp.replace(self.path)
+            self._open()
 
     def _migrate(self) -> None:
         """Új oszlopok felvétele a meglévő adatbázisokba (verzióváltáskor)."""

@@ -20,7 +20,7 @@ def login(c, username, password):
 
 def test_admin_pages_render(admin):
     for url in ("/admin", "/admin/users/new", "/admin/users/1", "/admin/settings", "/admin/languages",
-                "/admin/languages/hu", "/admin/languages/en", "/me", "/upload", "/books", "/browse/authors"):
+                "/admin/languages/hu", "/admin/languages/en", "/me", "/upload", "/books", "/browse/authors", "/tasks", "/about", "/admin/backup"):
         r = admin.get(url)
         assert r.status_code == 200, url
         assert "{{" not in r.text, url

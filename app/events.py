@@ -32,8 +32,8 @@ GROUPS = {
               "edited", "metadata_refreshed", "converted", "convert_failed", "deleted"),
     "sending": ("sent", "send_failed", "mail_test", "mail_test_failed"),
     "downloads": ("downloaded",),
-    "users": ("login", "login_failed", "user_created", "user_updated", "user_deleted", "password_reset",
-              "settings_saved"),
+    "users": ("login", "login_failed", "user_created", "user_updated", "user_deleted", "password_reset"),
+    "system": ("settings_saved", "backup_created", "backup_auto", "backup_restored", "backup_failed"),
 }
 KINDS = tuple(k for g in GROUPS.values() for k in g)
 
@@ -43,6 +43,7 @@ class Events:
         self.db = db
         with db.lock:
             db.conn.executescript(SCHEMA)
+        db.after_open.append(lambda d: d.conn.executescript(SCHEMA))  # visszaállítás után is legyen napló
         db.run("DELETE FROM events WHERE at < ?", (time.time() - keep_days * 86400,))
 
     def log(self, kind: str, user=None, book_id: int | None = None, ok: bool = True, user_id: int | None = None,

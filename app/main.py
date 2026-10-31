@@ -16,16 +16,18 @@ from pathlib import Path
 from urllib.parse import urlencode, urlsplit
 
 from fastapi import FastAPI, File, Form, Request, UploadFile
-from fastapi.responses import FileResponse, HTMLResponse, JSONResponse, RedirectResponse, Response
+from fastapi.responses import FileResponse, HTMLResponse, JSONResponse, RedirectResponse, Response, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
-from . import __version__
+from . import __author__, __url__, __version__
+from . import backup as bk
 from .categories import CATEGORIES
 from .auth import PERMS, ROLE_DEFAULTS, ROLES, Sessions, Throttle, User, hash_password, verify_password
 from .config import Config, load_config
 from .db import Database, now
 from .events import GROUPS, KINDS, Events
+from .tasks import Tasks
 from .i18n import REFERENCE, I18n
 from .images import thumbnail
 from .ingest import Ingest
@@ -61,7 +63,8 @@ def create_app(cfg: Config | None = None, transport=None) -> FastAPI:
     converter = Converter(cfg)
     lookup = Lookup(cfg.providers, transport=transport)
     events = Events(db)
-    ingest = Ingest(db, lib, converter, lookup, cfg.data_dir / "uploads", events=events,
+    tasks = Tasks(db)
+    ingest = Ingest(db, lib, converter, lookup, cfg.data_dir / "uploads", events=events, tasks=tasks,
                     online=cfg.online_lookup, default_lang=cfg.default_language, translate=i18n.t)
     covers_dir = cfg.data_dir / "cache" / "covers"
     covers_dir.mkdir(parents=True, exist_ok=True)
@@ -72,10 +75,25 @@ def create_app(cfg: Config | None = None, transport=None) -> FastAPI:
                   can_delete, created_at) VALUES(?, ?, ?, 'admin', 1, 1, 1, 1, ?)""",
                (cfg.admin_user, cfg.admin_user, hash_password(cfg.admin_password), now()))
 
+    async def auto_backups():
+        """Naponta egy adatbázis-mentés a DATA_DIR/backups mappába (kikapcsolható a beállításokban)."""
+        while True:
+            try:
+                if db.get_setting("auto_backup", "1") == "1":
+                    keep = int(db.get_setting("backup_keep") or 14)
+                    dst = await asyncio.to_thread(bk.auto_backup, db, cfg.data_dir, cfg.library_dir, cfg.secret_key, keep)
+                    if dst:
+                        events.log("backup_auto", name=dst.name)
+            except Exception as e:  # a mentés hibája ne állítsa le az appot
+                events.log("backup_failed", ok=False, error=f"{e.__class__.__name__}: {e}"[:200])
+            await asyncio.sleep(3600)
+
     @asynccontextmanager
     async def lifespan(_app):
         ingest.start(cfg.ingest_dir)
+        backup_task = asyncio.create_task(auto_backups())
         yield
+        backup_task.cancel()
         await ingest.stop()
         await lookup.close()
 
@@ -97,6 +115,7 @@ def create_app(cfg: Config | None = None, transport=None) -> FastAPI:
     tpl.env.filters["num"] = lambda x: (int(x) if isinstance(x, float) and x.is_integer() else x) if x not in (None, "") else ""
     tpl.env.filters["datetime"] = lambda ts: _dt.datetime.fromtimestamp(ts).strftime("%Y.%m.%d %H:%M") if ts else "–"
     app.state.db, app.state.lib, app.state.ingest = db, lib, ingest
+    app.state.tasks = tasks
 
     # ------------------------------------------------------------------ munkamenet, nyelv
     def session(request: Request) -> dict:
@@ -207,6 +226,7 @@ def create_app(cfg: Config | None = None, transport=None) -> FastAPI:
             base["shelves"] = [dict(r) for r in db.q("SELECT id, name FROM shelves WHERE user_id = ? ORDER BY name", (user.id,))]
             base["nav_counts"] = lib.counts()
             base["pending"] = db.val("SELECT COUNT(*) FROM uploads WHERE status IN ('pending','inspecting','review')")
+            base["active_tasks"] = tasks.active()
         base.update(ctx)
         resp = tpl.TemplateResponse(request, name, base, status_code=status)
         resp.headers["Cache-Control"] = "no-store"
@@ -503,7 +523,11 @@ def create_app(cfg: Config | None = None, transport=None) -> FastAPI:
         if not b:
             return Response(status_code=404)
         try:
-            p = await ensure_format(bid, fmt)
+            if fmt in KINDLE_FORMATS and not (lib.file_path(bid, fmt) and lib.file_path(bid, fmt).exists()):
+                with tasks.track("convert", user, f"{b['title']} → {fmt.upper()}"):
+                    p = await ensure_format(bid, fmt)
+            else:
+                p = await ensure_format(bid, fmt)
         except RuntimeError as e:
             events.log("convert_failed", user, bid, ok=False, title=b["title"], fmt=fmt.upper(), error=str(e)[-200:])
             return flash(f"/book/{bid}", "convert_error")
@@ -532,12 +556,15 @@ def create_app(cfg: Config | None = None, transport=None) -> FastAPI:
         if not src_fmt:
             return flash(f"/book/{bid}", "convert_nosrc")
         dst = Path(tempfile.mkstemp(suffix="." + target, dir=cfg.data_dir)[1])
+        tid = tasks.create("convert", user, subject=f"{b['title']} → {target.upper()}", status="running")
         try:
             await converter.convert(lib.file_path(bid, src_fmt), dst, convert_opts(b, target))
+            tasks.finish(tid, True)
             lib.add_file(bid, dst, target, await asyncio.to_thread(sha256_file, dst))
             events.log("converted", user, bid, title=b["title"], fmt=target.upper())
         except RuntimeError as e:
             events.log("convert_failed", user, bid, ok=False, title=b["title"], fmt=target.upper(), error=str(e)[-200:])
+            tasks.finish(tid, False, "exception", error=str(e)[-200:])
             return flash(f"/book/{bid}", "convert_error")
         finally:
             dst.unlink(missing_ok=True)
@@ -546,8 +573,11 @@ def create_app(cfg: Config | None = None, transport=None) -> FastAPI:
     async def send_to_kindle(user: User, bid: int) -> str:
         """Küldés + naplózás; az eredmény egy üzenetkulcs."""
         info: dict = {}
-        res = await _send_to_kindle(user, bid, info)
         b = lib.book(bid)
+        tid = tasks.create("send", user, subject=b["title"] if b else None, status="running")
+        res = await _send_to_kindle(user, bid, info)
+        tasks.finish(tid, res == "mail_sent", "sent" if res == "mail_sent" else "failed",
+                     to=user.kindle_email or "–", reason=res, error=info.get("error"))
         events.log("sent" if res == "mail_sent" else "send_failed", user, bid, ok=res == "mail_sent",
                    title=b["title"] if b else None, to=user.kindle_email, fmt=info.get("fmt"),
                    via=info.get("via"), reason=None if res == "mail_sent" else res, error=info.get("error"))
@@ -908,7 +938,10 @@ def create_app(cfg: Config | None = None, transport=None) -> FastAPI:
         if not user.can("can_upload"):
             return Response(status_code=403)
         n = 0
-        for r in db.q("SELECT id, candidates, duplicate_of FROM uploads WHERE status = 'review'"):
+        rows = db.q("SELECT id, candidates, duplicate_of FROM uploads WHERE status = 'review'")
+        tid = tasks.create("approve_all", user, subject=str(len(rows)), status="running")
+        for i, r in enumerate(rows):
+            tasks.progress(tid, 100 * i / max(1, len(rows)))
             cands = json.loads(r["candidates"] or "[]")
             if r["duplicate_of"]:
                 continue
@@ -916,6 +949,7 @@ def create_app(cfg: Config | None = None, transport=None) -> FastAPI:
             await ingest.approve(r["id"], ingest.proposal(r["id"], c), use_candidate_cover=c is not None,
                                  lang=lang_of(request, user), user=user)
             n += 1
+        tasks.finish(tid, True, "approved_n", n=n)
         return flash("/upload", "approved")
 
     @app.post("/upload/{uid}/reject")
@@ -1067,6 +1101,169 @@ def create_app(cfg: Config | None = None, transport=None) -> FastAPI:
         return render(request, "admin_log.html", rows=rows, total=total, page=page,
                       pages=max(1, math.ceil(total / LOG_PER_PAGE)), groups=list(GROUPS), users=users,
                       existing=existing, period=period, section="log")
+
+    # ------------------------------------------------------------------ névjegy
+    @app.get("/about", response_class=HTMLResponse)
+    async def about(request: Request):
+        import platform
+        import sys
+        return render(request, "about.html", author=__author__, url=__url__,
+                      python=f"{sys.version_info.major}.{sys.version_info.minor}.{sys.version_info.micro}",
+                      platform=f"{platform.system()} {platform.machine()}",
+                      tools={"ebook-meta": converter.has_meta, "ebook-convert": converter.has_convert},
+                      counts=lib.counts(), languages_n=len(i18n.languages))
+
+    # ------------------------------------------------------------------ háttérfeladatok
+    def task_text(lang: str, t: dict) -> str:
+        m = dict(t.get("message") or {})
+        key = m.pop("key", None)
+        if not key:
+            return ""
+        if m.get("reason"):
+            m["reason"] = i18n.t(lang, "msg." + m["reason"])
+        if "size" in m:
+            m["size"] = tpl.env.filters["filesize"](m["size"])
+        try:
+            return i18n.t(lang, "tasks.msg_" + key).format_map(_Safe(m))
+        except (ValueError, IndexError):
+            return key
+
+    @app.get("/tasks", response_class=HTMLResponse)
+    async def tasks_page(request: Request):
+        user: User = request.state.user
+        rows = tasks.list(None if user.is_admin else user.id)
+        lang = lang_of(request, user)
+        for r in rows:
+            r["text"] = task_text(lang, r)
+        return render(request, "tasks.html", rows=rows, busy=any(r["status"] in ("queued", "running") for r in rows),
+                      msg=request.query_params.get("msg"))
+
+    @app.get("/tasks.json")
+    async def tasks_json(request: Request):
+        user: User = request.state.user
+        rows = tasks.list(None if user.is_admin else user.id, limit=50)
+        return {"active": tasks.active(), "items": [{"id": r["id"], "status": r["status"], "progress": r["progress"]} for r in rows]}
+
+    @app.post("/tasks/run/{kind}")
+    async def tasks_run(request: Request, kind: str):
+        user: User = request.state.user
+        if not user.is_admin or kind not in ("check", "duplicates"):
+            return Response(status_code=403)
+        tid = tasks.create(kind, user, status="running")
+
+        async def job():
+            try:
+                if kind == "check":
+                    missing = await asyncio.to_thread(bk.check_library, db, cfg.library_dir)
+                    tasks.finish(tid, not missing, "check_done", n=len(missing))
+                else:
+                    groups = await asyncio.to_thread(lib.duplicate_groups)
+                    tasks.finish(tid, True, "duplicates_done", n=len(groups))
+            except Exception as e:
+                tasks.finish(tid, False, "exception", error=f"{e.__class__.__name__}: {e}"[:200])
+        app.state.bg = asyncio.create_task(job())
+        return flash("/tasks", "task_started")
+
+    # ------------------------------------------------------------------ mentés és visszaállítás
+    def backup_dir() -> Path:
+        d = cfg.data_dir / "backups"
+        d.mkdir(parents=True, exist_ok=True)
+        return d
+
+    @app.get("/admin/backup", response_class=HTMLResponse)
+    async def admin_backup(request: Request):
+        p = request.query_params
+        lib_size = await asyncio.to_thread(bk.library_size, cfg.library_dir)
+        missing = await asyncio.to_thread(bk.check_library, db, cfg.library_dir) if p.get("check") else None
+        result = None
+        if p.get("restored"):
+            result = {k: p.get(k) for k in ("books", "files", "missing", "safety")}
+        return render(request, "admin_backup.html", section="backup", backups=bk.list_backups(cfg.data_dir),
+                      lib_size=lib_size, db_size=(cfg.data_dir / bk.DB_NAME).stat().st_size,
+                      auto=db.get_setting("auto_backup", "1") == "1", keep=int(db.get_setting("backup_keep") or 14),
+                      missing=missing, result=result, msg=p.get("msg"),
+                      library_dir=str(cfg.library_dir), data_dir=str(cfg.data_dir))
+
+    @app.get("/admin/backup/download")
+    async def admin_backup_download(request: Request, full: int = 0):
+        name = bk.backup_name(bool(full))
+        events.log("backup_created", request.state.user, name=name, full="1" if full else None)
+        return StreamingResponse(bk.stream_backup(db, cfg.data_dir, cfg.library_dir, cfg.secret_key, bool(full)),
+                                 media_type="application/zip", headers=disposition(name))
+
+    @app.get("/admin/backup/file/{name}")
+    async def admin_backup_file(request: Request, name: str):
+        p = backup_dir() / Path(name).name
+        if not p.is_file() or p.suffix != ".zip":
+            return Response(status_code=404)
+        return FileResponse(p, media_type="application/zip", headers=disposition(p.name))
+
+    @app.post("/admin/backup/file/{name}/delete")
+    async def admin_backup_delete(request: Request, name: str):
+        (backup_dir() / Path(name).name).unlink(missing_ok=True)
+        return flash("/admin/backup", "deleted")
+
+    @app.post("/admin/backup/settings")
+    async def admin_backup_settings(request: Request, keep: int = Form(14), auto: str = Form("")):
+        db.set_setting("auto_backup", "1" if auto else "0")
+        db.set_setting("backup_keep", str(max(1, min(365, keep))))
+        return flash("/admin/backup", "saved")
+
+    @app.post("/admin/backup/now")
+    async def admin_backup_now(request: Request, full: str = Form("")):
+        name = bk.backup_name(bool(full))
+        user = request.state.user
+        tid = tasks.create("backup", user, subject=name, status="running")
+
+        async def job():
+            try:
+                await asyncio.to_thread(bk.write_backup, db, cfg.data_dir, cfg.library_dir, cfg.secret_key, bool(full),
+                                        backup_dir() / name)
+                tasks.finish(tid, True, "backup_done", size=(backup_dir() / name).stat().st_size)
+                events.log("backup_created", user, name=name, full="1" if full else None)
+            except Exception as e:
+                tasks.finish(tid, False, "exception", error=f"{e.__class__.__name__}: {e}"[:200])
+        app.state.bg = asyncio.create_task(job())
+        return flash("/tasks", "task_started")
+
+    @app.post("/admin/backup/restore")
+    async def admin_backup_restore(request: Request, file: UploadFile = File(None), name: str = Form(""),
+                                   library: str = Form(""), confirm: str = Form("")):
+        user: User = request.state.user
+        if not confirm:
+            return flash("/admin/backup", "restore_confirm")
+        tmp = None
+        if name:
+            src = backup_dir() / Path(name).name
+        else:
+            if not file or not file.filename:
+                return flash("/admin/backup", "restore_nofile")
+            tmp = Path(tempfile.mkstemp(suffix=".zip", dir=cfg.data_dir)[1])
+            with tmp.open("wb") as f:
+                while chunk := await file.read(1 << 20):
+                    f.write(chunk)
+            src = tmp
+        try:
+            res = await asyncio.to_thread(bk.restore_backup, src, db, cfg.data_dir, cfg.library_dir, sessions,
+                                          cfg.secret_key, bool(library))
+        except bk.RestoreError as e:
+            return flash("/admin/backup", f"restore_{e}")
+        finally:
+            if tmp:
+                tmp.unlink(missing_ok=True)
+        i18n.reload()
+        tasks.finish(tasks.create("restore", user, subject=name or (file.filename if file else ""), status="running"),
+                     True, "restored", books=res["books"], files=res["restored_files"], missing=res["missing"])
+        events.log("backup_restored", user, name=name or (file.filename if file else ""), books=res["books"],
+                   files=res["restored_files"], missing=res["missing"])
+        resp = RedirectResponse("/admin/backup?" + urlencode({"restored": 1, "books": res["books"], "files": res["restored_files"],
+                                                               "missing": res["missing"], "safety": res["safety"]}),
+                                status_code=303)
+        u = db.one("SELECT * FROM users WHERE id = ?", (user.id,))
+        if u:  # ha a mentésben is ugyanez a felhasználó van, bent marad
+            nu = User.from_row(u)
+            save(request, resp, {"uid": nu.id, "fp": nu.fingerprint})
+        return resp
 
     @app.get("/admin/settings", response_class=HTMLResponse)
     async def admin_settings(request: Request):

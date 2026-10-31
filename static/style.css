@@ -424,3 +424,29 @@ input[type=text],input[type=password],input[type=email],input[type=number],input
 .help dt{font-weight:600;margin-top:10px}
 .help dd{margin:2px 0 8px 0;color:var(--text-2)}
 @media (max-width:900px){.helpwrap{grid-template-columns:1fr}.helptoc{position:static;flex-direction:row;flex-wrap:wrap}}
+
+/* mentés */
+.bk-options{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px}
+.bk-opt{display:flex;flex-direction:column;gap:8px;padding:14px;border:1px solid var(--line)}
+.bklist{list-style:none;margin:0;padding:0;display:flex;flex-direction:column}
+.bklist li{display:flex;flex-direction:column;gap:4px;padding:8px 0;border-bottom:1px solid var(--line)}
+.bklist li:last-child{border-bottom:0}
+.bklist .mono{overflow-wrap:anywhere}
+
+/* névjegy */
+.about{max-width:720px;display:flex;flex-direction:column;gap:14px}
+.about-logo{display:flex;align-items:center;gap:16px}
+.about-lead{font-size:16px;color:var(--text-2);margin:0}
+.about h2{font-size:18px;font-weight:600;margin-top:8px}
+.about-credits{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:4px}
+.sidestats a{color:var(--side-muted)}
+.sidestats a:hover{color:#fff}
+/* háttérfeladatok */
+.tasktable{width:100%;border-collapse:collapse;font-size:14px}
+.tasktable th{text-align:left;font-weight:600;font-size:12px;color:var(--muted);padding:10px 12px;border-bottom:1px solid var(--line);white-space:nowrap}
+.tasktable td{padding:10px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+.tasktable tr:last-child td{border-bottom:0}
+.tasktable .subj{max-width:280px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pbar{display:inline-block;width:90px;height:6px;border-radius:3px;background:var(--line);vertical-align:middle;margin-right:6px;overflow:hidden}
+.pbar i{display:block;height:100%;background:var(--accent)}
+.st-error .pbar i{background:var(--danger)} .st-done .pbar i{background:var(--ok)}
