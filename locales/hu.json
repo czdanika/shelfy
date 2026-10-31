@@ -755,5 +755,18 @@
     "min": "perc",
     "hour": "óra",
     "learning": "tanulja az olvasási tempódat…"
+  },
+  "install": {
+    "title": "Telepítsd a Shelfyt appként",
+    "text": "Saját ikonnal, teljes képernyőn nyílik a kezdőképernyőről – olvasáshoz is kényelmesebb.",
+    "button": "Telepítés",
+    "later": "Később",
+    "close": "Bezárás",
+    "ios_1": "A böngészőben koppints a Megosztás gombra",
+    "ios_2": "Válaszd a „Főképernyőhöz adás” lehetőséget",
+    "ios_3": "Majd a „Hozzáadás” gombot – a Shelfy megjelenik az appjaid között",
+    "android_1": "Nyisd meg a böngésző menüjét",
+    "android_2": "Válaszd az „Alkalmazás telepítése” vagy a „Hozzáadás a kezdőképernyőhöz” pontot",
+    "menu": "Telepítés appként"
   }
 }

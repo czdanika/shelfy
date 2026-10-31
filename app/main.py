@@ -48,7 +48,7 @@ OLD_KINDLE_UA = re.compile(r"Kindle/(?:[12]\.\d|3\.0(?!\+))")
 KINDLE_UA = re.compile(r"Kindle|Silk/")
 # bejelentkezés nélkül böngészhető oldalak (ha az admin bekapcsolta)
 GUEST_PATHS = re.compile(r"/|/books|/browse/[a-z]+|/book/\d+|/book/\d+/cover|/help|/about")
-PUBLIC = ("/theme/", "/login", "/setup", "/static/", "/lang", "/health")
+PUBLIC = ("/theme/", "/login", "/setup", "/static/", "/lang", "/health", "/sw.js")
 SMTP_KEYS = ("smtp_host", "smtp_port", "smtp_security", "smtp_user", "smtp_password", "smtp_from")
 FACETS = {"authors": "author", "series": "series", "tags": "tag", "publishers": "publisher",
           "languages": "lang", "formats": "fmt", "ratings": "rating"}
@@ -402,6 +402,18 @@ def create_app(cfg: Config | None = None, transport=None) -> FastAPI:
         if (code := i18n.resolve(code)):
             resp.set_cookie("shelfy_lang", code, max_age=YEAR, samesite="lax")
         return resp
+
+    SW_JS = (
+        "// Shelfy: minimal service worker - only makes the site installable as an app; nothing is cached\n"
+        "self.addEventListener('install', function () { self.skipWaiting(); });\n"
+        "self.addEventListener('activate', function (e) { e.waitUntil(self.clients.claim()); });\n"
+        "self.addEventListener('fetch', function () {});\n"
+    )
+
+    @app.get("/sw.js")
+    async def service_worker():
+        return Response(SW_JS, media_type="application/javascript",
+                        headers={"Cache-Control": "no-cache", "Service-Worker-Allowed": "/"})
 
     @app.get("/health")
     async def health():

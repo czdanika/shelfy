@@ -755,5 +755,18 @@
     "min": "Min.",
     "hour": "Std.",
     "learning": "lernt dein Lesetempo…"
+  },
+  "install": {
+    "title": "Shelfy als App installieren",
+    "text": "Öffnet sich im Vollbild mit eigenem Symbol auf dem Startbildschirm – auch praktisch zum Lesen.",
+    "button": "Installieren",
+    "later": "Später",
+    "close": "Schließen",
+    "ios_1": "Tippe im Browser auf die Teilen-Taste",
+    "ios_2": "Wähle „Zum Home-Bildschirm“",
+    "ios_3": "Dann auf „Hinzufügen“ tippen – Shelfy erscheint bei deinen Apps",
+    "android_1": "Öffne das Browsermenü",
+    "android_2": "Wähle „App installieren“ oder „Zum Startbildschirm hinzufügen“",
+    "menu": "Als App installieren"
   }
 }

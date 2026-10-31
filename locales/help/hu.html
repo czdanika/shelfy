@@ -20,7 +20,7 @@
   <li><strong>Formátum, épség</strong> – valóban az-e a fájl, aminek a kiterjesztése mondja, és nem sérült-e.</li>
   <li><strong>Azonos fájl, duplikátum</strong> – megvan-e már ugyanez a fájl, vagy ugyanilyen című és szerzőjű könyv.</li>
   <li><strong>Adatok a fájlból, borító</strong> – mit sikerült kiolvasni, és mekkora a beágyazott borító.</li>
-  <li><strong>Online keresés</strong> – a Moly.hu, a Google Books és az Open Library találatai, egyezési százalékkal.</li>
+  <li><strong>Online keresés</strong> – a bekapcsolt online források találatai (lásd <a href="#settings">Beállítások → Online források</a>), egyezési százalékkal.</li>
   <li><strong>Kategória</strong> – javaslat a címkék és a leírás alapján.</li>
 </ul>
 <p>Az átnézés oldalon:</p>
@@ -55,6 +55,39 @@
   <li><strong>Előzmények</strong> – ki mikor töltötte le, küldte el vagy szerkesztette (szerkesztőknek látszik).</li>
 </ul>
 
+<h2 id="reader">Olvasás a böngészőben</h2>
+<p>A könyv oldalán az <em>Olvasás</em> gombbal a könyv rögtön a böngészőben nyílik meg – számítógépen, tableten, telefonon. A Shelfy felhasználónként megjegyzi, hol tartasz: a gomb ilyenkor <em>Olvasás folytatása</em> a százalékkal, és másik eszközön is ott folytathatod, ahol abbahagytad.</p>
+<ul>
+  <li>Az EPUB közvetlenül nyílik. A MOBI, AZW3 és más formátumokat első megnyitáskor EPUB-bá alakítja (néhány másodperc, a Feladatok között követhető). A PDF a böngésző saját PDF-nézőjében nyílik meg.</li>
+  <li>Olvasáshoz letöltési jog kell; bejelentkezés nélkül böngésző vendégek nem olvashatnak.</li>
+</ul>
+<h3>Lapozás</h3>
+<ul>
+  <li><strong>Koppints vagy kattints</strong> a lap jobb oldalára az előrelapozáshoz, a bal harmadára a visszalapozáshoz – mint egy e-könyv-olvasón.</li>
+  <li>A <strong>felső sávra</strong> koppintva előjön vagy eltűnik a felső és alsó menü, így csak a szöveg marad.</li>
+  <li>Lapozhatsz <strong>húzással</strong> (balra/jobbra), billentyűzeten a nyilakkal, szóközzel és a Page Up/Down gombokkal is.</li>
+  <li>Az alsó <strong>csúszkával</strong> a könyv bármely pontjára ugorhatsz; a ≡ gomb a <em>Tartalom</em>.</li>
+</ul>
+<h3>Szövegbeállítások (Aa)</h3>
+<ul>
+  <li><strong>Háttér:</strong> világos, szépia vagy sötét.</li>
+  <li><strong>Betűméret</strong>, <strong>betűtípus</strong> (ahogy a könyvben, Literata, Georgia, a különösen jól olvasható Atkinson Hyperlegible, vagy egyszerű talpatlan), <strong>sorköz</strong>, <strong>margó</strong>.</li>
+  <li><strong>Igazítás</strong> (sorkizárt vagy balra zárt), <strong>elválasztás</strong> be/ki.</li>
+  <li><strong>Elrendezés:</strong> két hasáb, ha széles a képernyő (pl. fekvő tablet), vagy mindig egy; <strong>lapozás</strong> vagy folyamatos <strong>görgetés</strong>.</li>
+</ul>
+<p>A beállításokat eszközönként külön jegyzi meg, így a telefon és a tablet lehet eltérő.</p>
+<h3>Haladás</h3>
+<p>A lap alatti sor mutatja, hol tartasz. Rákoppintva vált: százalék, a fejezetből hátralévő idő, a könyvből hátralévő idő, oldal a fejezetben. A Shelfy megtanulja az olvasási tempódat, így néhány oldal után pontos az időbecslés. A könyv végére érve a könyv elolvasottnak számít.</p>
+<h3>Könyvjelzők, kiemelések, jegyzetek</h3>
+<ul>
+  <li><strong>Könyvjelző:</strong> a felső sáv könyvjelző ikonja megjelöli az aktuális oldalt (újra koppintva törli).</li>
+  <li><strong>Kiemelés:</strong> jelölj ki szöveget (érintőképernyőn: nyomd hosszan, majd húzd a fogantyúkat), és válassz színt. Itt <em>jegyzetet</em> is írhatsz hozzá.</li>
+  <li>Egy meglévő kiemelésre koppintva módosíthatod a színét, a jegyzetet, vagy törölheted.</li>
+  <li>A ≡ panelen a <em>Könyvjelzők</em> és a <em>Kiemelések</em> külön fülön látszanak; rájuk koppintva oda ugrik.</li>
+</ul>
+<p>A könyvjelzők, kiemelések és jegyzetek a szerveren, a fiókodhoz mentődnek, így minden eszközön megvannak.</p>
+<p class="tip">Tableten és telefonon érdemes a Shelfyt a kezdőképernyőre tenni (lásd <a href="#kindle">Kindle → Telefonon</a>): így az olvasó teljes képernyőn, a böngésző sávjai nélkül nyílik meg – mint egy e-könyv-olvasó app. Olvasáshoz kapcsolat kell a Shelfyhez.</p>
+
 <h2 id="kindle">Kindle</h2>
 <h3>Küldés e-mailben</h3>
 <ol>
@@ -66,26 +99,50 @@
 <h3>Letöltés a Kindle böngészőjéből</h3>
 <p>Kindle-ről megnyitva a Shelfy magától az egyszerű, e-ink-barát Kindle-nézetet mutatja. A <em>Beállítások</em> alatt válaszd ki, újabb (AZW3) vagy régebbi Kindle-t (csak MOBI) használsz. Régi Kindle-lel a helyi hálózati címet használd (http://…), mert a régi böngésző sok HTTPS-oldalt nem tud megnyitni.</p>
 <h3>Telefonon</h3>
-<p>A böngésző menüjében a „Hozzáadás a kezdőképernyőhöz” után a Shelfy saját ikonnal, külön appként nyílik meg.</p>
+<p>Telefonon és tableten a bal oldali menü elrejtőzik: bal felül a ☰ gombbal nyílik (benne a téma, a nyelv és a súgó is). A böngésző menüjében a „Hozzáadás a kezdőképernyőhöz” után a Shelfy saját ikonnal, külön appként nyílik meg – iPhone-on és iPaden Safariban: Megosztás → Főképernyőhöz adás. Telefonon és tableten a Shelfy ezt egy kis ablakban magától is felajánlja; később a ☰ menüben a „Telepítés appként” pontnál találod.</p>
 
 <h2 id="account">Saját fiók</h2>
 <ul>
   <li>Megjelenített név, felület nyelve, Kindle e-mail cím, jelszócsere.</li>
   <li>Saját e-mail küldés (SMTP) – ha üresen hagyod, a közös fiók megy.</li>
   <li>Tevékenységeim – a saját letöltéseid, küldéseid és feltöltéseid listája.</li>
-  <li>A felső sávban a nyelv és a megjelenés (automatikus / világos / sötét) is állítható.</li>
+  <li>A felső sávban a nyelv és a megjelenés (automatikus / világos / sötét) is állítható – telefonon és tableten a ☰ menüben.</li>
 </ul>
 
 <h2 id="admin">Adminisztrátoroknak</h2>
 <ul>
   <li><strong>Felhasználók</strong> – szerepkörök: adminisztrátor (mindenhez hozzáfér), szerkesztő, olvasó; a jogok (feltöltés, szerkesztés, letöltés, törlés) egyenként is állíthatók. Itt adhatsz meg valakinek saját e-mail beállítást is.</li>
-  <li><strong>Beállítások</strong> – közös e-mail küldés (SMTP), próba e-mail, automatikus felvétel, könyvtár statisztika, rendszerállapot.</li>
+  <li><strong>Beállítások</strong> – külön menüpont a bal oldalon; részletesen a <a href="#settings">Beállítások</a> résznél.</li>
   <li><strong>Nyelvek</strong> – minden felirat fordítható; itt látszik, mennyire teljes egy nyelv, és új nyelv is felvehető. A felületen szerkesztett fordítások a frissítéskor sem vesznek el.</li>
   <li><strong>Napló</strong> – minden fontos esemény időbélyeggel: feltöltés, felvétel, küldés (hibával együtt), letöltés, belépés, beállításváltozás. Szűrhető típusra, felhasználóra, időszakra, és csak a hibák is megjeleníthetők.</li>
 </ul>
 <h3>Elfelejtett jelszó</h3>
 <p>Egy felhasználó jelszavát az admin a Felhasználók oldalon állíthatja vissza. Ha az admin a sajátját felejtette el, a szerveren:</p>
 <pre>docker exec -it shelfy python -m app.reset_password &lt;felhasználónév&gt;</pre>
+
+<h2 id="settings">Beállítások</h2>
+<p>Adminisztrátoroknak: a bal menü <a href="/admin/settings">Beállítások</a> pontja. A változások azonnal érvényesek, nem kell újraindítani.</p>
+<h3>Általános</h3>
+<ul>
+  <li><strong>Alapnyelv</strong> – a felület nyelve a látogatóknak és az új felhasználóknak; ezen a nyelven kerülnek a kategória-címkék a könyvekhez. Mindenki választhat saját nyelvet.</li>
+  <li><strong>Online adatkeresés</strong> – keressen-e online forrásokban feltöltéskor és a könyv oldalán.</li>
+  <li><strong>Figyelt mappa figyelése</strong> – kikapcsolva szünetel, például amíg rendezed a mappát. (Magát a mappát telepítéskor kell megadni.)</li>
+  <li><strong>Biztos egyezésnél automatikus felvétel</strong> – ami legalább 85%-ban egyezik és nem duplikátum, átnézés nélkül bekerül.</li>
+</ul>
+<h3>Hozzáférés</h3>
+<p><strong>Böngészés bejelentkezés nélkül</strong> – fiók nélkül is végig lehet nézni a könyvtárat, keresni és megnyitni a könyvek oldalát. Letöltéshez, olvasáshoz, Kindle-re küldéshez, polcokhoz és minden módosításhoz továbbra is be kell jelentkezni.</p>
+<h3>Online források</h3>
+<p>Melyik adatbázisokban keresse a könyveket, és milyen fontossági sorrendben:</p>
+<ul>
+  <li><strong>Moly.hu</strong> – magyar könyves adatbázis leírással, sorozattal, címkékkel; magyar könyvekhez a legjobb forrás.</li>
+  <li><strong>Google Books</strong> – világszerte, sok nyelven; leírás és borító.</li>
+  <li><strong>Open Library</strong> – ingyenes, világméretű katalógus; régebbi és angol nyelvű könyvekhez jó.</li>
+  <li><strong>DNB</strong> (német), <strong>BnF</strong> (francia), <strong>Biblioteka Narodowa</strong> (lengyel), <strong>NDL</strong> (japán) – nemzeti könyvtárak, az adott országban kiadott könyvekhez.</li>
+</ul>
+<p>Pipáld be a használni kívánt forrásokat, és a nyilakkal állítsd sorba őket. A Shelfy egyszerre mindegyikben keres, és a találatokat az egyezés szerint rangsorolja; ha két találat nagyjából egyformán jó, a listában feljebb álló forrás nyer. A <em>Javasolt beállítás</em> gomb az alapnyelvhez illő listát állít be – magyar könyvekhez általában a Moly.hu egyedül is elég.</p>
+<p class="tip">Saját kulcs nélkül a Google Books egy kicsi, közös kvótát ad, ami gyakran elfogy (a vizsgálati jegyzőkönyvben „HTTP 429” hiba). Ezt egy ingyenes, a Google Cloud konzolban kérhető <em>Google Books API-kulcs</em> megoldja; titkosítva tárolódik.</p>
+<h3>E-mail</h3>
+<p>A közös e-mail fiók (SMTP) a Kindle-re küldéshez, próba e-mail gombbal.</p>
 
 <h2 id="backup">Mentés, visszaállítás, költözés</h2>
 <p>A Shelfy két részből áll:</p>
@@ -125,4 +182,8 @@ docker compose start shelfy</pre>
   <dd>A könyv oldalán az <em>Online adatok</em> gombbal újra kereshetsz, vagy a <em>Szerkesztés</em>sel kézzel javíthatsz.</dd>
   <dt>Hiányzik a borító.</dt>
   <dd>A <em>Hiányos adatok</em> nézet listázza a borító vagy leírás nélküli könyveket; az Online adatok vagy a Szerkesztés (borító feltöltése) segít.</dd>
+  <dt>Nem nyílik meg a könyv az olvasóban.</dt>
+  <dd>Az EPUB-on és PDF-en kívüli formátumokat előbb át kell alakítani – ha ez nem sikerül, az olvasó jelzi, de letölteni ettől még le tudod. Az okát a Feladatok oldal mutatja.</dd>
+  <dt>Tableten a lapra koppintva nem lapoz.</dt>
+  <dd>Görgetés módban a koppintás csak a sávokat rejti el/hozza elő – az Aa alatt válts <em>Lapozás</em>ra. Linkre koppintva vagy kijelölt szövegnél sem lapoz.</dd>
 </dl>

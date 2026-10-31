@@ -755,5 +755,18 @@
     "min": "dk",
     "hour": "sa",
     "learning": "okuma hızınızı öğreniyor…"
+  },
+  "install": {
+    "title": "Shelfy’yi uygulama olarak yükleyin",
+    "text": "Ana ekranda kendi simgesiyle tam ekran açılır – okumak için de daha rahat.",
+    "button": "Yükle",
+    "later": "Daha sonra",
+    "close": "Kapat",
+    "ios_1": "Tarayıcıda Paylaş düğmesine dokunun",
+    "ios_2": "“Ana Ekrana Ekle”yi seçin",
+    "ios_3": "Sonra “Ekle”ye dokunun – Shelfy uygulamalarınız arasında görünür",
+    "android_1": "Tarayıcı menüsünü açın",
+    "android_2": "“Uygulamayı yükle” veya “Ana ekrana ekle”yi seçin",
+    "menu": "Uygulama olarak yükle"
   }
 }

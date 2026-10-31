@@ -1,0 +1,54 @@
+{# Telepítés appként: Androidon a böngésző saját telepítő ablaka, iOS-en lépésenkénti útmutató #}
+<div class="installpop" id="installpop" role="dialog" aria-modal="false" aria-labelledby="install-title" hidden>
+  <button class="x" type="button" data-install-close aria-label="{{ t('install.close') }}">×</button>
+  <div class="head">
+    <img src="/static/icons/shelfy-icon-192.png" width="48" height="48" alt="">
+    <div><strong id="install-title">{{ t('install.title') }}</strong><p>{{ t('install.text') }}</p></div>
+  </div>
+  <div class="how" data-mode="prompt">
+    <button class="btn primary" type="button" data-install-go>{{ t('install.button') }}</button>
+  </div>
+  <ol class="how" data-mode="ios">
+    <li>{{ t('install.ios_1') }} <svg class="ios-share" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-label="↑"><path d="M12 3v12M8 7l4-4 4 4"/><path d="M6 11H5a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-8a1 1 0 0 0-1-1h-1"/></svg></li>
+    <li>{{ t('install.ios_2') }}</li>
+    <li>{{ t('install.ios_3') }}</li>
+  </ol>
+  <ol class="how" data-mode="android">
+    <li>{{ t('install.android_1') }} <strong>⋮</strong></li>
+    <li>{{ t('install.android_2') }}</li>
+  </ol>
+  <div class="foot"><button class="btn" type="button" data-install-close>{{ t('install.later') }}</button></div>
+</div>
+<script>
+(function () {
+  if ('serviceWorker' in navigator) { navigator.serviceWorker.register('/sw.js').catch(function () {}); }
+  var pop = document.getElementById('installpop'), deferred = null, KEY = 'shelfy-install-later';
+  var ua = navigator.userAgent;
+  var ios = /iPhone|iPad|iPod/.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  var android = /Android/.test(ua);
+  var standalone = (window.matchMedia && matchMedia('(display-mode: standalone)').matches) || navigator.standalone === true;
+  function store(k, v) { try { if (v === undefined) return localStorage.getItem(k); localStorage.setItem(k, v); } catch (e) { return null; } }
+  function mode() { return deferred ? 'prompt' : ios ? 'ios' : android ? 'android' : null; }
+  function show() {
+    var m = mode(); if (!m || standalone) return false;
+    pop.querySelectorAll('.how').forEach(function (h) { h.hidden = h.dataset.mode !== m; });
+    pop.hidden = false; document.body.classList.add('install-open'); return true;
+  }
+  function hide(later) { pop.hidden = true; document.body.classList.remove('install-open'); if (later) store(KEY, String(Date.now())); }
+  window.shelfyInstall = function () { if (!show()) location.href = '/help#kindle'; };
+  pop.querySelectorAll('[data-install-close]').forEach(function (b) { b.onclick = function () { hide(true); }; });
+  pop.querySelector('[data-install-go]').onclick = function () {
+    if (!deferred) return; deferred.prompt();
+    deferred.userChoice.then(function (r) { deferred = null; hide(r.outcome !== 'accepted'); });
+  };
+  window.addEventListener('beforeinstallprompt', function (e) { e.preventDefault(); deferred = e; markLink(); if (!pop.hidden) show(); });
+  window.addEventListener('appinstalled', function () { hide(false); standalone = true; markLink(); });
+  function markLink() { document.querySelectorAll('[data-install-link]').forEach(function (a) { a.hidden = standalone || !mode(); }); }
+  markLink();
+  // magától csak telefonon/tableten, és ha az elmúlt 30 napban nem mondták, hogy „később”
+  var later = +store(KEY) || 0;
+  if (!standalone && (ios || android) && !/\/reader/.test(location.pathname) && !/^\/(login|setup)/.test(location.pathname) && Date.now() - later > 30 * 864e5) {
+    setTimeout(function () { show(); }, 2500);
+  }
+})();
+</script>

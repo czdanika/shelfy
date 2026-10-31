@@ -20,7 +20,7 @@
   <li><strong>Format, intégrité</strong> – le fichier est-il bien ce qu’indique son extension, et est-il intact ?</li>
   <li><strong>Fichier identique, doublon</strong> – ce fichier exact, ou un livre de même titre et auteur, est-il déjà dans la bibliothèque ?</li>
   <li><strong>Métadonnées intégrées, couverture</strong> – ce qui a pu être lu dans le fichier et la taille de la couverture intégrée.</li>
-  <li><strong>Recherche en ligne</strong> – les correspondances de Moly.hu, Google Books et Open Library, avec un pourcentage.</li>
+  <li><strong>Recherche en ligne</strong> – résultats des sources en ligne activées (voir <a href="#settings">Paramètres → Sources en ligne</a>), avec un pourcentage de correspondance.</li>
   <li><strong>Catégorie</strong> – une suggestion d’après les étiquettes et la description.</li>
 </ul>
 <p>Sur la page de vérification :</p>
@@ -55,6 +55,39 @@
   <li><strong>Historique</strong> – qui a téléchargé, envoyé ou modifié le livre, et quand (visible pour les éditeurs).</li>
 </ul>
 
+<h2 id="reader">Lire dans le navigateur</h2>
+<p>Le bouton <em>Lire</em> de la page d’un livre l’ouvre directement dans le navigateur – sur ordinateur, tablette ou téléphone. Shelfy retient, pour chaque utilisateur, où vous vous êtes arrêté : le bouton affiche alors <em>Reprendre la lecture</em> avec le pourcentage, et vous pouvez continuer au même endroit sur un autre appareil.</p>
+<ul>
+  <li>L’EPUB s’ouvre directement. Les MOBI, AZW3 et autres formats sont convertis en EPUB à la première ouverture (quelques secondes ; visible dans Tâches). Le PDF s’ouvre dans le lecteur PDF du navigateur.</li>
+  <li>La lecture nécessite le droit de téléchargement ; les visiteurs non connectés ne peuvent pas lire.</li>
+</ul>
+<h3>Tourner les pages</h3>
+<ul>
+  <li><strong>Touchez ou cliquez</strong> le côté droit de la page pour avancer et le tiers gauche pour revenir – comme sur une liseuse.</li>
+  <li>Une touche sur la <strong>bande du haut</strong> affiche ou masque les barres du haut et du bas, pour ne garder que le texte.</li>
+  <li>Vous pouvez aussi <strong>balayer</strong> vers la gauche ou la droite, ou utiliser au clavier les flèches, Espace et Page préc./suiv.</li>
+  <li>Le <strong>curseur</strong> en bas permet d’aller n’importe où dans le livre ; le bouton ≡ ouvre le <em>Sommaire</em>.</li>
+</ul>
+<h3>Réglages du texte (Aa)</h3>
+<ul>
+  <li><strong>Fond :</strong> clair, sépia ou sombre.</li>
+  <li><strong>Taille du texte</strong>, <strong>police</strong> (comme dans le livre, Literata, Georgia, Atkinson Hyperlegible – particulièrement lisible – ou une simple sans empattements), <strong>interligne</strong>, <strong>marges</strong>.</li>
+  <li><strong>Alignement</strong> (justifié ou à gauche), <strong>césure</strong> activée/désactivée.</li>
+  <li><strong>Mise en page :</strong> deux colonnes si l’écran est large (p. ex. tablette à l’horizontale) ou toujours une ; <strong>pages</strong> ou <strong>défilement</strong> continu.</li>
+</ul>
+<p>Les réglages sont mémorisés par appareil : le téléphone et la tablette peuvent être différents.</p>
+<h3>Progression</h3>
+<p>La ligne sous la page indique où vous en êtes. Touchez-la pour alterner entre : pourcentage, temps restant dans le chapitre, temps restant dans le livre et page dans le chapitre. Shelfy apprend votre rythme de lecture, les estimations deviennent donc précises après quelques pages. Arrivé à la fin, le livre est marqué comme lu.</p>
+<h3>Signets, surlignages, notes</h3>
+<ul>
+  <li><strong>Signet :</strong> l’icône de signet en haut marque la page actuelle (une nouvelle touche le retire).</li>
+  <li><strong>Surlignage :</strong> sélectionnez du texte (sur écran tactile : appui long, puis faites glisser les poignées) et choisissez une couleur. Vous pouvez aussi y ajouter une <em>note</em>.</li>
+  <li>Touchez un surlignage existant pour changer sa couleur, modifier la note ou le supprimer.</li>
+  <li>Le panneau ≡ liste les <em>Signets</em> et les <em>Surlignages</em> dans des onglets séparés ; touchez-en un pour y aller.</li>
+</ul>
+<p>Signets, surlignages et notes sont enregistrés sur le serveur, dans votre compte : ils sont disponibles sur tous vos appareils.</p>
+<p class="tip">Sur tablette ou téléphone, ajoutez Shelfy à l’écran d’accueil (voir <a href="#kindle">Kindle → Sur un téléphone</a>) : le lecteur s’ouvre alors en plein écran, sans les barres du navigateur – comme une application de liseuse. La lecture nécessite une connexion à Shelfy.</p>
+
 <h2 id="kindle">Kindle</h2>
 <h3>Envoi par e-mail</h3>
 <ol>
@@ -66,26 +99,50 @@
 <h3>Télécharger depuis le navigateur du Kindle</h3>
 <p>Ouvert sur un Kindle, Shelfy affiche automatiquement la vue Kindle, simple et adaptée à l’encre électronique. Sous <em>Paramètres</em>, choisissez un Kindle récent (AZW3) ou ancien (MOBI uniquement). Avec un Kindle ancien, utilisez l’adresse du réseau local (http://…), car l’ancien navigateur ne peut pas ouvrir de nombreux sites HTTPS.</p>
 <h3>Sur un téléphone</h3>
-<p>Avec « Ajouter à l’écran d’accueil » dans le menu du navigateur, Shelfy s’ouvre comme une application à part avec sa propre icône.</p>
+<p>Sur téléphone et tablette, le menu de gauche se replie : ouvrez-le avec le bouton ☰ en haut à gauche (il contient aussi l’apparence, la langue et l’aide). Avec « Ajouter à l’écran d’accueil » dans le menu du navigateur, Shelfy s’ouvre avec sa propre icône comme une application – sur iPhone et iPad dans Safari : Partager → Sur l’écran d’accueil. Sur téléphone et tablette, Shelfy le propose aussi lui-même dans une petite fenêtre ; ensuite, vous le trouvez dans le menu ☰ sous « Installer comme application ».</p>
 
 <h2 id="account">Mon compte</h2>
 <ul>
   <li>Nom affiché, langue de l’interface, adresse e-mail Kindle, changement de mot de passe.</li>
   <li>Envoi d’e-mails personnel (SMTP) – laissé vide, le compte partagé est utilisé.</li>
   <li>Mon activité – vos propres téléchargements, envois et imports.</li>
-  <li>La langue et l’apparence (automatique / clair / sombre) se règlent dans la barre du haut.</li>
+  <li>La langue et l’apparence (automatique / clair / sombre) se règlent dans la barre du haut – sur téléphone et tablette, dans le menu ☰.</li>
 </ul>
 
 <h2 id="admin">Pour les administrateurs</h2>
 <ul>
   <li><strong>Utilisateurs</strong> – rôles : administrateur (accès complet), éditeur, lecteur ; les droits (importer, modifier, télécharger, supprimer) peuvent aussi être réglés un par un. Vous pouvez aussi donner ici à quelqu’un des réglages e-mail personnels.</li>
-  <li><strong>Paramètres</strong> – envoi d’e-mails partagé (SMTP), e-mail de test, ajout automatique, statistiques de la bibliothèque, état du système.</li>
+  <li><strong>Paramètres</strong> – une entrée à part dans le menu de gauche ; détaillée dans la section <a href="#settings">Paramètres</a>.</li>
   <li><strong>Langues</strong> – chaque libellé est traduisible ; voyez l’avancement de chaque langue et ajoutez-en de nouvelles. Les traductions modifiées dans l’interface sont conservées lors des mises à jour.</li>
   <li><strong>Journal d’activité</strong> – chaque événement important horodaté : imports, ajouts, envois (échecs compris), téléchargements, connexions, changements de paramètres. Filtrable par type, utilisateur et période, ou erreurs uniquement.</li>
 </ul>
 <h3>Mot de passe oublié</h3>
 <p>Un administrateur peut réinitialiser le mot de passe d’un utilisateur sur la page Utilisateurs. Si l’administrateur a oublié le sien, lancez sur le serveur :</p>
 <pre>docker exec -it shelfy python -m app.reset_password &lt;nom d’utilisateur&gt;</pre>
+
+<h2 id="settings">Paramètres</h2>
+<p>Pour les administrateurs : l’entrée <a href="/admin/settings">Paramètres</a> du menu de gauche. Les modifications s’appliquent immédiatement, sans redémarrage.</p>
+<h3>Général</h3>
+<ul>
+  <li><strong>Langue par défaut</strong> – langue de l’interface pour les visiteurs et les nouveaux utilisateurs ; les étiquettes de catégorie sont ajoutées dans cette langue. Chacun peut choisir sa propre langue.</li>
+  <li><strong>Recherche de métadonnées en ligne</strong> – chercher ou non dans les sources en ligne à l’envoi et sur la page du livre.</li>
+  <li><strong>Surveiller le dossier d’import</strong> – désactivé, la surveillance est en pause, par exemple pendant que vous rangez le dossier. (Le dossier lui-même se définit à l’installation.)</li>
+  <li><strong>Ajouter automatiquement en cas de correspondance sûre</strong> – un livre correspondant à au moins 85 % et qui n’est pas un doublon entre dans la bibliothèque sans vérification.</li>
+</ul>
+<h3>Accès</h3>
+<p><strong>Autoriser la navigation sans connexion</strong> – les visiteurs sans compte peuvent parcourir la bibliothèque, chercher et ouvrir les pages des livres. Télécharger, lire, envoyer vers Kindle, les étagères et toute modification demandent toujours une connexion.</p>
+<h3>Sources en ligne</h3>
+<p>Dans quelles bases Shelfy cherche les livres, et dans quel ordre d’importance :</p>
+<ul>
+  <li><strong>Moly.hu</strong> – base hongroise avec description, série et étiquettes ; la meilleure source pour les livres hongrois.</li>
+  <li><strong>Google Books</strong> – mondial, nombreuses langues ; description et couverture.</li>
+  <li><strong>Open Library</strong> – catalogue mondial gratuit ; bon pour les livres anciens et en anglais.</li>
+  <li><strong>BnF</strong> (France), <strong>DNB</strong> (Allemagne), <strong>Biblioteka Narodowa</strong> (Pologne), <strong>NDL</strong> (Japon) – bibliothèques nationales, pour les livres publiés dans le pays. Pour les livres en français, la BnF est une très bonne source.</li>
+</ul>
+<p>Cochez les sources à utiliser et ordonnez-les avec les flèches. Shelfy interroge toutes les sources à la fois et classe les résultats selon la correspondance ; si deux résultats sont à peu près aussi bons, la source placée plus haut l’emporte. Le bouton <em>Suggestion</em> applique une liste adaptée à la langue par défaut.</p>
+<p class="tip">Sans clé propre, Google Books partage un petit quota commun souvent épuisé (« HTTP 429 » dans le rapport d’analyse). Une <em>clé d’API Google Books</em> gratuite, obtenue dans la console Google Cloud, règle le problème ; elle est stockée chiffrée.</p>
+<h3>E-mail</h3>
+<p>Le compte e-mail partagé (SMTP) pour l’envoi vers Kindle, avec un e-mail de test.</p>
 
 <h2 id="backup">Sauvegarde, restauration, déménagement</h2>
 <p>Shelfy comporte deux parties :</p>
@@ -125,4 +182,8 @@ docker compose start shelfy</pre>
   <dd>Relancez une recherche avec <em>Métadonnées en ligne</em> sur la page du livre, ou corrigez à la main avec <em>Modifier</em>.</dd>
   <dt>La couverture manque.</dt>
   <dd>La vue <em>Métadonnées manquantes</em> liste les livres sans couverture ni description ; Métadonnées en ligne ou Modifier (importer une couverture) aident.</dd>
+  <dt>Le livre ne s’ouvre pas dans le lecteur.</dt>
+  <dd>Les formats autres qu’EPUB et PDF sont d’abord convertis – si cela échoue, le lecteur l’indique, mais vous pouvez toujours télécharger le livre. La page Tâches en donne la raison.</dd>
+  <dt>Sur la tablette, toucher la page ne la tourne pas.</dt>
+  <dd>En mode défilement, une touche ne fait qu’afficher/masquer les barres – choisissez <em>Pages</em> sous Aa. Une touche sur un lien ou avec du texte sélectionné ne tourne pas non plus la page.</dd>
 </dl>

@@ -755,5 +755,18 @@
     "min": "min",
     "hour": "h",
     "learning": "learning your reading speed…"
+  },
+  "install": {
+    "title": "Install Shelfy as an app",
+    "text": "Opens full screen with its own icon on the home screen – handy for reading, too.",
+    "button": "Install",
+    "later": "Later",
+    "close": "Close",
+    "ios_1": "In the browser, tap the Share button",
+    "ios_2": "Choose “Add to Home Screen”",
+    "ios_3": "Then tap “Add” – Shelfy appears among your apps",
+    "android_1": "Open the browser menu",
+    "android_2": "Choose “Install app” or “Add to Home screen”",
+    "menu": "Install as an app"
   }
 }

@@ -20,7 +20,7 @@
   <li><strong>Format, integrity</strong> – is the file what its extension says, and is it intact?</li>
   <li><strong>Identical file, duplicate</strong> – is this exact file, or a book with the same title and author, already in the library?</li>
   <li><strong>Embedded metadata, cover</strong> – what could be read from the file, and how large the embedded cover is.</li>
-  <li><strong>Online lookup</strong> – matches from Moly.hu, Google Books and Open Library, with a match percentage.</li>
+  <li><strong>Online lookup</strong> – matches from the enabled online sources (see <a href="#settings">Settings → Online sources</a>), with a match percentage.</li>
   <li><strong>Category</strong> – a suggestion based on tags and description.</li>
 </ul>
 <p>On the review page:</p>
@@ -55,6 +55,39 @@
   <li><strong>History</strong> – who downloaded, sent or edited the book and when (visible to editors).</li>
 </ul>
 
+<h2 id="reader">Reading in the browser</h2>
+<p>Press <em>Read</em> on a book’s page and the book opens right in the browser – on a computer, a tablet or a phone. Shelfy remembers where you stopped, per user: the button then says <em>Continue reading</em> with your percentage, and you can carry on from another device where you left off.</p>
+<ul>
+  <li>EPUB opens directly. MOBI, AZW3 and other formats are converted to EPUB the first time (this takes a few seconds; you can follow it under Tasks). PDF opens in the browser’s own PDF viewer.</li>
+  <li>Reading needs download permission; guests browsing without signing in cannot read.</li>
+</ul>
+<h3>Turning pages</h3>
+<ul>
+  <li><strong>Tap or click</strong> the right side of the page to go forward and the left third to go back – just like on an e-reader.</li>
+  <li>A tap on the <strong>top strip</strong> shows or hides the top and bottom bars, so only the text remains.</li>
+  <li>You can also <strong>swipe</strong> left or right, or use the arrow keys, Space and Page Up/Down on a keyboard.</li>
+  <li>The <strong>slider</strong> at the bottom jumps anywhere in the book; the ≡ button opens the <em>Contents</em>.</li>
+</ul>
+<h3>Text settings (Aa)</h3>
+<ul>
+  <li><strong>Background:</strong> light, sepia or dark.</li>
+  <li><strong>Text size</strong>, <strong>typeface</strong> (as in the book, Literata, Georgia, Atkinson Hyperlegible – especially easy to read – or a plain sans-serif), <strong>line spacing</strong>, <strong>margins</strong>.</li>
+  <li><strong>Alignment</strong> (justified or left), <strong>hyphenation</strong> on/off.</li>
+  <li><strong>Layout:</strong> two columns when the screen is wide (e.g. a tablet held sideways) or always one; <strong>pages</strong> or continuous <strong>scrolling</strong>.</li>
+</ul>
+<p>The settings are remembered on each device separately, so the phone and the tablet can look different.</p>
+<h3>Progress</h3>
+<p>The line under the page shows where you are. Tap it to switch between: percentage, time left in the chapter, time left in the book, and page within the chapter. Shelfy learns your reading pace, so the time estimates become accurate after a few pages. When you reach the end, the book is marked as read.</p>
+<h3>Bookmarks, highlights, notes</h3>
+<ul>
+  <li><strong>Bookmark:</strong> the bookmark icon at the top marks the current page (tap again to remove it).</li>
+  <li><strong>Highlight:</strong> select some text (on a touch screen: press and hold, then drag the handles) and choose a colour. Here you can also add a <em>note</em> to it.</li>
+  <li>Tap an existing highlight to change its colour, edit the note or delete it.</li>
+  <li>The ≡ panel lists the <em>Bookmarks</em> and <em>Highlights</em> on separate tabs; tap one to jump there.</li>
+</ul>
+<p>Bookmarks, highlights and notes are saved on the server under your account, so they are there on every device.</p>
+<p class="tip">On a tablet or phone it is worth adding Shelfy to the home screen (see <a href="#kindle">Kindle → On a phone</a>): then the reader opens full screen, without the browser’s bars – like an e-reader app. Reading needs a connection to Shelfy.</p>
+
 <h2 id="kindle">Kindle</h2>
 <h3>Sending by e-mail</h3>
 <ol>
@@ -66,26 +99,50 @@
 <h3>Downloading from the Kindle browser</h3>
 <p>Opened on a Kindle, Shelfy automatically shows the simple, e-ink friendly Kindle view. Under <em>Settings</em>, choose a newer (AZW3) or older Kindle (MOBI only). With an older Kindle, use the local network address (http://…), because the old browser cannot open many HTTPS sites.</p>
 <h3>On a phone</h3>
-<p>Use “Add to Home Screen” in the browser menu, and Shelfy opens as a separate app with its own icon.</p>
+<p>On a phone or tablet the left menu folds away: open it with the ☰ button at the top left (theme, language and help are in there too). In the browser menu, “Add to Home Screen” makes Shelfy open with its own icon as a separate app – on iPhone and iPad in Safari: Share → Add to Home Screen. Shelfy also offers this itself in a small window on phones and tablets; later you find it as “Install as an app” in the ☰ menu.</p>
 
 <h2 id="account">My account</h2>
 <ul>
   <li>Display name, interface language, Kindle e-mail address, password change.</li>
   <li>Personal e-mail sending (SMTP) – if left empty, the shared account is used.</li>
   <li>My activity – your own downloads, sends and uploads.</li>
-  <li>The language and the appearance (automatic / light / dark) can be set in the top bar.</li>
+  <li>The language and the appearance (automatic / light / dark) can be set in the top bar – on a phone or tablet, in the ☰ menu.</li>
 </ul>
 
 <h2 id="admin">For administrators</h2>
 <ul>
   <li><strong>Users</strong> – roles: administrator (full access), editor, reader; the permissions (upload, edit, download, delete) can also be set one by one. You can also give someone personal e-mail settings here.</li>
-  <li><strong>Settings</strong> – shared e-mail sending (SMTP), test e-mail, automatic adding, library statistics, system status.</li>
+  <li><strong>Settings</strong> – its own item in the left menu; described in detail under <a href="#settings">Settings</a>.</li>
   <li><strong>Languages</strong> – every label is translatable; see how complete each language is and add new ones. Translations edited in the interface survive updates.</li>
   <li><strong>Activity log</strong> – every important event with a timestamp: uploads, additions, sends (including failures), downloads, sign-ins, settings changes. Filter by type, user and period, or show errors only.</li>
 </ul>
 <h3>Forgotten password</h3>
 <p>An administrator can reset a user's password on the Users page. If the administrator has forgotten their own, run this on the server:</p>
 <pre>docker exec -it shelfy python -m app.reset_password &lt;username&gt;</pre>
+
+<h2 id="settings">Settings</h2>
+<p>For administrators: the <a href="/admin/settings">Settings</a> item in the left menu. Changes take effect immediately, no restart needed.</p>
+<h3>General</h3>
+<ul>
+  <li><strong>Default language</strong> – the interface language for visitors and new users; category tags are added to books in this language. Everyone can still choose their own language.</li>
+  <li><strong>Online metadata lookup</strong> – whether to search online sources on upload and on the book page.</li>
+  <li><strong>Watch the import folder</strong> – switch it off to pause, e.g. while you tidy the folder. (The folder itself is set at installation.)</li>
+  <li><strong>Add automatically on a confident match</strong> – a book matching at least 85% that is not a duplicate goes into the library without review.</li>
+</ul>
+<h3>Access</h3>
+<p><strong>Allow browsing without signing in</strong> – visitors without an account can browse the library, search and open book pages. Downloading, reading, sending to Kindle, shelves and any change still require signing in.</p>
+<h3>Online sources</h3>
+<p>Which databases Shelfy looks books up in, and in what order of importance:</p>
+<ul>
+  <li><strong>Moly.hu</strong> – Hungarian book database with description, series and tags; the best source for Hungarian books.</li>
+  <li><strong>Google Books</strong> – worldwide, many languages; description and cover.</li>
+  <li><strong>Open Library</strong> – free worldwide catalogue; good for older and English-language books.</li>
+  <li><strong>DNB</strong> (German), <strong>BnF</strong> (French), <strong>Biblioteka Narodowa</strong> (Polish), <strong>NDL</strong> (Japanese) – national libraries, for books published in that country.</li>
+</ul>
+<p>Tick the sources to use and order them with the arrows. Shelfy searches all of them at once and ranks the matches by how well they fit; when two matches are about equally good, the source higher in the list wins. The <em>Suggested</em> button sets a sensible list for the default language – for Hungarian books, Moly.hu alone is usually enough.</p>
+<p class="tip">Without its own key, Google Books shares a small common quota that often runs out (shown in the inspection report as “HTTP 429”). A free <em>Google Books API key</em> from the Google Cloud console solves this; it is stored encrypted.</p>
+<h3>E-mail</h3>
+<p>The shared e-mail account (SMTP) for sending to Kindle, with a test e-mail button.</p>
 
 <h2 id="backup">Backup, restore, moving</h2>
 <p>Shelfy has two parts:</p>
@@ -125,4 +182,8 @@ docker compose start shelfy</pre>
   <dd>Use <em>Online metadata</em> on the book page to search again, or fix it by hand with <em>Edit</em>.</dd>
   <dt>The cover is missing.</dt>
   <dd>The <em>Missing metadata</em> view lists books without cover or description; Online metadata or Edit (upload a cover) helps.</dd>
+  <dt>The book does not open in the reader.</dt>
+  <dd>Formats other than EPUB and PDF are converted first – if that fails, the reader says so, but you can still download the book. The Tasks page shows the reason.</dd>
+  <dt>Tapping the page on the tablet does not turn it.</dt>
+  <dd>In scrolling mode a tap only shows/hides the bars – switch to <em>Pages</em> under Aa. A tap on a link or while text is selected does not turn the page either.</dd>
 </dl>

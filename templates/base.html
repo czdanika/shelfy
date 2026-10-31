@@ -20,6 +20,9 @@
 <link rel="manifest" href="/static/manifest.webmanifest">
 <meta name="theme-color" content="#111827">
 <meta name="apple-mobile-web-app-title" content="Shelfy">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
 </head>
 <body>
 {% block body %}
@@ -62,6 +65,7 @@
     {% endif %}
     <div class="side-extra">
       <a class="item" href="/help">{{ t('nav.help') }}</a>
+      <a class="item" href="#" data-install-link hidden onclick="shelfyInstall();document.body.classList.remove('nav-open');return false">{{ t('install.menu') }}</a>
       <div class="side-theme">
         <a href="/theme/auto" class="{% if theme == 'auto' %}on{% endif %}">{{ t('theme.auto') }}</a>
         <a href="/theme/light" class="{% if theme == 'light' %}on{% endif %}">{{ t('theme.light') }}</a>
@@ -100,6 +104,7 @@
           <a href="/help">{{ t('nav.help') }}</a>
           <a href="/about">{{ t('about.title') }}</a>
           <a href="/kindle">{{ t('nav.kindle') }}</a>
+          <a href="#" data-install-link hidden onclick="shelfyInstall();return false">{{ t('install.menu') }}</a>
           {% if user.is_admin %}<a href="/admin/settings">{{ t('admin.nav_settings') }}</a><a href="/admin">{{ t('nav.admin') }}</a>{% endif %}
           <a href="/logout">{{ t('nav.logout') }}</a>
         </div>
@@ -114,6 +119,7 @@
 </div>
 <div class="navshade" onclick="document.body.classList.remove('nav-open')"></div>
 {% endblock %}
+{% include "_install.html" %}
 {% block scripts %}{% endblock %}
 </body>
 </html>

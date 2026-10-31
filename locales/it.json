@@ -755,5 +755,18 @@
     "min": "min",
     "hour": "h",
     "learning": "sta imparando la tua velocità di lettura…"
+  },
+  "install": {
+    "title": "Installa Shelfy come app",
+    "text": "Si apre a schermo intero con la sua icona nella schermata Home – comodo anche per leggere.",
+    "button": "Installa",
+    "later": "Più tardi",
+    "close": "Chiudi",
+    "ios_1": "Nel browser tocca il pulsante Condividi",
+    "ios_2": "Scegli «Aggiungi alla schermata Home»",
+    "ios_3": "Poi tocca «Aggiungi» – Shelfy compare tra le tue app",
+    "android_1": "Apri il menu del browser",
+    "android_2": "Scegli «Installa app» o «Aggiungi a schermata Home»",
+    "menu": "Installa come app"
   }
 }

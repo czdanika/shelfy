@@ -20,7 +20,7 @@
   <li><strong>格式、完整性</strong> – 檔案是否與副檔名一致，是否完好？</li>
   <li><strong>相同檔案、重複</strong> – 書庫中是否已有完全相同的檔案，或書名和作者相同的圖書？</li>
   <li><strong>內嵌中繼資料、封面</strong> – 從檔案中讀取到了哪些資訊，內嵌封面有多大。</li>
-  <li><strong>線上查詢</strong> – 來自 Moly.hu、Google Books 和 Open Library 的匹配結果及匹配度。</li>
+  <li><strong>線上查詢</strong> – 已啟用的線上來源所提供的結果及匹配度（見<a href="#settings">設定 → 線上來源</a>）。</li>
   <li><strong>分類</strong> – 根據標籤和簡介給出的建議。</li>
 </ul>
 <p>在審閱頁面：</p>
@@ -55,6 +55,39 @@
   <li><strong>歷史記錄</strong> – 誰在何時下載、傳送或編輯了這本書（編輯可見）。</li>
 </ul>
 
+<h2 id="reader">在瀏覽器中閱讀</h2>
+<p>在書籍頁面點按<em>閱讀</em>，書會直接在瀏覽器中開啟——電腦、平板或手機皆可。Shelfy 會為每位使用者記住閱讀位置：按鈕會變成附百分比的<em>繼續閱讀</em>，在另一台裝置上也能從同一位置接著讀。</p>
+<ul>
+  <li>EPUB 直接開啟。MOBI、AZW3 等格式在第一次開啟時會轉換為 EPUB（數秒鐘，可在任務中查看）。PDF 會在瀏覽器內建的 PDF 檢視器中開啟。</li>
+  <li>閱讀需要下載權限；未登入的訪客無法閱讀。</li>
+</ul>
+<h3>翻頁</h3>
+<ul>
+  <li><strong>點按或點擊</strong>頁面右側往後翻，點按左側約三分之一處往前翻——和電子書閱讀器一樣。</li>
+  <li>點按<strong>頂部區域</strong>可顯示或隱藏上下工具列，只留下內文。</li>
+  <li>也可以左右<strong>滑動</strong>，或使用鍵盤的方向鍵、空白鍵和 Page Up/Down。</li>
+  <li>底部的<strong>滑桿</strong>可跳到書中任何位置；≡ 按鈕開啟<em>目錄</em>。</li>
+</ul>
+<h3>文字設定（Aa）</h3>
+<ul>
+  <li><strong>背景：</strong>淺色、護眼或深色。</li>
+  <li><strong>字級</strong>、<strong>字型</strong>（與書中一致、Literata、Georgia、特別易讀的 Atkinson Hyperlegible，或簡潔的無襯線字型）、<strong>行距</strong>、<strong>邊界</strong>。</li>
+  <li><strong>對齊</strong>（左右對齊或靠左對齊）、<strong>斷字</strong>開／關。</li>
+  <li><strong>版面：</strong>寬螢幕時（如橫放的平板）雙欄或一律單欄；<strong>翻頁</strong>或連續<strong>捲動</strong>。</li>
+</ul>
+<p>設定會依裝置分別儲存，因此手機和平板可以有不同的外觀。</p>
+<h3>閱讀進度</h3>
+<p>頁面下方的一行顯示目前位置。點按可在以下內容間切換：百分比、本章剩餘時間、全書剩餘時間、本章內頁碼。Shelfy 會學習你的閱讀速度，讀幾頁後時間估算就會變得準確。讀到結尾時，這本書會標示為已讀。</p>
+<h3>書籤、畫線、筆記</h3>
+<ul>
+  <li><strong>書籤：</strong>頂部的書籤圖示標記目前頁面（再點按一次即移除）。</li>
+  <li><strong>畫線：</strong>選取文字（觸控螢幕上：長按後拖曳選取控點），然後選擇顏色。也可以在此加入<em>筆記</em>。</li>
+  <li>點按已有的畫線可更改顏色、編輯筆記或刪除。</li>
+  <li>≡ 面板在不同分頁中列出<em>書籤</em>和<em>畫線</em>；點按即可跳轉。</li>
+</ul>
+<p>書籤、畫線和筆記儲存在伺服器上你的帳號中，因此在所有裝置上都看得到。</p>
+<p class="tip">在平板和手機上，建議把 Shelfy 加入主畫面（見<a href="#kindle">Kindle → 在手機上</a>）：這樣閱讀器會以全螢幕開啟，沒有瀏覽器的工具列——就像電子書 App 一樣。閱讀時需要能連線到 Shelfy。</p>
+
 <h2 id="kindle">Kindle</h2>
 <h3>透過郵件傳送</h3>
 <ol>
@@ -66,26 +99,49 @@
 <h3>從 Kindle 瀏覽器下載</h3>
 <p>在 Kindle 上開啟時，Shelfy 會自動顯示適合墨水屏的簡潔 Kindle 檢視。在<em>設定</em>中選擇較新的 Kindle(AZW3)或舊款 Kindle（僅 MOBI）。舊款 Kindle 請使用區域網地址(http://…)，因為舊瀏覽器無法開啟很多 HTTPS 網站。</p>
 <h3>在手機上</h3>
-<p>在瀏覽器選單中選擇「新增到主螢幕」，Shelfy 就會像獨立應用一樣開啟，並有自己的圖示。</p>
+<p>在手機和平板上，左側選單會收起：用左上角的 ☰ 按鈕開啟（外觀、語言和說明也在其中）。在瀏覽器選單中選擇「加入主畫面」後，Shelfy 會以自己的圖示作為獨立 App 開啟——在 iPhone 和 iPad 的 Safari 中：分享 → 加入主畫面。在手機和平板上，Shelfy 也會在小視窗中主動提示；之後可在 ☰ 選單的「安裝為 App」中找到。</p>
 
 <h2 id="account">我的帳戶</h2>
 <ul>
   <li>顯示名稱、介面語言、Kindle 電子郵件地址、修改密碼。</li>
   <li>個人郵件傳送(SMTP)– 留空則使用共享帳戶。</li>
   <li>我的活動 – 你自己的下載、傳送和上傳記錄。</li>
-  <li>語言和外觀（自動 / 淺色 / 深色）可在頂部欄中設定。</li>
+  <li>語言和外觀（自動 / 淺色 / 深色）可在頂部欄中設定；在手機和平板上位於 ☰ 選單中。</li>
 </ul>
 
 <h2 id="admin">管理員須知</h2>
 <ul>
   <li><strong>使用者</strong> – 角色：管理員（完全訪問）、編輯、讀者；許可權（上傳、編輯、下載、刪除）也可以逐項設定。還可以在這裡為某人設定個人郵件。</li>
-  <li><strong>設定</strong> – 共享郵件傳送(SMTP)、測試郵件、自動新增、書庫統計、系統狀態。</li>
+  <li><strong>設定</strong> – 左側選單中的獨立項目；詳見<a href="#settings">設定</a>一節。</li>
   <li><strong>語言</strong> – 所有文字都可翻譯；可以檢視各語言的完成度並新增新語言。在介面中編輯的翻譯在更新後依然保留。</li>
   <li><strong>活動日誌</strong> – 所有重要事件及其時間：上傳、新增、傳送（包括失敗）、下載、登入、設定更改。可按型別、使用者和時間段篩選，或只顯示錯誤。</li>
 </ul>
 <h3>忘記密碼</h3>
 <p>管理員可以在「使用者」頁面重置使用者密碼。如果管理員忘記了自己的密碼，請在伺服器上執行：</p>
 <pre>docker exec -it shelfy python -m app.reset_password &lt;使用者名稱&gt;</pre>
+
+<h2 id="settings">設定</h2>
+<p>給管理員：左側選單中的<a href="/admin/settings">設定</a>。變更會立即生效，不需重新啟動。</p>
+<h3>一般</h3>
+<ul>
+  <li><strong>預設語言</strong> – 訪客和新使用者的介面語言；分類標籤也會以此語言加到書籍上。每個人仍可選擇自己的語言。</li>
+  <li><strong>線上中繼資料查詢</strong> – 上傳時和在書籍頁面是否查詢線上來源。</li>
+  <li><strong>監視匯入資料夾</strong> – 關閉後暫停監視，例如在整理資料夾時。（資料夾本身在安裝時指定。）</li>
+  <li><strong>匹配可靠時自動新增</strong> – 匹配度至少 85% 且不是重複的書，不需審核即可加入書庫。</li>
+</ul>
+<h3>存取</h3>
+<p><strong>允許免登入瀏覽</strong> – 沒有帳號的訪客也可以瀏覽書庫、搜尋並開啟書籍頁面。下載、閱讀、傳送到 Kindle、書架以及任何修改仍需登入。</p>
+<h3>線上來源</h3>
+<p>Shelfy 在哪些資料庫中查找書籍，以及依什麼優先順序：</p>
+<ul>
+  <li><strong>Google Books</strong> – 全球、多語言；簡介和封面。對中文書通常是最好的來源。</li>
+  <li><strong>Open Library</strong> – 免費的全球書目；適合較舊的書和英文書。</li>
+  <li><strong>Moly.hu</strong>（匈牙利）、<strong>DNB</strong>（德國）、<strong>BnF</strong>（法國）、<strong>Biblioteka Narodowa</strong>（波蘭）、<strong>NDL</strong>（日本） – 各國的國家圖書館或書目庫，適合在該國出版的書。</li>
+</ul>
+<p>勾選要使用的來源，並用箭頭調整順序。Shelfy 會同時查詢所有來源，並依匹配度排序結果；如果兩個結果差不多好，清單中較前面的來源優先。<em>建議設定</em>按鈕會套用適合預設語言的清單。</p>
+<p class="tip">沒有自己的金鑰時，Google Books 使用一個很小的共享配額，經常用完（檢查報告中顯示「HTTP 429」）。在 Google Cloud 主控台免費申請一個 <em>Google Books API 金鑰</em>即可解決；金鑰會加密儲存。</p>
+<h3>郵件</h3>
+<p>用於傳送到 Kindle 的共享郵件帳號（SMTP），附測試郵件功能。</p>
 
 <h2 id="backup">備份、還原、遷移</h2>
 <p>Shelfy 由兩部分組成：</p>
@@ -125,4 +181,8 @@ docker compose start shelfy</pre>
   <dd>在圖書頁面用<em>線上中繼資料</em>重新搜尋，或用<em>編輯</em>手動修改。</dd>
   <dt>缺少封面。</dt>
   <dd><em>資訊不全</em>檢視會列出沒有封面或簡介的圖書；可以用線上中繼資料或編輯（上傳封面）解決。</dd>
+  <dt>書在閱讀器中打不開。</dt>
+  <dd>EPUB 和 PDF 以外的格式需要先轉換——如果轉換失敗，閱讀器會提示，但仍可下載這本書。原因可在任務頁面查看。</dd>
+  <dt>在平板上點按頁面不會翻頁。</dt>
+  <dd>在捲動模式下，點按只會顯示／隱藏工具列——請在 Aa 中切換為<em>翻頁</em>。點按連結或選取文字時也不會翻頁。</dd>
 </dl>

@@ -755,5 +755,18 @@
     "min": "min",
     "hour": "godz.",
     "learning": "poznaje twoje tempo czytania…"
+  },
+  "install": {
+    "title": "Zainstaluj Shelfy jako aplikację",
+    "text": "Otwiera się na pełnym ekranie z własną ikoną na ekranie głównym – wygodniej też do czytania.",
+    "button": "Zainstaluj",
+    "later": "Później",
+    "close": "Zamknij",
+    "ios_1": "W przeglądarce stuknij przycisk Udostępnij",
+    "ios_2": "Wybierz „Do ekranu początkowego”",
+    "ios_3": "Następnie stuknij „Dodaj” – Shelfy pojawi się wśród aplikacji",
+    "android_1": "Otwórz menu przeglądarki",
+    "android_2": "Wybierz „Zainstaluj aplikację” lub „Dodaj do ekranu głównego”",
+    "menu": "Zainstaluj jako aplikację"
   }
 }

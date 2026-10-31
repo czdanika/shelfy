@@ -755,5 +755,18 @@
     "min": "min",
     "hour": "h",
     "learning": "apprend votre vitesse de lecture…"
+  },
+  "install": {
+    "title": "Installer Shelfy comme application",
+    "text": "S’ouvre en plein écran avec sa propre icône sur l’écran d’accueil – pratique aussi pour lire.",
+    "button": "Installer",
+    "later": "Plus tard",
+    "close": "Fermer",
+    "ios_1": "Dans le navigateur, touchez le bouton Partager",
+    "ios_2": "Choisissez « Sur l’écran d’accueil »",
+    "ios_3": "Puis touchez « Ajouter » – Shelfy apparaît parmi vos applications",
+    "android_1": "Ouvrez le menu du navigateur",
+    "android_2": "Choisissez « Installer l’application » ou « Ajouter à l’écran d’accueil »",
+    "menu": "Installer comme application"
   }
 }

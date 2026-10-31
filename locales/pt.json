@@ -755,5 +755,18 @@
     "min": "min",
     "hour": "h",
     "learning": "a aprender o seu ritmo de leitura…"
+  },
+  "install": {
+    "title": "Instale o Shelfy como app",
+    "text": "Abre em ecrã inteiro com ícone próprio no ecrã principal – também é mais cómodo para ler.",
+    "button": "Instalar",
+    "later": "Mais tarde",
+    "close": "Fechar",
+    "ios_1": "No navegador, toque no botão Partilhar",
+    "ios_2": "Escolha «Adicionar ao ecrã principal»",
+    "ios_3": "Depois toque em «Adicionar» – o Shelfy aparece entre as suas apps",
+    "android_1": "Abra o menu do navegador",
+    "android_2": "Escolha «Instalar app» ou «Adicionar ao ecrã principal»",
+    "menu": "Instalar como app"
   }
 }
