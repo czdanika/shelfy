@@ -376,7 +376,10 @@
     "st_disk_val": "{total} içinde {free} boş",
     "st_duplicates": "Olası kopyalar",
     "nav_log": "Etkinlik günlüğü",
-    "nav_backup": "Yedekleme"
+    "nav_backup": "Yedekleme",
+    "access_title": "Erişim",
+    "guest_browse": "Giriş yapmadan göz atmaya izin ver",
+    "guest_browse_help": "Ziyaretçiler hesap olmadan kitaplığa göz atabilir, arama yapabilir ve kitap sayfalarını açabilir. İndirme, gönderme, okuma durumu ve tüm değişiklikler için yine giriş gerekir."
   },
   "msg": {
     "saved": "Kaydedildi.",

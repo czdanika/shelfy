@@ -36,11 +36,11 @@
     </a>
     {% if now_ts - b.added_at < 7 * 86400 %}<span class="new">{{ t('book.new') }}</span>{% endif %}
     <div class="quick">
-      {% if 'epub' in b.formats %}<a href="/book/{{ b.id }}/download/epub" title="{{ t('action.download') }} EPUB" aria-label="{{ t('action.download') }}">{{ icon('download') }}</a>
+      {% if not user.can('can_download') %}{% elif 'epub' in b.formats %}<a href="/book/{{ b.id }}/download/epub" title="{{ t('action.download') }} EPUB" aria-label="{{ t('action.download') }}">{{ icon('download') }}</a>
       {% elif b.formats %}<a href="/book/{{ b.id }}/download/{{ b.formats[0] }}" title="{{ t('action.download') }} {{ b.formats[0]|upper }}" aria-label="{{ t('action.download') }}">{{ icon('download') }}</a>{% endif %}
       {% if user.kindle_email %}<form method="post" action="/book/{{ b.id }}/send"><button type="submit" title="{{ t('action.send_kindle') }}" aria-label="{{ t('action.send_kindle') }}">{{ icon('send') }}</button></form>{% endif %}
       {% if user.can('can_edit') %}<a href="/book/{{ b.id }}/edit" title="{{ t('action.edit') }}" aria-label="{{ t('action.edit') }}">{{ icon('edit') }}</a>{% endif %}
-      <a href="/book/{{ b.id }}#shelf" title="{{ t('action.shelf') }}" aria-label="{{ t('action.shelf') }}">{{ icon('plus') }}</a>
+      {% if not user.is_guest %}<a href="/book/{{ b.id }}#shelf" title="{{ t('action.shelf') }}" aria-label="{{ t('action.shelf') }}">{{ icon('plus') }}</a>{% endif %}
     </div>
   </div>
   <a class="title" href="/book/{{ b.id }}">{{ b.title }}</a>
@@ -80,7 +80,7 @@
       {% if user.kindle_email %}<form method="post" action="/book/{{ b.id }}/send"><button type="submit" title="{{ t('action.send_kindle') }}" aria-label="{{ t('action.send_kindle') }}">{{ icon('send') }}</button></form>{% endif %}
       {% endif %}
       {% if user.can('can_edit') %}<a href="/book/{{ b.id }}/edit" title="{{ t('action.edit') }}" aria-label="{{ t('action.edit') }}">{{ icon('edit') }}</a>{% endif %}
-      <a href="/book/{{ b.id }}#shelf" title="{{ t('action.shelf') }}" aria-label="{{ t('action.shelf') }}">{{ icon('plus') }}</a>
+      {% if not user.is_guest %}<a href="/book/{{ b.id }}#shelf" title="{{ t('action.shelf') }}" aria-label="{{ t('action.shelf') }}">{{ icon('plus') }}</a>{% endif %}
     </div>
   </div>
 </article>

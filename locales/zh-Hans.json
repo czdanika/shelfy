@@ -376,7 +376,10 @@
     "st_disk_val": "{free} / {total}",
     "st_duplicates": "可能的重复",
     "nav_log": "活动日志",
-    "nav_backup": "备份"
+    "nav_backup": "备份",
+    "access_title": "访问",
+    "guest_browse": "允许无需登录即可浏览",
+    "guest_browse_help": "访客无需账户即可浏览书库、搜索并打开图书页面。下载、发送、阅读状态以及任何修改仍需登录。"
   },
   "msg": {
     "saved": "已保存。",

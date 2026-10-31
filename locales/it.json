@@ -376,7 +376,10 @@
     "st_disk_val": "{free} su {total}",
     "st_duplicates": "Possibili duplicati",
     "nav_log": "Registro attività",
-    "nav_backup": "Backup"
+    "nav_backup": "Backup",
+    "access_title": "Accesso",
+    "guest_browse": "Consenti la navigazione senza accesso",
+    "guest_browse_help": "I visitatori possono sfogliare la biblioteca, cercare e aprire le pagine dei libri senza un account. Scaricare, inviare, lo stato di lettura e ogni modifica richiedono comunque l'accesso."
   },
   "msg": {
     "saved": "Salvato.",

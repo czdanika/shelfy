@@ -376,7 +376,10 @@
     "st_disk_val": "{free} de {total}",
     "st_duplicates": "Posibles duplicados",
     "nav_log": "Registro de actividad",
-    "nav_backup": "Copia de seguridad"
+    "nav_backup": "Copia de seguridad",
+    "access_title": "Acceso",
+    "guest_browse": "Permitir explorar sin iniciar sesión",
+    "guest_browse_help": "Los visitantes pueden recorrer la biblioteca, buscar y abrir las páginas de los libros sin cuenta. Descargar, enviar, el estado de lectura y cualquier cambio siguen requiriendo iniciar sesión."
   },
   "msg": {
     "saved": "Guardado.",

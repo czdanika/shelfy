@@ -32,6 +32,7 @@ A felület **14 nyelven** érhető el – angol, magyar, német, francia, olasz,
 - **Küldés Kindle-re e-mailben**, minden felhasználónak a saját Kindle-címére.
 - **Kindle-nézet** (`/kindle`): JavaScript nélküli, e-ink-barát felület. Kindle böngészőből magától ez nyílik meg, a régi Kindle MOBI-t kap.
 - **Felhasználók és szerepkörök**: adminisztrátor, szerkesztő, olvasó, egyenként állítható jogokkal (feltöltés, szerkesztés, letöltés, törlés).
+- **Vendég-böngészés** (kapcsoló a Beállításokban): bejelentkezés nélkül is végig lehet nézni és keresni a könyvtárban, de letölteni, küldeni vagy módosítani nem lehet.
 - **E-mail felhasználónként**: közös SMTP-fiók, és ha kell, mindenkinek saját (beépített Gmail-útmutatóval). Az SMTP-jelszavak titkosítva tárolódnak.
 - **Napló**: feltöltés, felvétel, küldés (a sikertelen is, okkal), letöltés, belépés és beállításváltozás időbélyeggel, szűrhetően. Minden könyvnek saját előzményei vannak, mindenki látja a saját tevékenységét.
 - **Mentés és visszaállítás**: adatbázis-mentés (kicsi, másodpercek alatt) vagy teljes mentés az összes könyvfájllal, napi automatikus mentés a szerveren, visszaállítás az admin felületről vagy parancssorból. Minden visszaállítás előtt biztonsági mentés készül, a könyvtár-ellenőrzés pedig kilistázza, mely könyveknél hiányzik fájl.
@@ -80,7 +81,7 @@ volumes:
 
 Az első megnyitáskor létrehozod az admin fiókot. Utána:
 
-1. **Adminisztráció → Beállítások**: SMTP a Kindle-küldéshez. A feladó címét az Amazon-fiókban fel kell venni a jóváhagyott feladók közé.
+1. **Beállítások** (bal oldali menü): SMTP a Kindle-küldéshez. A feladó címét az Amazon-fiókban fel kell venni a jóváhagyott feladók közé.
 2. **Adminisztráció → Felhasználók**: a családtagok fiókjai.
 
 > A régi Kindle böngészője a Cloudflare-en át nem mindig tölt be (TLS). Otthon a helyi címmel nyisd meg: `http://<nas-ip>:18200`.

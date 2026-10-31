@@ -28,7 +28,7 @@ services:
       # First admin from environment variables (otherwise create it in the browser):
       # - ADMIN_USER=admin
       # - ADMIN_PASSWORD=at-least-8-characters
-      # SMTP for Send to Kindle is configured in the UI: Administration → Settings
+      # SMTP for Send to Kindle is configured in the UI: Settings (left menu)
 
 volumes:
   shelfy-data:

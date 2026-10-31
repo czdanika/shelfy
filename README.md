@@ -31,6 +31,7 @@ The interface ships in **14 languages** – English, Hungarian, German, French, 
 - **Send to Kindle** by e-mail. Each user sends to their own Kindle address. If a book only exists as MOBI/AZW3, an EPUB is made first, because Amazon only accepts EPUB.
 - **Kindle view** (`/kindle`): an e-ink friendly page with no JavaScript. It opens automatically in the Kindle browser, and old Kindles get MOBI.
 - **Users and roles**: administrator, editor and reader, with per-user permissions for upload, edit, download and delete.
+- **Guest browsing** (optional switch in Settings): visitors can look through and search the library without signing in, but cannot download, send or change anything.
 - **E-mail per user**: a shared SMTP account, and optionally each user's own (with a built-in Gmail guide). SMTP passwords are stored encrypted.
 - **Activity log**: uploads, additions, sends (including failures and the reason), downloads, sign-ins and settings changes, with timestamps and filters. Every book has its own history, and every user sees their own activity.
 - **Backup and restore**: download a database backup (small, seconds) or a full backup with every book file, keep daily automatic backups on the server, and restore from the admin area or the command line. A safety backup is taken before every restore, and a library check lists books whose files are missing.
@@ -80,7 +81,7 @@ volumes:
 
 Open `http://<server>:18200` and create the administrator account. Then:
 
-1. **Administration → Settings** is where you set up SMTP for Send to Kindle. Add the sender address to the approved senders in your Amazon account.
+1. **Settings** (left menu) is where you set up SMTP for Send to Kindle. Add the sender address to the approved senders in your Amazon account.
 2. **Administration → Users** is where you add your family members.
 
 > Old Kindle browsers often cannot open modern TLS sites (for example behind Cloudflare). At home, use the local address: `http://<server-ip>:18200`.

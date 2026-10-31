@@ -2,7 +2,7 @@
 {% from "macros.html" import icon %}
 {% block title %}{{ t('admin.nav_settings') }}{% endblock %}
 {% block content %}
-{% include "_adminnav.html" %}
+<h1>{{ t('admin.nav_settings') }}</h1>
 <div class="row" style="align-items: flex-start; gap: 18px">
   <form class="card" method="post" action="/admin/settings" style="flex: 999 1 460px; display: flex; flex-direction: column; gap: 16px">
     <h2 style="font-size: 18px">{{ t('admin.mail_title') }}</h2>
@@ -22,6 +22,9 @@
     <h2 style="font-size: 18px">{{ t('admin.ingest_title') }}</h2>
     <label class="check"><input type="checkbox" name="auto_approve" value="1" {% if s.auto_approve == '1' %}checked{% endif %}> {{ t('admin.auto_approve') }}</label>
     <span class="small muted" style="margin-top: -10px">{{ t('admin.auto_approve_help') }}</span>
+    <h2 style="font-size: 18px">{{ t('admin.access_title') }}</h2>
+    <label class="check"><input type="checkbox" name="guest_browse" value="1" {% if s.guest_browse == '1' %}checked{% endif %}> {{ t('admin.guest_browse') }}</label>
+    <span class="small muted" style="margin-top: -10px">{{ t('admin.guest_browse_help') }}</span>
     <div class="row"><button class="btn primary" type="submit">{{ icon('check', 16) }} {{ t('action.save') }}</button></div>
   </form>
 

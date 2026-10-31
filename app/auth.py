@@ -55,11 +55,21 @@ class User:
         return self.role == "admin"
 
     @property
+    def is_guest(self) -> bool:
+        return self.role == "guest"
+
+    @property
     def initial(self) -> str:
         return (self.display_name or self.username or "?")[:1].upper()
 
     def can(self, perm: str) -> bool:
-        return self.is_admin or bool(getattr(self, perm, False))
+        return self.is_admin or (not self.is_guest and bool(getattr(self, perm, False)))
+
+    @classmethod
+    def guest(cls) -> "User":
+        """Bejelentkezés nélküli látogató, ha a vendég-böngészés be van kapcsolva: csak nézelődhet."""
+        return cls(id=0, username="", display_name="", role="guest", can_upload=False, can_edit=False,
+                   can_download=False, can_delete=False, kindle_email=None, language=None, password_hash="")
 
     @property
     def fingerprint(self) -> str:

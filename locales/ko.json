@@ -376,7 +376,10 @@
     "st_disk_val": "{total} 중 {free}",
     "st_duplicates": "중복 가능성",
     "nav_log": "활동 기록",
-    "nav_backup": "백업"
+    "nav_backup": "백업",
+    "access_title": "접근",
+    "guest_browse": "로그인 없이 둘러보기 허용",
+    "guest_browse_help": "방문자는 계정 없이 서재를 둘러보고, 검색하고, 책 페이지를 열 수 있습니다. 다운로드, 발송, 읽기 상태와 모든 변경에는 여전히 로그인이 필요합니다."
   },
   "msg": {
     "saved": "저장했습니다.",

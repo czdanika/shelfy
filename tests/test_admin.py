@@ -108,3 +108,20 @@ def test_language_picker_and_browser_language(client):
     assert "로그인" in r.text and 'name="code"' in r.text
     client.get("/lang?code=zh-cn")
     assert "登录" in client.get("/login").text
+
+
+def test_guest_browse_toggle(admin, tmp_path):
+    from test_backup import add_book
+    bid = add_book(admin, tmp_path, "Vendégkönyv")
+    admin.post("/admin/settings", data={"guest_browse": "1"})
+    admin.cookies.clear()
+    assert admin.get("/books", follow_redirects=False).status_code == 200
+    page = admin.get(f"/book/{bid}").text
+    assert "Vendégkönyv" in page and f"/book/{bid}/download/" not in page and "/book/" + str(bid) + "/read" not in page
+    assert admin.get(f"/book/{bid}/cover").status_code in (200, 404)
+    for url in (f"/book/{bid}/download/epub", "/upload", "/me", "/tasks", "/admin", "/kindle"):
+        assert admin.get(url, follow_redirects=False).status_code == 303, url
+    assert admin.post(f"/book/{bid}/read", data={"status": "read"}, follow_redirects=False).status_code == 303
+    # kikapcsolva: minden a bejelentkezésre visz
+    admin.app.state.db.set_setting("guest_browse", "0")
+    assert admin.get("/books", follow_redirects=False).status_code == 303

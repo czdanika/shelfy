@@ -376,7 +376,10 @@
     "st_disk_val": "{free} z {total}",
     "st_duplicates": "Możliwe duplikaty",
     "nav_log": "Dziennik aktywności",
-    "nav_backup": "Kopia zapasowa"
+    "nav_backup": "Kopia zapasowa",
+    "access_title": "Dostęp",
+    "guest_browse": "Zezwól na przeglądanie bez logowania",
+    "guest_browse_help": "Odwiedzający mogą bez konta przeglądać bibliotekę, wyszukiwać i otwierać strony książek. Pobieranie, wysyłka, stan czytania i wszelkie zmiany nadal wymagają zalogowania."
   },
   "msg": {
     "saved": "Zapisano.",

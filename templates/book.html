@@ -52,6 +52,7 @@
       {% if b.source %}<tr><th>{{ t('book.source') }}</th><td>{% if b.source_url %}<a href="{{ b.source_url }}" rel="noopener" target="_blank">{{ t('source.' ~ b.source) }}</a>{% else %}{{ t('source.' ~ b.source) }}{% endif %}</td></tr>{% endif %}
     </table>
 
+    {% if not user.is_guest %}
     <div class="row">
       <form method="post" action="/book/{{ b.id }}/read" class="row" style="gap: 6px">
         <span class="lbl">{{ t('book.my_state') }}:</span>
@@ -66,6 +67,7 @@
         <button class="btn small" type="submit">{{ icon('plus', 14) }}</button>
       </form>
     </div>
+    {% endif %}
 
     {% if history %}
     <details class="hint" style="border-left-color: var(--line-2); background: none">

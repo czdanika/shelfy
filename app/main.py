@@ -45,6 +45,8 @@ ZOOM_MIN, ZOOM_MAX, ZOOM_DEFAULT = 90, 260, 160  # könyvkártya szélessége px
 # Kindle 1/2/DX és Kindle Keyboard ("Kindle/3.0" a "+" nélkül): csak MOBI-t tölt le
 OLD_KINDLE_UA = re.compile(r"Kindle/(?:[12]\.\d|3\.0(?!\+))")
 KINDLE_UA = re.compile(r"Kindle|Silk/")
+# bejelentkezés nélkül böngészhető oldalak (ha az admin bekapcsolta)
+GUEST_PATHS = re.compile(r"/|/books|/browse/[a-z]+|/book/\d+|/book/\d+/cover|/help|/about")
 PUBLIC = ("/theme/", "/login", "/setup", "/static/", "/lang", "/health")
 SMTP_KEYS = ("smtp_host", "smtp_port", "smtp_security", "smtp_user", "smtp_password", "smtp_from")
 FACETS = {"authors": "author", "series": "series", "tags": "tag", "publishers": "publisher",
@@ -146,7 +148,7 @@ def create_app(cfg: Config | None = None, transport=None) -> FastAPI:
         return resp
 
     def settings_dict() -> dict:
-        d = {k: db.get_setting(k) for k in SMTP_KEYS + ("auto_approve", "kindle_subject")}
+        d = {k: db.get_setting(k) for k in SMTP_KEYS + ("auto_approve", "kindle_subject", "guest_browse")}
         d["smtp_password"] = sessions.unseal(d["smtp_password"])
         return d
 
@@ -201,6 +203,9 @@ def create_app(cfg: Config | None = None, transport=None) -> FastAPI:
                 and request.cookies.get("shelfy_ui") != "full":
             return RedirectResponse("/kindle", status_code=303)
         user = current_user(request)
+        if not user and request.method == "GET" and GUEST_PATHS.fullmatch(path) \
+                and db.get_setting("guest_browse") == "1":
+            user = User.guest()  # vendég: csak böngészés, letöltés és minden módosítás nélkül
         if not user:
             nxt = path + (f"?{request.url.query}" if request.url.query else "")
             return RedirectResponse("/login?" + urlencode({"next": nxt if request.method == "GET" else "/"}), status_code=303)
@@ -225,7 +230,9 @@ def create_app(cfg: Config | None = None, transport=None) -> FastAPI:
             "event_text": partial(event_text, lang),
             "theme": request.cookies.get("shelfy_theme") if request.cookies.get("shelfy_theme") in ("light", "dark") else "auto",
         }
-        if user:
+        if user and user.is_guest:
+            base["nav_counts"] = lib.counts()
+        elif user:
             base["shelves"] = [dict(r) for r in db.q("SELECT id, name FROM shelves WHERE user_id = ? ORDER BY name", (user.id,))]
             base["nav_counts"] = lib.counts()
             base["pending"] = db.val("SELECT COUNT(*) FROM uploads WHERE status IN ('pending','inspecting','review')")
@@ -441,7 +448,7 @@ def create_app(cfg: Config | None = None, transport=None) -> FastAPI:
             more, _ = lib.list_books(author=b["authors"][0]["id"], per_page=12)
             more = [m for m in more if m["id"] != bid][:10]
         return render(request, "book.html", b=b, read_state=state, more=more, msg=request.query_params.get("msg"),
-                      can_mail=mail_settings(request.state.user)[0] is not None,
+                      can_mail=not user.is_guest and mail_settings(request.state.user)[0] is not None,
                       can_convert=converter.has_convert,
                       history=events.query(book_id=bid, per_page=15)[0] if request.state.user.can("can_edit") else [])
 
@@ -1285,6 +1292,7 @@ def create_app(cfg: Config | None = None, transport=None) -> FastAPI:
         save_mail(form, "global")
         db.set_setting("kindle_subject", (form.get("kindle_subject") or "").strip() or None)
         db.set_setting("auto_approve", "1" if form.get("auto_approve") else "0")
+        db.set_setting("guest_browse", "1" if form.get("guest_browse") else "0")
         events.log("settings_saved", request.state.user)
         return flash("/admin/settings", "saved")
 

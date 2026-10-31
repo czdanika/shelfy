@@ -376,7 +376,10 @@
     "st_disk_val": "{total} 中 {free}",
     "st_duplicates": "重複の可能性",
     "nav_log": "アクティビティログ",
-    "nav_backup": "バックアップ"
+    "nav_backup": "バックアップ",
+    "access_title": "アクセス",
+    "guest_browse": "ログインなしの閲覧を許可",
+    "guest_browse_help": "訪問者はアカウントなしでライブラリを閲覧・検索し、本のページを開けます。ダウンロード、送信、読書状況、あらゆる変更には引き続きログインが必要です。"
   },
   "msg": {
     "saved": "保存しました。",

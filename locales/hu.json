@@ -376,7 +376,10 @@
     "st_disk_val": "{free} / {total}",
     "st_duplicates": "Lehetséges duplikátum",
     "nav_log": "Napló",
-    "nav_backup": "Mentés"
+    "nav_backup": "Mentés",
+    "access_title": "Hozzáférés",
+    "guest_browse": "Böngészés bejelentkezés nélkül",
+    "guest_browse_help": "Fiók nélkül is végig lehet nézni a könyvtárat, keresni és megnyitni a könyvek adatlapját. Letöltéshez, küldéshez, olvasási állapothoz és minden módosításhoz továbbra is be kell jelentkezni."
   },
   "msg": {
     "saved": "Mentve.",

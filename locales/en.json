@@ -376,7 +376,10 @@
     "st_disk_val": "{free} of {total}",
     "st_duplicates": "Possible duplicates",
     "nav_log": "Activity log",
-    "nav_backup": "Backup"
+    "nav_backup": "Backup",
+    "access_title": "Access",
+    "guest_browse": "Allow browsing without signing in",
+    "guest_browse_help": "Visitors can look through the library, search and open book pages without an account. Downloading, sending, reading status and every change still need a sign-in."
   },
   "msg": {
     "saved": "Saved.",

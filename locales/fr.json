@@ -376,7 +376,10 @@
     "st_disk_val": "{free} sur {total}",
     "st_duplicates": "Doublons possibles",
     "nav_log": "Journal d’activité",
-    "nav_backup": "Sauvegarde"
+    "nav_backup": "Sauvegarde",
+    "access_title": "Accès",
+    "guest_browse": "Autoriser la navigation sans connexion",
+    "guest_browse_help": "Les visiteurs peuvent parcourir la bibliothèque, chercher et ouvrir les fiches des livres sans compte. Le téléchargement, l'envoi, l'état de lecture et toute modification exigent toujours une connexion."
   },
   "msg": {
     "saved": "Enregistré.",

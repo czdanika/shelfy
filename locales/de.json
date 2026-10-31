@@ -376,7 +376,10 @@
     "st_disk_val": "{free} von {total}",
     "st_duplicates": "Mögliche Duplikate",
     "nav_log": "Protokoll",
-    "nav_backup": "Sicherung"
+    "nav_backup": "Sicherung",
+    "access_title": "Zugriff",
+    "guest_browse": "Stöbern ohne Anmeldung erlauben",
+    "guest_browse_help": "Besucher können ohne Konto die Bibliothek durchsehen, suchen und Buchseiten öffnen. Herunterladen, Senden, Lesestatus und alle Änderungen erfordern weiterhin eine Anmeldung."
   },
   "msg": {
     "saved": "Gespeichert.",

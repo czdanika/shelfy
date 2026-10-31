@@ -376,7 +376,10 @@
     "st_disk_val": "{free} / {total}",
     "st_duplicates": "可能的重複",
     "nav_log": "活動日誌",
-    "nav_backup": "備份"
+    "nav_backup": "備份",
+    "access_title": "存取",
+    "guest_browse": "允許免登入瀏覽",
+    "guest_browse_help": "訪客不需帳戶即可瀏覽書庫、搜尋並開啟圖書頁面。下載、傳送、閱讀狀態以及任何修改仍需登入。"
   },
   "msg": {
     "saved": "已儲存。",
