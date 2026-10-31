@@ -145,3 +145,11 @@ def test_library_providers_parse():
     assert bn[0].title == "Lalka" and bn[0].authors == ["Bolesław Prus"] and bn[0].year == 1994
     assert default_providers("hu")[0] == "moly" and default_providers("de")[0] == "dnb" and default_providers("en") == ["google", "openlibrary"]
     assert name_similarity("Madách Imre", "Imre Madách") == 1.0
+
+
+def test_matching_series_suffix_and_initials():
+    from app.providers import Candidate, name_similarity, score
+    assert name_similarity("A. A. Milne", "Alan Alexander Milne") >= 0.95
+    assert name_similarity("J. K. Rowling", "Stephen King") < 0.6
+    c = Candidate(source="moly", url="", title="A kutya se látta (Hercule Poirot 23.)", authors=["Agatha Christie"])
+    assert score(c, "A kutya se látta", ["Agatha Christie"]) >= 0.95

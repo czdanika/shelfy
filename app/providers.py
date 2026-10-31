@@ -56,13 +56,33 @@ def similarity(a: str, b: str) -> float:
 
 
 def name_similarity(a: str, b: str) -> float:
-    """Nevek: a sorrend nem számít ('Madách Imre' = 'Imre Madách')."""
+    """Nevek: a sorrend nem számít ('Madách Imre' = 'Imre Madách'), és a kezdőbetű is elfogadott
+    ('A. A. Milne' ≈ 'Alan Alexander Milne')."""
     srt = lambda x: " ".join(sorted(norm(x).split()))
-    return max(similarity(a, b), similarity(srt(a), srt(b)))
+    best = max(similarity(a, b), similarity(srt(a), srt(b)))
+    ta, tb = norm(a).split(), norm(b).split()
+    if ta and tb and best < 0.95:
+        short, long_ = (ta, tb) if len("".join(ta)) <= len("".join(tb)) else (tb, ta)
+        full = [t for t in short if len(t) > 1]
+        if full and all(t in long_ for t in full):
+            rest = [t for t in long_ if t not in full]
+            inits = [t for t in short if len(t) == 1]
+            if all(any(r.startswith(i) for r in rest) for i in inits):
+                best = max(best, 0.95)
+    return best
+
+
+SERIES_SUFFIX = re.compile(r"\s*[\(\[][^()\[\]]*\d+(?:\.\d+)?\.?[\)\]]\s*$")
+
+
+def title_similarity(a: str, b: str) -> float:
+    """Cím: a végén zárójelben álló sorozatjelölés ('A kutya se látta (Hercule Poirot 23.)') nem ront az egyezésen."""
+    a2, b2 = SERIES_SUFFIX.sub("", a or ""), SERIES_SUFFIX.sub("", b or "")
+    return max(similarity(a, b), similarity(a2, b2), similarity(a2, b), similarity(a, b2))
 
 
 def score(c: Candidate, title: str, authors: list[str]) -> float:
-    s = similarity(c.title, title) * 0.65
+    s = title_similarity(c.title, title) * 0.65
     if authors and c.authors:
         s += max(name_similarity(x, y) for x in authors for y in c.authors) * 0.35
     elif not authors:
@@ -180,6 +200,8 @@ def parse_moly_book(text: str, url: str) -> Candidate | None:
     sm = re.search(r'class="action" href="/sorozatok/[^"]+">([^<]+)</a>\s*(\d+(?:\.\d+)?)\.?', text)
     if sm:
         series, sidx = html.unescape(sm.group(1)).strip(), float(sm.group(2))
+    if series:  # a Moly a címhez fűzi a sorozatot: „A kutya se látta (Hercule Poirot 23.)”
+        title = SERIES_SUFFIX.sub("", title).strip() or title
     return Candidate(source="moly", url=url, title=title, authors=authors, year=year, description=desc,
                      tags=tags, genres=genres, cover_url=cover, rating=rating, language="hun",
                      series=series, series_index=sidx)
