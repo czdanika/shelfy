@@ -6,7 +6,7 @@
 #   3. Change the left side of the volume lines to your own folders
 #   4. Open http://<nas-ip>:18200 and create the administrator account
 #
-# Folder examples: TerraMaster /Volume1/docker/shelfy · Synology /volume1/docker/shelfy ·
+# Folder examples: TerraMaster /Volume1/DockerAppsData/shelfy · Synology /volume1/docker/shelfy ·
 #                  QNAP /share/Container/shelfy · Unraid /mnt/user/appdata/shelfy
 
 services:
@@ -17,8 +17,8 @@ services:
     ports:
       - "18200:8080"                                  # NAS port : container port (change only the left one)
     volumes:
-      - /Volume1/docker/shelfy:/data                  # database, settings, backups and the book files – back this up
-      - /Volume1/docker/shelfy-ingest:/ingest         # watched folder: ebooks copied here are imported (optional)
+      - /Volume1/DockerAppsData/shelfy:/data                  # database, settings, backups and the book files – back this up
+      - /Volume1/DockerAppsData/shelfy-ingest:/ingest         # watched folder: ebooks copied here are imported (optional)
       # - /Volume1/Books/Shelfy:/data/library         # keep the book files in a separate share (optional)
     environment:
       - TZ=Europe/Budapest                            # time zone for the timestamps

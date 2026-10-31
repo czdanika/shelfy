@@ -68,12 +68,12 @@ A Shelfy egyetlen Docker-konténerként fut. A példák Docker Compose formátum
 
 ### Gyors indulás NAS-on
 
-**1. Hozz létre két mappát** a NAS-on, például a `docker` megosztásban:
+**1. Hozz létre két mappát** a NAS-on, például a közös Docker-mappában (TerraMaster-en: `DockerAppsData`):
 
 | Mappa | Mi kerül bele |
 |---|---|
-| `/Volume1/docker/shelfy` | minden, amit a Shelfy tárol: adatbázis, beállítások, mentések, borító-gyorsítótár, és a `library` almappában a könyvfájlok |
-| `/Volume1/docker/shelfy-ingest` | a *figyelt mappa*: az ide másolt e-könyveket magától felveszi (nem kötelező) |
+| `/Volume1/DockerAppsData/shelfy` | minden, amit a Shelfy tárol: adatbázis, beállítások, mentések, borító-gyorsítótár, és a `library` almappában a könyvfájlok |
+| `/Volume1/DockerAppsData/shelfy-ingest` | a *figyelt mappa*: az ide másolt e-könyveket magától felveszi (nem kötelező) |
 
 **2. Hozd létre a stacket** ezzel a compose fájllal. A `volumes` soroknál csak a kettőspont előtti részt írd át a saját mappáidra:
 
@@ -86,8 +86,8 @@ services:
     ports:
       - "18200:8080"                                  # a NAS 18200-as portján lesz elérhető
     volumes:
-      - /Volume1/docker/shelfy:/data                  # adatbázis, beállítások, mentések, könyvfájlok
-      - /Volume1/docker/shelfy-ingest:/ingest         # figyelt mappa (nem kötelező)
+      - /Volume1/DockerAppsData/shelfy:/data                  # adatbázis, beállítások, mentések, könyvfájlok
+      - /Volume1/DockerAppsData/shelfy-ingest:/ingest         # figyelt mappa (nem kötelező)
     environment:
       - TZ=Europe/Budapest                            # időzóna a napló időbélyegeihez
       - DEFAULT_LANGUAGE=hu                           # en hu de fr it es pt pl ru tr ja ko zh-Hans zh-Hant
@@ -122,7 +122,7 @@ services:
 
 | Rendszer | Példa adatmappa |
 |---|---|
-| TerraMaster TOS | `/Volume1/docker/shelfy` |
+| TerraMaster TOS | `/Volume1/DockerAppsData/shelfy` |
 | Synology DSM | `/volume1/docker/shelfy` |
 | QNAP QTS | `/share/Container/shelfy` |
 | Unraid | `/mnt/user/appdata/shelfy` |
@@ -135,7 +135,7 @@ services:
 
 ```yaml
     volumes:
-      - /Volume1/docker/shelfy:/data
+      - /Volume1/DockerAppsData/shelfy:/data
       - /Volume1/Konyvek/Shelfy:/data/library          # könyvfájlok és borítók (Szerző/Cím (id)/…)
 ```
 

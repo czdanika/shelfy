@@ -67,12 +67,12 @@ Shelfy runs as a single Docker container. The examples use Docker Compose, which
 
 ### Quick start on a NAS
 
-**1. Create two folders** on the NAS, for example in the `docker` share:
+**1. Create two folders** on the NAS, for example in the shared Docker folder (on TerraMaster: `DockerAppsData`):
 
 | Folder | What goes there |
 |---|---|
-| `/Volume1/docker/shelfy` | everything Shelfy keeps: the database, settings, backups, cover cache and – in its `library` subfolder – the book files |
-| `/Volume1/docker/shelfy-ingest` | the *watched folder*: ebooks you copy here are imported automatically (optional) |
+| `/Volume1/DockerAppsData/shelfy` | everything Shelfy keeps: the database, settings, backups, cover cache and – in its `library` subfolder – the book files |
+| `/Volume1/DockerAppsData/shelfy-ingest` | the *watched folder*: ebooks you copy here are imported automatically (optional) |
 
 **2. Create the stack** with this compose file. Change only the left side of the `volumes` lines (the part before the `:`) to your own folders:
 
@@ -85,8 +85,8 @@ services:
     ports:
       - "18200:8080"                                  # open Shelfy on port 18200 of the NAS
     volumes:
-      - /Volume1/docker/shelfy:/data                  # database, settings, backups, book files
-      - /Volume1/docker/shelfy-ingest:/ingest         # watched folder (optional)
+      - /Volume1/DockerAppsData/shelfy:/data                  # database, settings, backups, book files
+      - /Volume1/DockerAppsData/shelfy-ingest:/ingest         # watched folder (optional)
     environment:
       - TZ=Europe/Budapest                            # your time zone, for the timestamps in the log
       - DEFAULT_LANGUAGE=hu                           # en hu de fr it es pt pl ru tr ja ko zh-Hans zh-Hant
@@ -121,7 +121,7 @@ services:
 
 | System | Example data folder |
 |---|---|
-| TerraMaster TOS | `/Volume1/docker/shelfy` |
+| TerraMaster TOS | `/Volume1/DockerAppsData/shelfy` |
 | Synology DSM | `/volume1/docker/shelfy` |
 | QNAP QTS | `/share/Container/shelfy` |
 | Unraid | `/mnt/user/appdata/shelfy` |
@@ -134,7 +134,7 @@ services:
 
 ```yaml
     volumes:
-      - /Volume1/docker/shelfy:/data
+      - /Volume1/DockerAppsData/shelfy:/data
       - /Volume1/Books/Shelfy:/data/library            # book files and covers (Author/Title (id)/…)
 ```
 

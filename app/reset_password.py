@@ -20,6 +20,8 @@ from .db import Database
 
 
 def main(argv: list[str] | None = None) -> int:
+    from .runas import drop_root
+    drop_root()
     ap = argparse.ArgumentParser(prog="python -m app.reset_password",
                                  description="Reset a Shelfy user's password / Felhasználó jelszavának visszaállítása")
     ap.add_argument("username", nargs="?", help="felhasználónév (nélküle: lista)")

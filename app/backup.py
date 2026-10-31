@@ -243,6 +243,8 @@ def check_library(db, library_dir: Path) -> list[dict]:
 # ---------------------------------------------------------------- parancssor
 
 def main(argv: list[str] | None = None) -> int:
+    from .runas import drop_root
+    drop_root()
     import argparse
 
     from .auth import Sessions
