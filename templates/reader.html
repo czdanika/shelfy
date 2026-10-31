@@ -263,29 +263,47 @@ body.hide #area{top:12px;bottom:40px}
     if (e.key === 'Escape') { closePanels(); closePop(); }
   }
   document.addEventListener('keydown', key);
-  var sx = null, sy = null, selecting = false;
-  function screenX(e) {  // a könyv lapja iframe-ben van: a kattintást a képernyőhöz igazítjuk
-    var f = e.view && e.view.frameElement; return (f ? f.getBoundingClientRect().left : 0) + e.clientX;
+  var sx = null, sy = null, st = 0, lastTouch = 0, selecting = false;
+  function framePos(e, pt) {  // a könyv lapja iframe-ben van: a koppintást a képernyőhöz igazítjuk
+    var f = e.view && e.view.frameElement, r = f ? f.getBoundingClientRect() : {left: 0, top: 0};
+    return {x: r.left + pt.clientX, y: r.top + pt.clientY};
+  }
+  // e-könyv olvasó módra: bal ~35% vissza, a többi előre; a felső sáv a menüt hozza elő
+  function tap(e, p) {
+    if (e.target && e.target.closest && e.target.closest('a')) return;
+    if (hasSelection(e) || selecting) { selecting = false; return; }
+    if (anyOpen()) { closePanels(); closePop(); return; }
+    var w = window.innerWidth, h = window.innerHeight;
+    if (prefs.fl === 'scrolled' || p.y < h * 0.14) { document.body.classList.toggle('hide'); return; }
+    if (p.x < w * 0.35) prev(); else next();
   }
   function wire() {
     rendition.on('keydown', key);
     rendition.on('relocated', update);
     rendition.on('resized', redrawAll);
     rendition.on('rendered', redrawAll);
-    rendition.on('touchstart', function (e) { var t = e.changedTouches[0]; sx = t.screenX; sy = t.screenY; });
+    rendition.hooks.content.register(function (c) {  // dupla koppintásos nagyítás és kék villanás ki
+      var el = c.document.createElement('style');
+      el.textContent = 'html,body{touch-action:manipulation;-webkit-tap-highlight-color:transparent}';
+      c.document.head.appendChild(el);
+    });
+    rendition.on('touchstart', function (e) {
+      if (e.touches && e.touches.length > 1) { sx = null; return; }
+      var t = e.changedTouches[0]; sx = t.clientX; sy = t.clientY; st = Date.now();
+    });
     rendition.on('touchend', function (e) {
-      var t = e.changedTouches[0]; if (sx == null || prefs.fl === 'scrolled') return;
-      var dx = t.screenX - sx, dy = t.screenY - sy; sx = null;
-      if (Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy) * 1.5 && !hasSelection(e)) { dx < 0 ? next() : prev(); }
+      var t = e.changedTouches[0]; if (sx == null) return;
+      var dx = t.clientX - sx, dy = t.clientY - sy, dt = Date.now() - st; sx = null;
+      lastTouch = Date.now();
+      if (Math.abs(dx) < 12 && Math.abs(dy) < 12 && dt < 450) {  // koppintás
+        if (e.cancelable && !(e.target.closest && e.target.closest('a'))) e.preventDefault();
+        tap(e, framePos(e, t)); return;
+      }
+      if (prefs.fl !== 'scrolled' && Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy) * 1.5 && !hasSelection(e)) { dx < 0 ? next() : prev(); }
     });
     rendition.on('click', function (e) {
-      if (e.target.closest && e.target.closest('a')) return;
-      if (hasSelection(e) || selecting) { selecting = false; return; }
-      if (anyOpen()) { closePanels(); closePop(); return; }
-      var w = window.innerWidth, x = screenX(e);
-      if (prefs.fl !== 'scrolled' && x < w * 0.28) prev();
-      else if (prefs.fl !== 'scrolled' && x > w * 0.72) next();
-      else document.body.classList.toggle('hide');
+      if (Date.now() - lastTouch < 700) return;  // érintés után jövő „szimulált" kattintás
+      tap(e, framePos(e, e));
     });
     rendition.on('selected', function (cfiRange, contents) {
       selecting = true;
