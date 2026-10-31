@@ -141,3 +141,28 @@ def test_watched_folder_recursive(admin, tmp_path):
     assert names == {"egy.epub", "ketto.epub"}
     assert (inbox / "Szerző A" / "cover.jpg").exists()           # nem e-könyv: marad
     assert not (inbox / "Szerző A" / "Sorozat").exists()          # kiürült almappa törölve
+
+
+def test_watched_folder_unmovable_file_is_not_retried(cfg, tmp_path, monkeypatch):
+    """Ha a figyelt mappából nem lehet kivenni a fájlt (pl. jogosultság), ne keletkezzen 10 mp-enként újabb hibás bejegyzés."""
+    import shutil
+    from fastapi.testclient import TestClient
+    from app.main import create_app
+    from conftest import make_epub
+    folder = tmp_path / "inbox"
+    folder.mkdir()
+    make_epub(folder / "a.epub")
+    app = create_app(cfg)
+    ing = app.state.ingest
+    calls = []
+
+    def bad_move(src, dst):
+        calls.append(src)
+        raise PermissionError(13, "Permission denied")
+    monkeypatch.setattr(shutil, "move", bad_move)
+    sizes = {}
+    for _ in range(4):
+        ing._scan(folder, sizes)
+    assert len(calls) == 1
+    assert app.state.db.val("SELECT COUNT(*) FROM uploads") == 0
+    assert (folder / "a.epub").exists()

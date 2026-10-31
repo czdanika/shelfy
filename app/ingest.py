@@ -57,6 +57,9 @@ class Ingest:
         self.queue: asyncio.Queue[int] = asyncio.Queue()
         self.worker: asyncio.Task | None = None
         self.watcher: asyncio.Task | None = None
+        self.stuck: dict[Path, tuple[int, float]] = {}  # figyelt mappa: amit nem sikerült kivenni (méret, idő)
+        # félbemaradt felvételek takarítása: üres fájlútvonallal nincs mit vizsgálni
+        db.run("DELETE FROM uploads WHERE stored_path = '' AND status IN ('pending', 'inspecting', 'error')")
 
     # ------------------------------------------------------------------ indítás
     def start(self, ingest_dir: Path | None = None) -> None:
@@ -114,10 +117,20 @@ class Ingest:
                 continue
             if p.suffix.lower().lstrip(".") not in FORMATS:
                 continue
-            size = p.stat().st_size
+            st = p.stat()
+            if self.stuck.get(p) == (st.st_size, st.st_mtime):
+                continue  # korábban nem lehetett kivenni a mappából, és azóta nem változott
+            size = st.st_size
             if sizes.get(p) == size and size > 0:
                 sizes.pop(p, None)
-                self.add_file(p, p.name, user_id=None, source="folder", move=True)
+                try:
+                    self.add_file(p, p.name, user_id=None, source="folder", move=True)
+                    self.stuck.pop(p, None)
+                except OSError as e:
+                    # pl. nincs írási jog a figyelt mappára: egyszer naplózzuk, és nem próbáljuk újra 10 mp-enként
+                    self.stuck[p] = (st.st_size, st.st_mtime)
+                    if self.events:
+                        self.events.log("inspect_error", ok=False, file=p.name, error=f"{e.__class__.__name__}: {e}"[:200])
             else:
                 sizes[p] = size
         for d in sorted((x for x in folder.rglob("*") if x.is_dir()), key=lambda x: -len(x.parts)):
@@ -136,10 +149,17 @@ class Ingest:
                              VALUES(?, ?, '', ?, ?, '', 'pending', ?, ?, ?)""",
                           (user_id, filename, ext, src.stat().st_size, source, ts, ts))
         dst = self.dir / f"{uid}_{safe_name(filename, 120)}"
-        if move:
-            shutil.move(str(src), dst)
-        else:
-            shutil.copy2(src, dst)
+        try:
+            if move:
+                shutil.move(str(src), dst)
+            else:
+                shutil.copy2(src, dst)
+        except OSError:
+            # nem sikerült átvenni (pl. jogosultság): ne maradjon utána félkész bejegyzés és fájl
+            self.db.run("DELETE FROM uploads WHERE id = ?", (uid,))
+            if move and src.exists():
+                dst.unlink(missing_ok=True)
+            raise
         self.db.run("UPDATE uploads SET stored_path = ? WHERE id = ?", (str(dst), uid))
         if self.events:
             self.events.log("upload", user_id=user_id, file=filename, source=source)
