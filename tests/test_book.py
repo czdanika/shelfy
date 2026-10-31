@@ -132,3 +132,17 @@ def test_reader_epub_and_position(admin, tmp_path):
     assert db.val("SELECT status FROM read_state WHERE book_id = ?", (bid,)) == "reading"
     admin.post(f"/book/{bid}/reader/pos", json={"cfi": "x", "percent": 1})
     assert db.val("SELECT status FROM read_state WHERE book_id = ?", (bid,)) == "read"
+
+
+def test_reader_notes_api(admin, tmp_path):
+    from test_backup import add_book
+    bid = add_book(admin, tmp_path, "Jegyzetes")
+    n = admin.post(f"/book/{bid}/reader/notes", json={"kind": "highlight", "cfi": "epubcfi(/6/4!/4/2,/1:0,/1:5)", "text": "Szöveg",
+                                                      "color": "green", "percent": 0.1}).json()
+    assert n["color"] == "green" and n["kind"] == "highlight"
+    b = admin.post(f"/book/{bid}/reader/notes", json={"kind": "bookmark", "cfi": "epubcfi(/6/4!/4/2/1:0)", "percent": 0.2}).json()
+    u = admin.post(f"/book/{bid}/reader/notes/{n['id']}", json={"note": "fontos", "color": "pink"}).json()
+    assert u["note"] == "fontos" and u["color"] == "pink"
+    assert len(admin.get(f"/book/{bid}/reader/notes").json()) == 2
+    admin.post(f"/book/{bid}/reader/notes/{b['id']}", json={"delete": 1})
+    assert [x["kind"] for x in admin.get(f"/book/{bid}/reader/notes").json()] == ["highlight"]

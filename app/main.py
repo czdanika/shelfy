@@ -665,6 +665,56 @@ def create_app(cfg: Config | None = None, transport=None) -> FastAPI:
                    (user.id, bid, now()))
         return {"ok": True}
 
+    # könyvjelzők, kiemelések, jegyzetek – felhasználónként, minden eszközön ugyanazok
+    NOTE_COLORS = ("yellow", "green", "blue", "pink")
+
+    def note_row(r) -> dict:
+        return {k: r[k] for k in ("id", "kind", "cfi", "text", "note", "color", "percent", "chapter", "created_at")}
+
+    @app.get("/book/{bid}/reader/notes")
+    async def reader_notes(request: Request, bid: int):
+        user: User = request.state.user
+        if user.is_guest:
+            return []
+        return [note_row(r) for r in db.q("SELECT * FROM annotations WHERE user_id = ? AND book_id = ? ORDER BY percent, id",
+                                          (user.id, bid))]
+
+    @app.post("/book/{bid}/reader/notes")
+    async def reader_note_add(request: Request, bid: int):
+        user: User = request.state.user
+        if user.is_guest or not lib.book(bid):
+            return Response(status_code=403)
+        d = await request.json()
+        kind = d.get("kind") if d.get("kind") in ("highlight", "bookmark") else "highlight"
+        cfi = str(d.get("cfi") or "")[:800]
+        if not cfi:
+            return Response(status_code=400)
+        try:
+            pct = max(0.0, min(1.0, float(d.get("percent") or 0)))
+        except (TypeError, ValueError):
+            pct = 0.0
+        nid = db.run("INSERT INTO annotations(user_id, book_id, kind, cfi, text, note, color, percent, chapter, created_at) "
+                     "VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                     (user.id, bid, kind, cfi, str(d.get("text") or "")[:4000] or None, str(d.get("note") or "")[:4000] or None,
+                      d.get("color") if d.get("color") in NOTE_COLORS else ("yellow" if kind == "highlight" else None),
+                      pct, str(d.get("chapter") or "")[:300] or None, now()))
+        return note_row(db.one("SELECT * FROM annotations WHERE id = ?", (nid,)))
+
+    @app.post("/book/{bid}/reader/notes/{nid}")
+    async def reader_note_edit(request: Request, bid: int, nid: int):
+        user: User = request.state.user
+        d = await request.json()
+        r = db.one("SELECT * FROM annotations WHERE id = ? AND user_id = ? AND book_id = ?", (nid, user.id, bid))
+        if not r:
+            return Response(status_code=404)
+        if d.get("delete"):
+            db.run("DELETE FROM annotations WHERE id = ?", (nid,))
+            return {"ok": True}
+        note = str(d["note"])[:4000] or None if "note" in d else r["note"]
+        color = d.get("color") if d.get("color") in NOTE_COLORS else r["color"]
+        db.run("UPDATE annotations SET note = ?, color = ? WHERE id = ?", (note, color, nid))
+        return note_row(db.one("SELECT * FROM annotations WHERE id = ?", (nid,)))
+
     @app.post("/book/{bid}/convert")
     async def convert(request: Request, bid: int, target: str = Form(...)):
         """Tartós konvertálás: az új formátum a könyv fájljai közé kerül (szerkesztői jog)."""

@@ -87,6 +87,9 @@ CREATE TABLE IF NOT EXISTS read_state (user_id INTEGER NOT NULL, book_id INTEGER
   updated_at REAL NOT NULL, PRIMARY KEY (user_id, book_id));
 CREATE TABLE IF NOT EXISTS reading_pos (user_id INTEGER NOT NULL, book_id INTEGER NOT NULL, cfi TEXT,
   percent REAL, updated_at REAL NOT NULL, PRIMARY KEY (user_id, book_id));
+CREATE TABLE IF NOT EXISTS annotations (id INTEGER PRIMARY KEY, user_id INTEGER NOT NULL, book_id INTEGER NOT NULL,
+  kind TEXT NOT NULL, cfi TEXT NOT NULL, text TEXT, note TEXT, color TEXT, percent REAL, chapter TEXT, created_at REAL NOT NULL);
+CREATE INDEX IF NOT EXISTS annotations_book ON annotations(user_id, book_id);
 CREATE TABLE IF NOT EXISTS downloads (id INTEGER PRIMARY KEY, user_id INTEGER, book_id INTEGER NOT NULL, at REAL NOT NULL);
 CREATE TABLE IF NOT EXISTS shelves (id INTEGER PRIMARY KEY, user_id INTEGER NOT NULL, name TEXT NOT NULL);
 CREATE TABLE IF NOT EXISTS shelf_books (shelf_id INTEGER NOT NULL REFERENCES shelves(id) ON DELETE CASCADE,

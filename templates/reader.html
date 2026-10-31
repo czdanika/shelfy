@@ -4,101 +4,181 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#111827">
+<meta name="apple-mobile-web-app-capable" content="yes">
 <link rel="manifest" href="/static/manifest.webmanifest">
+<link rel="stylesheet" href="/static/reader/fonts.css?v={{ version }}">
 <title>{{ b.title }} – {{ t('app.name') }}</title>
 <style>
-:root{--bg:#fbfaf7;--fg:#1d1d1f;--muted:#6b7280;--bar:#ffffffee;--line:#e5e7eb;--accent:#2F6690}
-:root[data-rtheme=sepia]{--bg:#f4ecd8;--fg:#3b2f20;--muted:#7a6a55;--bar:#efe5cdee;--line:#dccfae}
-:root[data-rtheme=dark]{--bg:#15171a;--fg:#d9dbde;--muted:#8b919a;--bar:#1d2025ee;--line:#2c3036;--accent:#5B9BD5}
-*{box-sizing:border-box}
-html,body{margin:0;height:100%;background:var(--bg);color:var(--fg);font-family:"Source Sans 3","Helvetica Neue",Arial,sans-serif}
-.bar{position:fixed;left:0;right:0;display:flex;align-items:center;gap:6px;padding:8px 10px;background:var(--bar);
-  border-color:var(--line);z-index:5;transition:transform .2s;backdrop-filter:blur(6px)}
-.bar.top{top:0;border-bottom:1px solid var(--line);padding-top:max(8px,env(safe-area-inset-top))}
-.bar.bottom{bottom:0;border-top:1px solid var(--line);padding-bottom:max(8px,env(safe-area-inset-bottom))}
-body.hide .bar.top{transform:translateY(-110%)} body.hide .bar.bottom{transform:translateY(110%)}
+:root{--bg:#fbfaf7;--fg:#1d1d1f;--muted:#6b7280;--bar:#fbfaf7f2;--line:#e5e7eb;--accent:#2F6690;--pop:#ffffff}
+:root[data-rtheme=sepia]{--bg:#f4ecd8;--fg:#3b2f20;--muted:#7a6a55;--bar:#f4ecd8f2;--line:#dccfae;--pop:#fbf5e6}
+:root[data-rtheme=dark]{--bg:#15171a;--fg:#d9dbde;--muted:#8b919a;--bar:#15171af2;--line:#2c3036;--accent:#5B9BD5;--pop:#1f2226}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%;background:var(--bg);color:var(--fg);font-family:"Source Sans 3","Helvetica Neue",Arial,sans-serif;overflow:hidden}
+.bar{position:fixed;left:0;right:0;display:flex;align-items:center;gap:4px;padding:6px 8px;background:var(--bar);z-index:5;transition:transform .2s,opacity .2s}
+.bar.top{top:0;border-bottom:1px solid var(--line);padding-top:max(6px,env(safe-area-inset-top))}
+.bar.bottom{bottom:0;border-top:1px solid var(--line);padding-bottom:max(6px,env(safe-area-inset-bottom));flex-direction:column;align-items:stretch;gap:2px}
+body.hide .bar.top{transform:translateY(-110%)} body.hide .bar.bottom .ctl{display:none}
+body.hide .bar.bottom{border-top-color:transparent;background:transparent}
 .bar .t{flex:1;min-width:0;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--muted);text-align:center}
-.bar button,.bar a{background:none;border:1px solid transparent;color:var(--fg);font:inherit;font-size:15px;padding:7px 10px;border-radius:6px;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:6px}
-.bar button:hover,.bar a:hover{border-color:var(--line)}
-.bar svg{width:18px;height:18px}
-#area{position:fixed;top:52px;bottom:52px;left:0;right:0;max-width:900px;margin:0 auto}
-#loading{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:16px;text-align:center;padding:20px}
-.prog{flex:1;display:flex;align-items:center;gap:10px;font-size:13px;color:var(--muted)}
-.prog input{flex:1;accent-color:var(--accent)}
-.panel{position:fixed;top:52px;right:8px;width:min(340px,calc(100% - 16px));max-height:calc(100% - 120px);overflow:auto;background:var(--bg);
-  border:1px solid var(--line);border-radius:10px;box-shadow:0 10px 30px rgba(0,0,0,.18);padding:12px;z-index:6;display:none}
-.panel.on{display:block}
-.panel.left{left:8px;right:auto}
-.panel h3{margin:4px 0 10px;font-size:14px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.5px}
-.toc a{display:block;padding:7px 6px;color:var(--fg);text-decoration:none;border-radius:6px;font-size:15px}
-.toc a:hover{background:var(--line)} .toc a.sub{padding-left:22px;font-size:14px}
-.row{display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap}
-.row button{flex:1;padding:8px;border:1px solid var(--line);background:none;color:var(--fg);border-radius:6px;font:inherit;cursor:pointer}
-.row button.on{border-color:var(--accent);color:var(--accent);font-weight:600}
+.ib{background:none;border:1px solid transparent;color:var(--fg);font:inherit;font-size:15px;padding:8px 10px;border-radius:8px;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:6px;min-width:40px;min-height:40px;justify-content:center}
+.ib:hover{border-color:var(--line)} .ib svg{width:20px;height:20px} .ib.on svg{fill:var(--accent);stroke:var(--accent)}
+.ctl{display:flex;align-items:center;gap:8px}
+.ctl input{flex:1;accent-color:var(--accent)}
+.info{border:0;background:none;color:var(--muted);font:inherit;font-size:13px;text-align:center;cursor:pointer;padding:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#area{position:fixed;top:56px;bottom:84px;left:0;right:0;margin:0 auto}
+body.hide #area{top:12px;bottom:40px}
+#loading{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:16px;text-align:center;padding:20px;pointer-events:none}
+.panel{position:fixed;top:56px;right:8px;width:min(380px,calc(100% - 16px));max-height:calc(100% - 150px);overflow:auto;background:var(--pop);
+  border:1px solid var(--line);border-radius:12px;box-shadow:0 12px 32px rgba(0,0,0,.2);padding:12px 14px;z-index:7;display:none;-webkit-overflow-scrolling:touch}
+.panel.on{display:block} .panel.left{left:8px;right:auto}
+.panel h3{margin:10px 0 8px;font-size:12px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.6px}
+.panel h3:first-child{margin-top:2px}
+.tabs{display:flex;gap:4px;margin-bottom:10px;border-bottom:1px solid var(--line)}
+.tabs button{flex:1;border:0;background:none;color:var(--muted);font:inherit;font-size:14px;padding:8px 4px;cursor:pointer;border-bottom:2px solid transparent}
+.tabs button.on{color:var(--fg);border-bottom-color:var(--accent);font-weight:600}
+.list a{display:block;padding:8px 6px;color:var(--fg);text-decoration:none;border-radius:6px;font-size:15px;line-height:1.35}
+.list a:hover{background:var(--line)} .list a.sub{padding-left:22px;font-size:14px}
+.list a small{display:block;color:var(--muted);font-size:12px;margin-top:2px}
+.list .q{border-left:3px solid #f5c542;padding-left:8px;display:block}
+.list .q.green{border-color:#6cc070}.list .q.blue{border-color:#6aa8e0}.list .q.pink{border-color:#ee8fb5}
+.list .n{display:block;font-style:italic;color:var(--muted);margin-top:3px}
+.empty{color:var(--muted);font-size:14px;padding:6px}
+.seg{display:flex;gap:6px;margin-bottom:4px;flex-wrap:wrap}
+.seg button{flex:1;min-width:0;padding:9px 6px;border:1px solid var(--line);background:none;color:var(--fg);border-radius:8px;font:inherit;font-size:14px;cursor:pointer}
+.seg button.on{border-color:var(--accent);color:var(--accent);font-weight:600}
+#pop{position:fixed;left:50%;transform:translateX(-50%);top:64px;z-index:8;background:var(--pop);border:1px solid var(--line);border-radius:12px;
+  box-shadow:0 12px 32px rgba(0,0,0,.25);padding:10px;display:none;width:min(360px,calc(100% - 16px))}
+#pop.on{display:block}
+#pop .row{display:flex;gap:8px;align-items:center}
+.dot{width:30px;height:30px;border-radius:50%;border:2px solid transparent;cursor:pointer;flex:none}
+.dot.on{border-color:var(--fg)}
+.dot.yellow{background:#f5c542}.dot.green{background:#6cc070}.dot.blue{background:#6aa8e0}.dot.pink{background:#ee8fb5}
+#pop .acts{display:flex;gap:6px;margin-left:auto}
+#pop .acts button,#pop .save{border:1px solid var(--line);background:none;color:var(--fg);border-radius:8px;padding:7px 10px;font:inherit;font-size:14px;cursor:pointer}
+#pop textarea{width:100%;margin-top:8px;min-height:70px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--fg);font:inherit;font-size:15px;padding:8px;display:none}
+#pop.noting textarea{display:block} #pop .save{display:none;margin-top:6px;width:100%;background:var(--accent);color:#fff;border-color:var(--accent)}
+#pop.noting .save{display:block}
 </style>
 </head>
 <body>
 <div class="bar top">
-  <a href="/book/{{ b.id }}" title="{{ t('reader.back') }}" aria-label="{{ t('reader.back') }}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M15 5l-7 7 7 7"/></svg></a>
-  <button id="btoc" title="{{ t('reader.toc') }}" aria-label="{{ t('reader.toc') }}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h10"/></svg></button>
+  <a class="ib" href="/book/{{ b.id }}" title="{{ t('reader.back') }}" aria-label="{{ t('reader.back') }}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M15 5l-7 7 7 7"/></svg></a>
+  <button class="ib" id="btoc" title="{{ t('reader.toc') }}" aria-label="{{ t('reader.toc') }}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h10"/></svg></button>
   <div class="t">{{ b.title }}{% if b.authors %} · {{ b.authors[0].name }}{% endif %}</div>
-  <button id="bset" title="{{ t('reader.settings') }}" aria-label="{{ t('reader.settings') }}"><span style="font-size:17px">A</span><span style="font-size:12px">A</span></button>
+  <button class="ib" id="bmark" title="{{ t('reader.bookmark') }}" aria-label="{{ t('reader.bookmark') }}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><path d="M6 3h12v18l-6-4-6 4z"/></svg></button>
+  <button class="ib" id="bset" title="{{ t('reader.settings') }}" aria-label="{{ t('reader.settings') }}"><span style="font-size:18px">A</span><span style="font-size:13px;margin-left:-4px">A</span></button>
 </div>
 <div id="area"></div>
 <div id="loading">{{ t('reader.loading') }}</div>
 <div class="bar bottom">
-  <button id="prev" aria-label="{{ t('pager.prev') }}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M15 5l-7 7 7 7"/></svg></button>
-  <div class="prog"><input id="slider" type="range" min="0" max="1000" value="0" disabled aria-label="%"><span id="pct">–</span></div>
-  <button id="next" aria-label="{{ t('pager.next') }}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M9 5l7 7-7 7"/></svg></button>
+  <div class="ctl">
+    <button class="ib" id="prev" aria-label="{{ t('pager.prev') }}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M15 5l-7 7 7 7"/></svg></button>
+    <input id="slider" type="range" min="0" max="1000" value="0" disabled aria-label="%">
+    <button class="ib" id="next" aria-label="{{ t('pager.next') }}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M9 5l7 7-7 7"/></svg></button>
+  </div>
+  <button class="info" id="info" title="{{ t('reader.info_tap') }}">–</button>
 </div>
-<div id="ptoc" class="panel left"><h3>{{ t('reader.toc') }}</h3><div class="toc" id="toc"></div></div>
+
+<div id="pnav" class="panel left">
+  <div class="tabs"><button data-tab="toc" class="on">{{ t('reader.toc') }}</button><button data-tab="bookmark">{{ t('reader.bookmarks') }}</button><button data-tab="highlight">{{ t('reader.highlights') }}</button></div>
+  <div class="list" id="ltoc"></div>
+  <div class="list" id="lbookmark" hidden></div>
+  <div class="list" id="lhighlight" hidden></div>
+</div>
+
 <div id="pset" class="panel">
   <h3>{{ t('reader.font_size') }}</h3>
-  <div class="row"><button data-fs="-1">A−</button><button data-fs="0" id="fsv">100%</button><button data-fs="1">A+</button></div>
+  <div class="seg"><button data-fs="-1">A−</button><button data-fs="0" id="fsv">100%</button><button data-fs="1">A+</button></div>
   <h3>{{ t('reader.font') }}</h3>
-  <div class="row"><button data-ff="serif" style="font-family:Georgia,serif">{{ t('reader.font_serif') }}</button><button data-ff="sans">{{ t('reader.font_sans') }}</button><button data-ff="book">{{ t('reader.font_book') }}</button></div>
+  <div class="seg"><button data-ff="book">{{ t('reader.font_book') }}</button><button data-ff="literata" style="font-family:Literata,serif">Literata</button><button data-ff="serif" style="font-family:Georgia,serif">Georgia</button></div>
+  <div class="seg"><button data-ff="atkinson" style="font-family:'Atkinson Hyperlegible',sans-serif">Atkinson</button><button data-ff="sans">{{ t('reader.font_sans') }}</button></div>
+  <h3>{{ t('reader.spacing') }}</h3>
+  <div class="seg"><button data-lh="1.25">≡ 1</button><button data-lh="1.5">≡ 2</button><button data-lh="1.8">≡ 3</button><button data-lh="2.1">≡ 4</button></div>
+  <h3>{{ t('reader.margins') }}</h3>
+  <div class="seg"><button data-mg="s">{{ t('reader.narrow') }}</button><button data-mg="m">{{ t('reader.medium') }}</button><button data-mg="l">{{ t('reader.wide') }}</button></div>
+  <h3>{{ t('reader.align') }}</h3>
+  <div class="seg"><button data-al="justify">{{ t('reader.justify') }}</button><button data-al="left">{{ t('reader.left') }}</button><button data-al="book">{{ t('reader.font_book') }}</button></div>
+  <div class="seg"><button data-hy="1">{{ t('reader.hyphen_on') }}</button><button data-hy="0">{{ t('reader.hyphen_off') }}</button></div>
+  <h3>{{ t('reader.layout') }}</h3>
+  <div class="seg"><button data-sp="auto">{{ t('reader.cols_auto') }}</button><button data-sp="none">{{ t('reader.cols_one') }}</button></div>
+  <div class="seg"><button data-fl="paginated">{{ t('reader.pages') }}</button><button data-fl="scrolled">{{ t('reader.scroll') }}</button></div>
   <h3>{{ t('reader.theme') }}</h3>
-  <div class="row"><button data-th="light">{{ t('theme.light') }}</button><button data-th="sepia">{{ t('reader.sepia') }}</button><button data-th="dark">{{ t('theme.dark') }}</button></div>
+  <div class="seg"><button data-th="light">{{ t('theme.light') }}</button><button data-th="sepia">{{ t('reader.sepia') }}</button><button data-th="dark">{{ t('theme.dark') }}</button></div>
 </div>
+
+<div id="pop">
+  <div class="row">
+    <span class="dot yellow" data-c="yellow"></span><span class="dot green" data-c="green"></span><span class="dot blue" data-c="blue"></span><span class="dot pink" data-c="pink"></span>
+    <div class="acts"><button id="pnote">{{ t('reader.note') }}</button><button id="pdel" hidden>{{ t('action.delete') }}</button><button id="pclose" aria-label="×">✕</button></div>
+  </div>
+  <textarea id="ptext" placeholder="{{ t('reader.note_ph') }}"></textarea>
+  <button class="save" id="psave">{{ t('action.save') }}</button>
+</div>
+
 <script src="/static/reader/jszip.min.js"></script>
 <script src="/static/reader/epub.min.js"></script>
 <script>
 (function () {
   var BID = {{ b.id }}, START = {{ (cfi or '')|tojson }}, KEY = 'shelfy-reader';
-  var prefs = {fs: 100, ff: 'book', th: (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')};
+  var T = {{ {'loc': t('reader.info_pct'), 'chap': t('reader.info_chapter'), 'book': t('reader.info_book'), 'page': t('reader.info_page'),
+              'min': t('reader.min'), 'hour': t('reader.hour'), 'err': t('reader.error'), 'none_b': t('reader.no_bookmarks'),
+              'none_h': t('reader.no_highlights'), 'learning': t('reader.learning')}|tojson }};
+  var prefs = {fs: 100, ff: 'book', lh: '1.5', mg: 'm', al: 'book', hy: '1', sp: 'auto', fl: 'paginated',
+               th: (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'), info: 0};
   try { Object.assign(prefs, JSON.parse(localStorage.getItem(KEY) || '{}')); } catch (e) {}
   function savePrefs() { try { localStorage.setItem(KEY, JSON.stringify(prefs)); } catch (e) {} }
   var THEMES = {light: ['#1d1d1f', '#fbfaf7'], sepia: ['#3b2f20', '#f4ecd8'], dark: ['#d9dbde', '#15171a']};
-  var FONTS = {serif: 'Georgia, "Times New Roman", serif', sans: '"Source Sans 3", "Helvetica Neue", Arial, sans-serif', book: ''};
+  var FONTS = {book: '', literata: 'Literata, Georgia, serif', serif: 'Georgia, "Times New Roman", serif',
+               atkinson: '"Atkinson Hyperlegible", Arial, sans-serif', sans: '"Source Sans 3", "Helvetica Neue", Arial, sans-serif'};
+  var MARGINS = {s: '2%', m: '6%', l: '12%'};
+  var HL = {yellow: 'rgba(245,197,66,.45)', green: 'rgba(108,192,112,.4)', blue: 'rgba(106,168,224,.4)', pink: 'rgba(238,143,181,.45)'};
 
   var book = ePub('/book/' + BID + '/reader/book.epub', {openAs: 'epub'});
-  var rendition = book.renderTo('area', {width: '100%', height: '100%', spread: 'auto', flow: 'paginated', allowScriptedContent: false});
+  var rendition = null, notes = [], toc = [];
+
+  function render(at) {
+    if (rendition) rendition.destroy();
+    document.getElementById('area').innerHTML = '';
+    rendition = book.renderTo('area', {width: '100%', height: '100%', spread: prefs.sp === 'none' ? 'none' : 'auto', minSpreadWidth: 900,
+      flow: prefs.fl === 'scrolled' ? 'scrolled-doc' : 'paginated', allowScriptedContent: false});
+    // olvasói betűtípusok a könyv lapjain is
+    rendition.hooks.content.register(function (contents) {
+      var l = contents.document.createElement('link'); l.rel = 'stylesheet'; l.href = location.origin + '/static/reader/fonts.css';
+      contents.document.head.appendChild(l);
+    });
+    applyPrefs();
+    wire();
+    return rendition.display(at || undefined).then(function () {
+      document.getElementById('loading').style.display = 'none';
+      notes.forEach(drawNote);
+    }).catch(function () { document.getElementById('loading').textContent = T.err; });
+  }
 
   function applyPrefs() {
     document.documentElement.dataset.rtheme = prefs.th;
     var c = THEMES[prefs.th];
-    var rules = {body: {color: c[0] + ' !important', background: c[1] + ' !important', 'font-size': prefs.fs + '% !important'},
-                 'a': {color: 'inherit !important'}};
-    if (FONTS[prefs.ff]) { rules.body['font-family'] = FONTS[prefs.ff] + ' !important'; rules['p, div, span'] = {'font-family': 'inherit !important'}; }
-    rendition.themes.register('shelfy', rules);
+    var body = {color: c[0] + ' !important', background: c[1] + ' !important', 'font-size': prefs.fs + '% !important',
+                'line-height': prefs.lh + ' !important', padding: '0 ' + MARGINS[prefs.mg] + ' !important'};
+    var p = {'line-height': 'inherit !important'};
+    if (FONTS[prefs.ff]) { body['font-family'] = FONTS[prefs.ff] + ' !important'; p['font-family'] = 'inherit !important'; }
+    if (prefs.al !== 'book') { p['text-align'] = prefs.al + ' !important'; }
+    var hy = prefs.hy === '1' ? 'auto' : 'manual';
+    p['hyphens'] = hy + ' !important'; p['-webkit-hyphens'] = hy + ' !important';
+    rendition.themes.register('shelfy', {body: body, 'p, li, div, span, blockquote': p, a: {color: 'inherit !important'}});
     rendition.themes.select('shelfy');
     document.getElementById('fsv').textContent = prefs.fs + '%';
-    document.querySelectorAll('[data-ff]').forEach(function (b) { b.classList.toggle('on', b.dataset.ff === prefs.ff); });
-    document.querySelectorAll('[data-th]').forEach(function (b) { b.classList.toggle('on', b.dataset.th === prefs.th); });
+    ['ff', 'lh', 'mg', 'al', 'hy', 'sp', 'fl', 'th'].forEach(function (k) {
+      document.querySelectorAll('[data-' + k + ']').forEach(function (b) { b.classList.toggle('on', b.dataset[k] === String(prefs[k])); });
+    });
   }
-  applyPrefs();
 
-  rendition.display(START || undefined).then(function () {
-    document.getElementById('loading').style.display = 'none';
-  }).catch(function () {
-    document.getElementById('loading').textContent = {{ t('reader.error')|tojson }};
-  });
+  // ---- tartalomjegyzék
   book.loaded.navigation.then(function (nav) {
-    var box = document.getElementById('toc');
+    var box = document.getElementById('ltoc');
     function add(items, sub) {
       items.forEach(function (it) {
-        var a = document.createElement('a'); a.href = '#'; a.textContent = (it.label || '').trim();
-        if (sub) a.className = 'sub';
+        toc.push(it);
+        var a = document.createElement('a'); a.href = '#'; a.textContent = (it.label || '').trim(); if (sub) a.className = 'sub';
         a.onclick = function (e) { e.preventDefault(); rendition.display(it.href); closePanels(); };
         box.appendChild(a);
         if (it.subitems && it.subitems.length) add(it.subitems, true);
@@ -106,70 +186,237 @@ body.hide .bar.top{transform:translateY(-110%)} body.hide .bar.bottom{transform:
     }
     add(nav.toc, false);
   });
+  function chapterOf(href) {
+    if (!href) return '';
+    var base = href.split('#')[0], hit = '';
+    toc.forEach(function (it) { if ((it.href || '').split('#')[0].split('/').pop() === base.split('/').pop() && !hit) hit = (it.label || '').trim(); });
+    return hit;
+  }
 
-  // százalék: a helyek kiszámítása lassú lehet, ezért eszközönként megjegyezzük
-  var LK = 'shelfy-loc-' + BID, slider = document.getElementById('slider'), pctEl = document.getElementById('pct');
-  book.ready.then(function () {
+  // ---- helyek (százalék) – eszközönként megjegyezve, mert a kiszámítás lassú lehet
+  var LK = 'shelfy-loc-' + BID, slider = document.getElementById('slider'), info = document.getElementById('info');
+  var ready = book.ready.then(function () {
     var saved = null;
     try { saved = localStorage.getItem(LK); } catch (e) {}
     if (saved) { book.locations.load(saved); return; }
-    return book.locations.generate(1600).then(function () { try { localStorage.setItem(LK, book.locations.save()); } catch (e) {} });
-  }).then(function () { slider.disabled = false; update(rendition.currentLocation()); });
+    return book.locations.generate(1024).then(function () { try { localStorage.setItem(LK, book.locations.save()); } catch (e) {} });
+  }).then(function () { slider.disabled = false; if (rendition) update(rendition.currentLocation()); });
 
-  var timer = null, last = null;
+  // ---- olvasási tempó: lapozások közti idő (Kindle-szerű „hátralévő idő”)
+  var SK = 'shelfy-speed', speed = {cps: 18, spp: 45};
+  try { Object.assign(speed, JSON.parse(localStorage.getItem(SK) || '{}')); } catch (e) {}
+  var lastTurn = null, lastPct = null, cur = null, timer = null, last = null;
+
+  function fmtTime(sec) {
+    var m = Math.max(1, Math.round(sec / 60));
+    if (m < 60) return m + ' ' + T.min;
+    return Math.floor(m / 60) + ' ' + T.hour + ' ' + (m % 60) + ' ' + T.min;
+  }
   function update(loc) {
     if (!loc || !loc.start) return;
-    var p = book.locations.length() ? book.locations.percentageFromCfi(loc.start.cfi) : null;
-    if (p != null) { slider.value = Math.round(p * 1000); pctEl.textContent = Math.round(p * 100) + '%'; }
-    last = {cfi: loc.start.cfi, percent: p != null ? p : null};
-    clearTimeout(timer);
-    timer = setTimeout(savePos, 1500);
+    cur = loc;
+    var total = book.locations.length(), p = total ? book.locations.percentageFromCfi(loc.start.cfi) : null;
+    var now = Date.now();
+    if (p != null && lastPct != null && lastTurn && p > lastPct) {
+      var dt = (now - lastTurn) / 1000, chars = (p - lastPct) * total * 1024;
+      if (dt > 3 && dt < 600 && chars > 50 && chars < 6000) {  // valódi olvasás, nem ugrás
+        speed.cps = speed.cps * 0.85 + (chars / dt) * 0.15;
+        speed.spp = speed.spp * 0.85 + dt * 0.15;
+        try { localStorage.setItem(SK, JSON.stringify(speed)); } catch (e) {}
+      }
+    }
+    lastTurn = now; lastPct = p;
+    if (p != null) slider.value = Math.round(p * 1000);
+    showInfo();
+    document.getElementById('bmark').classList.toggle('on', !!bookmarkHere());
+    last = {cfi: loc.start.cfi, percent: p};
+    clearTimeout(timer); timer = setTimeout(savePos, 1500);
   }
+  function showInfo() {
+    if (!cur) return;
+    var total = book.locations.length(), p = total ? book.locations.percentageFromCfi(cur.start.cfi) : null;
+    var d = cur.start.displayed || {}, chap = chapterOf(cur.start.href), txt;
+    var mode = prefs.info % 4;
+    if (mode === 0) txt = (p != null ? Math.round(p * 100) + '%' : '…') + (chap ? ' · ' + chap : '');
+    else if (mode === 1) txt = T.chap.replace('{t}', fmtTime(Math.max(0, (d.total || 1) - (d.page || 1)) * speed.spp + speed.spp * 0.5));
+    else if (mode === 2) txt = p == null ? '…' : T.book.replace('{t}', fmtTime((1 - p) * total * 1024 / speed.cps));
+    else txt = T.page.replace('{p}', d.page || 1).replace('{n}', d.total || 1) + (chap ? ' · ' + chap : '');
+    info.textContent = txt;
+  }
+  info.onclick = function () { prefs.info = (prefs.info + 1) % 4; savePrefs(); showInfo(); };
   function savePos() {
     if (!last) return;
     fetch('/book/' + BID + '/reader/pos', {method: 'POST', headers: {'Content-Type': 'application/json'},
       credentials: 'same-origin', body: JSON.stringify(last), keepalive: true}).catch(function () {});
   }
-  rendition.on('relocated', update);
   window.addEventListener('pagehide', savePos);
+  document.addEventListener('visibilitychange', function () { if (document.hidden) savePos(); });
   slider.addEventListener('change', function () { rendition.display(book.locations.cfiFromPercentage(slider.value / 1000)); });
 
-  function next() { rendition.next(); } function prev() { rendition.prev(); }
+  // ---- lapozás: billentyű, koppintás (bal/jobb szél), húzás; közép: sávok elrejtése
+  function next() { closePop(); rendition.next(); } function prev() { closePop(); rendition.prev(); }
   document.getElementById('next').onclick = next; document.getElementById('prev').onclick = prev;
   function key(e) {
+    if (e.target && /TEXTAREA|INPUT/.test(e.target.tagName)) return;
     if (e.key === 'ArrowRight' || e.key === 'PageDown' || e.key === ' ') { e.preventDefault(); next(); }
     if (e.key === 'ArrowLeft' || e.key === 'PageUp') { e.preventDefault(); prev(); }
-    if (e.key === 'Escape') closePanels();
+    if (e.key === 'Escape') { closePanels(); closePop(); }
   }
   document.addEventListener('keydown', key);
-  rendition.on('keydown', key);
-  // érintés: bal harmad vissza, jobb harmad előre, közép a sávok elrejtése; húzás lapoz
-  var sx = null, sy = null;
-  rendition.on('touchstart', function (e) { var t = e.changedTouches[0]; sx = t.screenX; sy = t.screenY; });
-  rendition.on('touchend', function (e) {
-    var t = e.changedTouches[0]; if (sx == null) return;
-    var dx = t.screenX - sx, dy = t.screenY - sy; sx = null;
-    if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy)) { dx < 0 ? next() : prev(); }
-  });
-  rendition.on('click', function (e) {
-    if (e.target.closest && e.target.closest('a')) return;
-    var w = window.innerWidth, x = e.screenX % w;
-    if (anyOpen()) { closePanels(); return; }
-    if (x < w * 0.3) prev(); else if (x > w * 0.7) next(); else document.body.classList.toggle('hide');
-  });
+  var sx = null, sy = null, selecting = false;
+  function screenX(e) {  // a könyv lapja iframe-ben van: a kattintást a képernyőhöz igazítjuk
+    var f = e.view && e.view.frameElement; return (f ? f.getBoundingClientRect().left : 0) + e.clientX;
+  }
+  function wire() {
+    rendition.on('keydown', key);
+    rendition.on('relocated', update);
+    rendition.on('resized', redrawAll);
+    rendition.on('rendered', redrawAll);
+    rendition.on('touchstart', function (e) { var t = e.changedTouches[0]; sx = t.screenX; sy = t.screenY; });
+    rendition.on('touchend', function (e) {
+      var t = e.changedTouches[0]; if (sx == null || prefs.fl === 'scrolled') return;
+      var dx = t.screenX - sx, dy = t.screenY - sy; sx = null;
+      if (Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy) * 1.5 && !hasSelection(e)) { dx < 0 ? next() : prev(); }
+    });
+    rendition.on('click', function (e) {
+      if (e.target.closest && e.target.closest('a')) return;
+      if (hasSelection(e) || selecting) { selecting = false; return; }
+      if (anyOpen()) { closePanels(); closePop(); return; }
+      var w = window.innerWidth, x = screenX(e);
+      if (prefs.fl !== 'scrolled' && x < w * 0.28) prev();
+      else if (prefs.fl !== 'scrolled' && x > w * 0.72) next();
+      else document.body.classList.toggle('hide');
+    });
+    rendition.on('selected', function (cfiRange, contents) {
+      selecting = true;
+      var text = contents.window.getSelection().toString().trim();
+      if (text) openPop({cfi: cfiRange, text: text});
+    });
+    rendition.on('markClicked', function (cfi) {
+      var n = notes.find(function (x) { return x.cfi === cfi && x.kind === 'highlight'; });
+      if (n) openPop(n);
+    });
+  }
+  function hasSelection(e) { var s = e.view && e.view.getSelection && e.view.getSelection(); return !!(s && String(s).trim()); }
 
-  var ptoc = document.getElementById('ptoc'), pset = document.getElementById('pset');
-  function anyOpen() { return ptoc.classList.contains('on') || pset.classList.contains('on'); }
-  function closePanels() { ptoc.classList.remove('on'); pset.classList.remove('on'); }
-  document.getElementById('btoc').onclick = function () { pset.classList.remove('on'); ptoc.classList.toggle('on'); };
-  document.getElementById('bset').onclick = function () { ptoc.classList.remove('on'); pset.classList.toggle('on'); };
+  // ---- könyvjelzők, kiemelések, jegyzetek (a szerveren, minden eszközön ugyanazok)
+  function api(url, body) {
+    return fetch(url, {method: body ? 'POST' : 'GET', credentials: 'same-origin', headers: {'Content-Type': 'application/json'},
+      body: body ? JSON.stringify(body) : undefined}).then(function (r) { return r.json(); });
+  }
+  function drawNote(n) {
+    if (n.kind !== 'highlight' || !rendition) return;
+    try { rendition.annotations.remove(n.cfi, 'highlight'); } catch (e) {}
+    rendition.annotations.highlight(n.cfi, {id: n.id}, function () {}, 'shl',
+      {fill: HL[n.color] || HL.yellow, 'fill-opacity': '1', 'mix-blend-mode': prefs.th === 'dark' ? 'normal' : 'multiply'});
+  }
+  var redrawTimer = null;
+  function redrawAll() {  // betűméret/sorköz változás után a kiemelések helye is változik
+    clearTimeout(redrawTimer);
+    redrawTimer = setTimeout(function () { notes.forEach(drawNote); }, 350);
+  }
+  function bookmarkHere() {
+    if (!cur) return null;
+    var s = cur.start.cfi, e = cur.end && cur.end.cfi;
+    var cmp = new ePub.CFI();
+    return notes.find(function (n) {
+      if (n.kind !== 'bookmark') return false;
+      try { return cmp.compare(n.cfi, s) >= 0 && (!e || cmp.compare(n.cfi, e) <= 0); } catch (x) { return n.cfi === s; }
+    });
+  }
+  document.getElementById('bmark').onclick = function () {
+    var b = bookmarkHere();
+    if (b) {
+      api('/book/' + BID + '/reader/notes/' + b.id, {delete: 1}).then(function () { notes = notes.filter(function (x) { return x.id !== b.id; }); update(cur); renderLists(); });
+    } else if (cur) {
+      var p = book.locations.length() ? book.locations.percentageFromCfi(cur.start.cfi) : 0;
+      api('/book/' + BID + '/reader/notes', {kind: 'bookmark', cfi: cur.start.cfi, percent: p, chapter: chapterOf(cur.start.href),
+        text: snippet()}).then(function (n) { notes.push(n); update(cur); renderLists(); });
+    }
+  };
+  function snippet() {
+    try { var c = rendition.getContents()[0]; var r = c.range(cur.start.cfi); r.setEnd(r.startContainer, r.startContainer.length || 0);
+      return (r.toString() || '').trim().slice(0, 140); } catch (e) { return ''; }
+  }
+  function renderLists() {
+    ['bookmark', 'highlight'].forEach(function (k) {
+      var box = document.getElementById('l' + k); box.innerHTML = '';
+      var items = notes.filter(function (n) { return n.kind === k; }).sort(function (a, b) { return (a.percent || 0) - (b.percent || 0); });
+      if (!items.length) { box.innerHTML = '<div class="empty">' + (k === 'bookmark' ? T.none_b : T.none_h) + '</div>'; return; }
+      items.forEach(function (n) {
+        var a = document.createElement('a'); a.href = '#';
+        var q = document.createElement('span'); q.className = 'q ' + (n.color || ''); q.textContent = n.text || '…'; a.appendChild(q);
+        if (n.note) { var nn = document.createElement('span'); nn.className = 'n'; nn.textContent = n.note; a.appendChild(nn); }
+        var sm = document.createElement('small'); sm.textContent = Math.round((n.percent || 0) * 100) + '%' + (n.chapter ? ' · ' + n.chapter : ''); a.appendChild(sm);
+        a.onclick = function (e) { e.preventDefault(); rendition.display(n.cfi); closePanels(); };
+        box.appendChild(a);
+      });
+    });
+  }
+  api('/book/' + BID + '/reader/notes').then(function (list) { notes = list || []; notes.forEach(drawNote); renderLists(); if (cur) update(cur); });
+
+  var pop = document.getElementById('pop'), ptext = document.getElementById('ptext'), editing = null;
+  function openPop(n) {
+    editing = n; closePanels();
+    pop.classList.add('on'); pop.classList.toggle('noting', !!n.note);
+    ptext.value = n.note || '';
+    document.getElementById('pdel').hidden = !n.id;
+    pop.querySelectorAll('.dot').forEach(function (d) { d.classList.toggle('on', !!n.id && d.dataset.c === n.color); });
+  }
+  function closePop() {
+    pop.classList.remove('on', 'noting'); editing = null;
+    try { rendition.getContents().forEach(function (c) { c.window.getSelection().removeAllRanges(); }); } catch (e) {}
+  }
+  function saveNote(changes) {
+    var n = editing; if (!n) return;
+    if (n.id) {
+      api('/book/' + BID + '/reader/notes/' + n.id, changes).then(function (u) {
+        notes = notes.map(function (x) { return x.id === u.id ? u : x; }); drawNote(u); renderLists();
+      });
+    } else {
+      var p = book.locations.length() ? book.locations.percentageFromCfi(n.cfi) : 0;
+      api('/book/' + BID + '/reader/notes', Object.assign({kind: 'highlight', cfi: n.cfi, text: n.text, percent: p,
+        chapter: cur ? chapterOf(cur.start.href) : '', color: 'yellow'}, changes)).then(function (u) {
+        notes.push(u); drawNote(u); renderLists(); editing = u;
+      });
+    }
+  }
+  pop.querySelectorAll('.dot').forEach(function (d) {
+    d.onclick = function () { saveNote({color: d.dataset.c}); setTimeout(closePop, 150); };
+  });
+  document.getElementById('pnote').onclick = function () { pop.classList.add('noting'); ptext.focus(); };
+  document.getElementById('psave').onclick = function () { saveNote({note: ptext.value}); closePop(); };
+  document.getElementById('pclose').onclick = closePop;
+  document.getElementById('pdel').onclick = function () {
+    var n = editing; if (!n || !n.id) return;
+    api('/book/' + BID + '/reader/notes/' + n.id, {delete: 1}).then(function () {
+      try { rendition.annotations.remove(n.cfi, 'highlight'); } catch (e) {}
+      notes = notes.filter(function (x) { return x.id !== n.id; }); renderLists(); closePop();
+    });
+  };
+
+  // ---- panelek és beállítások
+  var pnav = document.getElementById('pnav'), pset = document.getElementById('pset');
+  function anyOpen() { return pnav.classList.contains('on') || pset.classList.contains('on') || pop.classList.contains('on'); }
+  function closePanels() { pnav.classList.remove('on'); pset.classList.remove('on'); }
+  document.getElementById('btoc').onclick = function () { pset.classList.remove('on'); closePop(); pnav.classList.toggle('on'); };
+  document.getElementById('bset').onclick = function () { pnav.classList.remove('on'); closePop(); pset.classList.toggle('on'); };
+  pnav.querySelector('.tabs').onclick = function (e) {
+    var b = e.target.closest('button'); if (!b) return;
+    pnav.querySelectorAll('.tabs button').forEach(function (x) { x.classList.toggle('on', x === b); });
+    ['toc', 'bookmark', 'highlight'].forEach(function (k) { document.getElementById('l' + k).hidden = k !== b.dataset.tab; });
+  };
   pset.addEventListener('click', function (e) {
     var b = e.target.closest('button'); if (!b) return;
-    if (b.dataset.fs) prefs.fs = b.dataset.fs === '0' ? 100 : Math.max(70, Math.min(200, prefs.fs + 10 * Number(b.dataset.fs)));
-    if (b.dataset.ff) prefs.ff = b.dataset.ff;
-    if (b.dataset.th) prefs.th = b.dataset.th;
-    savePrefs(); applyPrefs();
+    var relayout = false;
+    if (b.dataset.fs) prefs.fs = b.dataset.fs === '0' ? 100 : Math.max(70, Math.min(220, prefs.fs + 10 * Number(b.dataset.fs)));
+    ['ff', 'lh', 'mg', 'al', 'hy', 'th'].forEach(function (k) { if (b.dataset[k]) prefs[k] = b.dataset[k]; });
+    ['sp', 'fl'].forEach(function (k) { if (b.dataset[k] && prefs[k] !== b.dataset[k]) { prefs[k] = b.dataset[k]; relayout = true; } });
+    savePrefs();
+    if (relayout) { render(cur ? cur.start.cfi : START); } else { applyPrefs(); redrawAll(); }
   });
+
+  render(START);
 })();
 </script>
 </body>
