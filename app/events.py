@@ -29,7 +29,7 @@ CREATE INDEX IF NOT EXISTS events_kind ON events(kind, at DESC);
 # csoportok a szűrőhöz
 GROUPS = {
     "books": ("upload", "inspected", "inspect_error", "added", "auto_added", "format_added", "rejected",
-              "edited", "metadata_refreshed", "converted", "convert_failed", "deleted"),
+              "edited", "metadata_refreshed", "converted", "convert_failed", "deleted", "hidden", "unhidden"),
     "sending": ("sent", "send_failed", "mail_test", "mail_test_failed"),
     "downloads": ("downloaded",),
     "users": ("login", "login_failed", "user_created", "user_updated", "user_deleted", "password_reset"),

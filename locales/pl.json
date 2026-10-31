@@ -35,7 +35,8 @@
     "unread": "Nieprzeczytane",
     "discover": "Odkrywaj",
     "incomplete": "Brakujące dane",
-    "archived": "Zarchiwizowane"
+    "archived": "Zarchiwizowane",
+    "hidden": "Ukryte książki"
   },
   "browse": {
     "authors": "Autorzy",
@@ -116,7 +117,12 @@
     "isbn": "ISBN",
     "dl_mobi": "dla starszego Kindle (tworzony przy pobieraniu)",
     "dl_azw3": "dla Kindle (tworzony przy pobieraniu)",
-    "dl_epub": "(tworzony przy pobieraniu)"
+    "dl_epub": "(tworzony przy pobieraniu)",
+    "hidden": "Ukryta",
+    "hidden_note": "Ukryta – tę książkę widzą tylko administratorzy",
+    "hide": "Ukryj",
+    "unhide": "Pokaż wszystkim",
+    "hide_help": "Ukryte książki widzą tylko administratorzy"
   },
   "action": {
     "download": "Pobierz",
@@ -439,7 +445,9 @@
     "restore_confirm": "Zaznacz potwierdzenie, aby przywrócić.",
     "restore_nofile": "Wybierz plik kopii zapasowej.",
     "task_started": "Zadanie zostało uruchomione w tle.",
-    "reader_unsupported": "Tej książki nie można czytać w przeglądarce – pobierz ją."
+    "reader_unsupported": "Tej książki nie można czytać w przeglądarce – pobierz ją.",
+    "hidden": "Książka jest teraz ukryta – widzą ją tylko administratorzy.",
+    "unhidden": "Książka jest znowu widoczna dla wszystkich."
   },
   "langname": {
     "hu": "węgierski",
@@ -610,7 +618,9 @@
     "backup_created": "Utworzono kopię zapasową: {name}",
     "backup_auto": "Automatyczna kopia zapasowa: {name}",
     "backup_restored": "Przywrócono z kopii: {name} – książki: {books}, pliki: {files}",
-    "backup_failed": "Kopia zapasowa nieudana"
+    "backup_failed": "Kopia zapasowa nieudana",
+    "hidden": "Ukryto: {title}",
+    "unhidden": "Odkryto: {title}"
   },
   "theme": {
     "label": "Wygląd",

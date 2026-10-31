@@ -35,7 +35,8 @@
     "unread": "Okunmadı",
     "discover": "Keşfet",
     "incomplete": "Eksik bilgiler",
-    "archived": "Arşivlendi"
+    "archived": "Arşivlendi",
+    "hidden": "Gizli kitaplar"
   },
   "browse": {
     "authors": "Yazarlar",
@@ -116,7 +117,12 @@
     "isbn": "ISBN",
     "dl_mobi": "eski Kindle için (indirirken oluşturulur)",
     "dl_azw3": "Kindle için (indirirken oluşturulur)",
-    "dl_epub": "(indirirken oluşturulur)"
+    "dl_epub": "(indirirken oluşturulur)",
+    "hidden": "Gizli",
+    "hidden_note": "Gizli – bu kitabı yalnızca yöneticiler görür",
+    "hide": "Gizle",
+    "unhide": "Görünür yap",
+    "hide_help": "Gizli kitapları yalnızca yöneticiler görür"
   },
   "action": {
     "download": "İndir",
@@ -439,7 +445,9 @@
     "restore_confirm": "Geri yüklemek için onay kutusunu işaretleyin.",
     "restore_nofile": "Bir yedek dosyası seçin.",
     "task_started": "Görev arka planda başlatıldı.",
-    "reader_unsupported": "Bu kitap tarayıcıda okunamıyor; bunun yerine indirin."
+    "reader_unsupported": "Bu kitap tarayıcıda okunamıyor; bunun yerine indirin.",
+    "hidden": "Kitap artık gizli – yalnızca yöneticiler görür.",
+    "unhidden": "Kitap yeniden herkese görünür."
   },
   "langname": {
     "hu": "Macarca",
@@ -610,7 +618,9 @@
     "backup_created": "Yedek oluşturuldu: {name}",
     "backup_auto": "Otomatik yedek: {name}",
     "backup_restored": "Yedekten geri yüklendi: {name} – {books} kitap, {files} dosya",
-    "backup_failed": "Yedekleme başarısız"
+    "backup_failed": "Yedekleme başarısız",
+    "hidden": "Gizlendi: {title}",
+    "unhidden": "Görünür yapıldı: {title}"
   },
   "theme": {
     "label": "Görünüm",

@@ -48,7 +48,8 @@ CREATE TABLE IF NOT EXISTS books (
   source_url TEXT,
   added_at REAL NOT NULL,
   updated_at REAL NOT NULL,
-  archived INTEGER NOT NULL DEFAULT 0
+  archived INTEGER NOT NULL DEFAULT 0,
+  hidden INTEGER NOT NULL DEFAULT 0              -- 1: csak az adminisztrátorok látják
 );
 CREATE TABLE IF NOT EXISTS book_authors (book_id INTEGER NOT NULL REFERENCES books(id) ON DELETE CASCADE,
   author_id INTEGER NOT NULL REFERENCES authors(id), position INTEGER NOT NULL DEFAULT 0, PRIMARY KEY (book_id, author_id));
@@ -142,6 +143,8 @@ class Database:
         for c in USER_MAIL_COLUMNS:
             if c not in cols:
                 self.conn.execute(f"ALTER TABLE users ADD COLUMN {c} TEXT")
+        if "hidden" not in {r[1] for r in self.conn.execute("PRAGMA table_info(books)")}:
+            self.conn.execute("ALTER TABLE books ADD COLUMN hidden INTEGER NOT NULL DEFAULT 0")
 
     def q(self, sql: str, args: tuple | list = ()) -> list[sqlite3.Row]:
         with self.lock:

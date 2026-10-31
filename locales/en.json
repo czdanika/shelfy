@@ -35,7 +35,8 @@
     "unread": "Unread",
     "discover": "Discover",
     "incomplete": "Missing metadata",
-    "archived": "Archived"
+    "archived": "Archived",
+    "hidden": "Hidden books"
   },
   "browse": {
     "authors": "Authors",
@@ -116,7 +117,12 @@
     "isbn": "ISBN",
     "dl_mobi": "for older Kindle (created on download)",
     "dl_azw3": "for Kindle (created on download)",
-    "dl_epub": "(created on download)"
+    "dl_epub": "(created on download)",
+    "hidden": "Hidden",
+    "hidden_note": "Hidden – only administrators can see this book",
+    "hide": "Hide",
+    "unhide": "Make visible",
+    "hide_help": "Hidden books are only visible to administrators"
   },
   "action": {
     "download": "Download",
@@ -439,7 +445,9 @@
     "restore_confirm": "Tick the confirmation to restore.",
     "restore_nofile": "Choose a backup file.",
     "task_started": "The task has started in the background.",
-    "reader_unsupported": "This book cannot be read in the browser; download it instead."
+    "reader_unsupported": "This book cannot be read in the browser; download it instead.",
+    "hidden": "The book is now hidden – only administrators can see it.",
+    "unhidden": "The book is visible to everyone again."
   },
   "langname": {
     "hu": "Hungarian",
@@ -610,7 +618,9 @@
     "backup_created": "Backup created: {name}",
     "backup_auto": "Automatic backup: {name}",
     "backup_restored": "Restored from backup: {name} – {books} books, {files} files",
-    "backup_failed": "Backup failed"
+    "backup_failed": "Backup failed",
+    "hidden": "Hidden: {title}",
+    "unhidden": "Made visible: {title}"
   },
   "theme": {
     "label": "Appearance",

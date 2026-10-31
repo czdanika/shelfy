@@ -5,10 +5,21 @@ import re
 import shutil
 import unicodedata
 import uuid as uuidlib
+from contextvars import ContextVar
 from dataclasses import dataclass, field
 from pathlib import Path
 
 from .db import Database, author_sort, now
+
+# Rejtett könyvek: csak az adminisztrátorok látják. A webes kérésnél a felhasználó szerint állítódik;
+# a háttérfolyamatok (figyelt mappa, mentés, duplikátumkeresés) mindent látnak.
+SHOW_HIDDEN: ContextVar[bool] = ContextVar("shelfy_show_hidden", default=True)
+
+
+def visible(alias: str = "b") -> str:
+    """SQL feltétel: nem archivált, és – ha a kérő nem admin – nem rejtett könyv."""
+    pre = f"{alias}." if alias else ""
+    return f"{pre}archived = 0" + ("" if SHOW_HIDDEN.get() else f" AND {pre}hidden = 0")
 
 FORMATS = ("epub", "azw3", "mobi", "azw", "pdf", "fb2", "docx", "rtf", "txt", "cbz", "cbr", "kepub", "djvu", "odt", "html", "htm", "lit", "prc")
 MIME = {
@@ -237,7 +248,7 @@ class Library:
         r = self.db.one("""SELECT b.*, s.name AS series, p.name AS publisher FROM books b
                            LEFT JOIN series s ON s.id = b.series_id LEFT JOIN publishers p ON p.id = b.publisher_id
                            WHERE b.id = ?""", (bid,))
-        if not r:
+        if not r or (r["hidden"] and not SHOW_HIDDEN.get()):
             return None
         d = dict(r)
         d["authors"] = [dict(x) for x in self.db.q(
@@ -253,9 +264,11 @@ class Library:
                    language: str | None = None, fmt: str | None = None, rating: int | None = None,
                    view: str | None = None, user_id: int | None = None, shelf: int | None = None,
                    page: int = 1, per_page: int = 60) -> tuple[list[dict], int]:
-        where, args = ["b.archived = 0"], []
+        where, args = [visible()], []
         if view == "archived":
-            where = ["b.archived = 1"]
+            where = ["b.archived = 1"] + ([] if SHOW_HIDDEN.get() else ["b.hidden = 0"])
+        elif view == "hidden":
+            where.append("b.hidden = 1")
         if q:
             like = f"%{q.strip()}%"
             where.append("""(b.title LIKE ? OR b.isbn = ? OR s.name LIKE ? OR p.name LIKE ?
@@ -297,7 +310,7 @@ class Library:
         base = f"""FROM books b LEFT JOIN series s ON s.id = b.series_id LEFT JOIN publishers p ON p.id = b.publisher_id
                    WHERE {' AND '.join(where)}"""
         total = self.db.val(f"SELECT COUNT(*) {base}", args)
-        rows = self.db.q(f"""SELECT b.id, b.title, b.year, b.rating, b.has_cover, b.added_at, b.series_index, b.language,
+        rows = self.db.q(f"""SELECT b.id, b.title, b.hidden, b.year, b.rating, b.has_cover, b.added_at, b.series_index, b.language,
                    s.name AS series, s.id AS series_id, p.name AS publisher, p.id AS publisher_id,
                    substr(b.description, 1, 1200) AS description,
                    (SELECT a.sort FROM book_authors ba JOIN authors a ON a.id = ba.author_id WHERE ba.book_id = b.id
@@ -327,25 +340,25 @@ class Library:
     def facet(self, kind: str) -> list[dict]:
         """Böngészési listák darabszámmal."""
         if kind == "authors":
-            sql = """SELECT a.id, a.name, a.sort, COUNT(*) AS n FROM authors a JOIN book_authors ba ON ba.author_id = a.id
-                     JOIN books b ON b.id = ba.book_id AND b.archived = 0 GROUP BY a.id ORDER BY a.sort COLLATE HU"""
+            sql = f"""SELECT a.id, a.name, a.sort, COUNT(*) AS n FROM authors a JOIN book_authors ba ON ba.author_id = a.id
+                     JOIN books b ON b.id = ba.book_id AND {visible()} GROUP BY a.id ORDER BY a.sort COLLATE HU"""
         elif kind == "series":
-            sql = """SELECT s.id, s.name, COUNT(*) AS n FROM series s JOIN books b ON b.series_id = s.id AND b.archived = 0
+            sql = f"""SELECT s.id, s.name, COUNT(*) AS n FROM series s JOIN books b ON b.series_id = s.id AND {visible()}
                      GROUP BY s.id ORDER BY s.name COLLATE HU"""
         elif kind == "tags":
-            sql = """SELECT t.id, t.name, COUNT(*) AS n FROM tags t JOIN book_tags bt ON bt.tag_id = t.id
-                     JOIN books b ON b.id = bt.book_id AND b.archived = 0 GROUP BY t.id ORDER BY t.name COLLATE HU"""
+            sql = f"""SELECT t.id, t.name, COUNT(*) AS n FROM tags t JOIN book_tags bt ON bt.tag_id = t.id
+                     JOIN books b ON b.id = bt.book_id AND {visible()} GROUP BY t.id ORDER BY t.name COLLATE HU"""
         elif kind == "publishers":
-            sql = """SELECT p.id, p.name, COUNT(*) AS n FROM publishers p JOIN books b ON b.publisher_id = p.id AND b.archived = 0
+            sql = f"""SELECT p.id, p.name, COUNT(*) AS n FROM publishers p JOIN books b ON b.publisher_id = p.id AND {visible()}
                      GROUP BY p.id ORDER BY p.name COLLATE HU"""
         elif kind == "languages":
-            sql = """SELECT language AS id, language AS name, COUNT(*) AS n FROM books WHERE archived = 0 AND language IS NOT NULL
+            sql = f"""SELECT language AS id, language AS name, COUNT(*) AS n FROM books WHERE {visible("")} AND language IS NOT NULL
                      GROUP BY language ORDER BY n DESC"""
         elif kind == "formats":
-            sql = """SELECT f.format AS id, UPPER(f.format) AS name, COUNT(DISTINCT f.book_id) AS n FROM files f
-                     JOIN books b ON b.id = f.book_id AND b.archived = 0 GROUP BY f.format ORDER BY n DESC"""
+            sql = f"""SELECT f.format AS id, UPPER(f.format) AS name, COUNT(DISTINCT f.book_id) AS n FROM files f
+                     JOIN books b ON b.id = f.book_id AND {visible()} GROUP BY f.format ORDER BY n DESC"""
         elif kind == "ratings":
-            sql = """SELECT rating AS id, rating AS name, COUNT(*) AS n FROM books WHERE archived = 0 AND rating IS NOT NULL
+            sql = f"""SELECT rating AS id, rating AS name, COUNT(*) AS n FROM books WHERE {visible("")} AND rating IS NOT NULL
                      GROUP BY rating ORDER BY rating DESC"""
         else:
             return []
@@ -353,8 +366,9 @@ class Library:
 
     def counts(self) -> dict:
         return {
-            "books": self.db.val("SELECT COUNT(*) FROM books WHERE archived = 0"),
-            "size": self.db.val("SELECT COALESCE(SUM(size), 0) FROM files") or 0,
+            "books": self.db.val(f"SELECT COUNT(*) FROM books b WHERE {visible()}"),
+            "size": self.db.val(f"SELECT COALESCE(SUM(f.size), 0) FROM files f JOIN books b ON b.id = f.book_id WHERE {visible()}") or 0,
+            "hidden": self.db.val("SELECT COUNT(*) FROM books WHERE hidden = 1") if SHOW_HIDDEN.get() else 0,
         }
 
     def stats(self) -> dict:
@@ -363,6 +377,7 @@ class Library:
         return {
             "books": q("SELECT COUNT(*) FROM books WHERE archived = 0"),
             "archived": q("SELECT COUNT(*) FROM books WHERE archived = 1"),
+            "hidden": q("SELECT COUNT(*) FROM books WHERE hidden = 1"),
             "files": q("SELECT COUNT(*) FROM files"),
             "size": q("SELECT COALESCE(SUM(size), 0) FROM files") or 0,
             "authors": q("SELECT COUNT(DISTINCT author_id) FROM book_authors"),

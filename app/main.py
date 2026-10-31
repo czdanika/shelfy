@@ -32,7 +32,7 @@ from .tasks import Tasks
 from .i18n import REFERENCE, I18n
 from .images import thumbnail
 from .ingest import Ingest
-from .library import MIME, SORT_GROUPS, SORTS, Library, Meta, ascii_name
+from .library import MIME, SHOW_HIDDEN, SORT_GROUPS, SORTS, Library, Meta, ascii_name
 from .providers import PROVIDER_LANGS, PROVIDERS, Lookup, default_providers
 from .tools import Converter, kindle_personal_doc, send_mail, sha256_file
 
@@ -47,6 +47,7 @@ ZOOM_MIN, ZOOM_MAX, ZOOM_DEFAULT = 90, 260, 160  # könyvkártya szélessége px
 OLD_KINDLE_UA = re.compile(r"Kindle/(?:[12]\.\d|3\.0(?!\+))")
 KINDLE_UA = re.compile(r"Kindle|Silk/")
 # bejelentkezés nélkül böngészhető oldalak (ha az admin bekapcsolta)
+BOOK_PATH = re.compile(r"/(?:kindle/)?book/(\d+)(?:/|$)")
 GUEST_PATHS = re.compile(r"/|/books|/browse/[a-z]+|/book/\d+|/book/\d+/cover|/help|/about")
 PUBLIC = ("/theme/", "/login", "/setup", "/static/", "/lang", "/health", "/sw.js")
 SMTP_KEYS = ("smtp_host", "smtp_port", "smtp_security", "smtp_user", "smtp_password", "smtp_from")
@@ -244,6 +245,10 @@ def create_app(cfg: Config | None = None, transport=None) -> FastAPI:
         if path.startswith("/admin") and not user.is_admin:
             return Response("403", status_code=403)
         request.state.user = user
+        SHOW_HIDDEN.set(user.is_admin)  # rejtett könyvek csak adminnak
+        m = BOOK_PATH.match(path)
+        if m and not user.is_admin and db.val("SELECT hidden FROM books WHERE id = ?", (int(m.group(1)),)):
+            return Response(status_code=404)
         return await call_next(request)
 
     def render(request: Request, name: str, status: int = 200, **ctx) -> HTMLResponse:
@@ -846,6 +851,18 @@ def create_app(cfg: Config | None = None, transport=None) -> FastAPI:
             if data:
                 lib.set_cover(bid, data)
         return flash(f"/book/{bid}", "saved")
+
+    @app.post("/book/{bid}/hide")
+    async def hide_book(request: Request, bid: int, hidden: int = Form(1)):
+        user: User = request.state.user
+        if not user.is_admin:
+            return Response(status_code=403)
+        b = lib.book(bid)
+        if not b:
+            return Response(status_code=404)
+        db.run("UPDATE books SET hidden = ?, updated_at = ? WHERE id = ?", (1 if hidden else 0, now(), bid))
+        events.log("hidden" if hidden else "unhidden", user, bid, title=b["title"])
+        return flash(f"/book/{bid}", "hidden" if hidden else "unhidden")
 
     @app.post("/book/{bid}/delete")
     async def delete(request: Request, bid: int):

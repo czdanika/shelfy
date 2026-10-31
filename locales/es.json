@@ -35,7 +35,8 @@
     "unread": "Sin leer",
     "discover": "Descubrir",
     "incomplete": "Faltan datos",
-    "archived": "Archivados"
+    "archived": "Archivados",
+    "hidden": "Libros ocultos"
   },
   "browse": {
     "authors": "Autores",
@@ -116,7 +117,12 @@
     "isbn": "ISBN",
     "dl_mobi": "para Kindle antiguo (se crea al descargar)",
     "dl_azw3": "para Kindle (se crea al descargar)",
-    "dl_epub": "(se crea al descargar)"
+    "dl_epub": "(se crea al descargar)",
+    "hidden": "Oculto",
+    "hidden_note": "Oculto: solo los administradores ven este libro",
+    "hide": "Ocultar",
+    "unhide": "Hacer visible",
+    "hide_help": "Los libros ocultos solo los ven los administradores"
   },
   "action": {
     "download": "Descargar",
@@ -439,7 +445,9 @@
     "restore_confirm": "Marca la confirmación para restaurar.",
     "restore_nofile": "Elige un archivo de copia de seguridad.",
     "task_started": "La tarea se ha iniciado en segundo plano.",
-    "reader_unsupported": "Este libro no se puede leer en el navegador; descárgalo."
+    "reader_unsupported": "Este libro no se puede leer en el navegador; descárgalo.",
+    "hidden": "El libro está oculto: solo los administradores lo ven.",
+    "unhidden": "El libro vuelve a ser visible para todos."
   },
   "langname": {
     "hu": "Húngaro",
@@ -610,7 +618,9 @@
     "backup_created": "Copia de seguridad creada: {name}",
     "backup_auto": "Copia de seguridad automática: {name}",
     "backup_restored": "Restaurado desde copia: {name} – {books} libros, {files} archivos",
-    "backup_failed": "La copia de seguridad falló"
+    "backup_failed": "La copia de seguridad falló",
+    "hidden": "Ocultado: {title}",
+    "unhidden": "Hecho visible: {title}"
   },
   "theme": {
     "label": "Apariencia",

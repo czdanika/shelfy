@@ -35,7 +35,8 @@
     "unread": "Olvasatlan",
     "discover": "Felfedezés",
     "incomplete": "Hiányos adatok",
-    "archived": "Archivált"
+    "archived": "Archivált",
+    "hidden": "Rejtett könyvek"
   },
   "browse": {
     "authors": "Szerzők",
@@ -116,7 +117,12 @@
     "isbn": "ISBN",
     "dl_mobi": "régi Kindle-re (elkészíti)",
     "dl_azw3": "Kindle-re (elkészíti)",
-    "dl_epub": "(elkészíti)"
+    "dl_epub": "(elkészíti)",
+    "hidden": "Rejtett",
+    "hidden_note": "Rejtett – ezt a könyvet csak az adminisztrátorok látják",
+    "hide": "Elrejtés",
+    "unhide": "Láthatóvá tétel",
+    "hide_help": "A rejtett könyveket csak az adminisztrátorok látják"
   },
   "action": {
     "download": "Letöltés",
@@ -439,7 +445,9 @@
     "restore_confirm": "A visszaállításhoz jelöld be a megerősítést.",
     "restore_nofile": "Válassz ki egy mentésfájlt.",
     "task_started": "A feladat elindult a háttérben.",
-    "reader_unsupported": "Ez a könyv nem olvasható a böngészőben, töltsd le helyette."
+    "reader_unsupported": "Ez a könyv nem olvasható a böngészőben, töltsd le helyette.",
+    "hidden": "A könyv rejtett lett – csak az adminisztrátorok látják.",
+    "unhidden": "A könyv újra mindenkinek látható."
   },
   "langname": {
     "hu": "magyar",
@@ -610,7 +618,9 @@
     "backup_created": "Mentés készült: {name}",
     "backup_auto": "Automatikus mentés: {name}",
     "backup_restored": "Visszaállítás mentésből: {name} – {books} könyv, {files} fájl",
-    "backup_failed": "Mentés sikertelen"
+    "backup_failed": "Mentés sikertelen",
+    "hidden": "Elrejtve: {title}",
+    "unhidden": "Láthatóvá téve: {title}"
   },
   "theme": {
     "label": "Megjelenés",

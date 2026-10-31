@@ -35,7 +35,8 @@
     "unread": "未讀",
     "discover": "發現",
     "incomplete": "資訊不全",
-    "archived": "已歸檔"
+    "archived": "已歸檔",
+    "hidden": "隱藏的書"
   },
   "browse": {
     "authors": "作者",
@@ -116,7 +117,12 @@
     "isbn": "ISBN",
     "dl_mobi": "適用於舊款 Kindle（下載時生成）",
     "dl_azw3": "適用於 Kindle（下載時生成）",
-    "dl_epub": "（下載時生成）"
+    "dl_epub": "（下載時生成）",
+    "hidden": "已隱藏",
+    "hidden_note": "已隱藏——只有管理員看得到這本書",
+    "hide": "隱藏",
+    "unhide": "取消隱藏",
+    "hide_help": "隱藏的書只有管理員看得到"
   },
   "action": {
     "download": "下載",
@@ -439,7 +445,9 @@
     "restore_confirm": "請勾選確認後再還原。",
     "restore_nofile": "請選擇備份檔案。",
     "task_started": "任務已在背景啟動。",
-    "reader_unsupported": "這本書無法在瀏覽器中閱讀，請下載後閱讀。"
+    "reader_unsupported": "這本書無法在瀏覽器中閱讀，請下載後閱讀。",
+    "hidden": "這本書已隱藏——只有管理員看得到。",
+    "unhidden": "這本書又對所有人可見了。"
   },
   "langname": {
     "hu": "匈牙利語",
@@ -610,7 +618,9 @@
     "backup_created": "已建立備份：{name}",
     "backup_auto": "自動備份：{name}",
     "backup_restored": "已從備份還原：{name} – {books} 本書，{files} 個檔案",
-    "backup_failed": "備份失敗"
+    "backup_failed": "備份失敗",
+    "hidden": "已隱藏：{title}",
+    "unhidden": "已取消隱藏：{title}"
   },
   "theme": {
     "label": "外觀",

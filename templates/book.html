@@ -10,6 +10,7 @@
   </div>
   <div class="info">
     <div>
+      {% if b.hidden %}<div class="hidnote">{{ icon('eyeoff', 16) }} {{ t('book.hidden_note') }}</div>{% endif %}
       <h1 style="line-height: 1.1">{{ b.title }}</h1>
       <div style="margin-top: 6px; font-size: 18px">{% for a in b.authors %}<a href="/books?author={{ a.id }}">{{ a.name }}</a>{% if not loop.last %}, {% endif %}{% endfor %}</div>
       {% if b.series %}<div class="muted" style="margin-top: 4px">{{ t('book.series') }}: <a href="/books?series={{ b.series_id }}&sort=series">{{ b.series }}</a>{% if b.series_index %} · {{ t('book.volume', n='%g' % b.series_index) }}{% endif %}</div>{% endif %}
@@ -42,6 +43,8 @@
       {% endif %}
       {% if user.can('can_edit') %}<a class="btn" href="/book/{{ b.id }}/edit">{{ icon('edit', 16) }} {{ t('action.edit') }}</a>
       <a class="btn" href="/book/{{ b.id }}/lookup?go=1">{{ icon('search', 16) }} {{ t('lookup.button') }}</a>{% endif %}
+      {% if user.is_admin %}<form method="post" action="/book/{{ b.id }}/hide"><input type="hidden" name="hidden" value="{{ 0 if b.hidden else 1 }}">
+        <button class="btn" type="submit" title="{{ t('book.hide_help') }}">{% if b.hidden %}{{ icon('eye', 16) }} {{ t('book.unhide') }}{% else %}{{ icon('eyeoff', 16) }} {{ t('book.hide') }}{% endif %}</button></form>{% endif %}
     </div>
 
     <table class="meta">

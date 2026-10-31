@@ -35,7 +35,8 @@
     "unread": "Ungelesen",
     "discover": "Entdecken",
     "incomplete": "Fehlende Metadaten",
-    "archived": "Archiviert"
+    "archived": "Archiviert",
+    "hidden": "Verborgene Bücher"
   },
   "browse": {
     "authors": "Autoren",
@@ -116,7 +117,12 @@
     "isbn": "ISBN",
     "dl_mobi": "für ältere Kindle (wird beim Herunterladen erstellt)",
     "dl_azw3": "für Kindle (wird beim Herunterladen erstellt)",
-    "dl_epub": "(wird beim Herunterladen erstellt)"
+    "dl_epub": "(wird beim Herunterladen erstellt)",
+    "hidden": "Verborgen",
+    "hidden_note": "Verborgen – nur Administratoren sehen dieses Buch",
+    "hide": "Verbergen",
+    "unhide": "Sichtbar machen",
+    "hide_help": "Verborgene Bücher sehen nur Administratoren"
   },
   "action": {
     "download": "Herunterladen",
@@ -439,7 +445,9 @@
     "restore_confirm": "Zum Wiederherstellen die Bestätigung ankreuzen.",
     "restore_nofile": "Wähle eine Sicherungsdatei.",
     "task_started": "Die Aufgabe wurde im Hintergrund gestartet.",
-    "reader_unsupported": "Dieses Buch kann nicht im Browser gelesen werden – lade es stattdessen herunter."
+    "reader_unsupported": "Dieses Buch kann nicht im Browser gelesen werden – lade es stattdessen herunter.",
+    "hidden": "Das Buch ist jetzt verborgen – nur Administratoren sehen es.",
+    "unhidden": "Das Buch ist wieder für alle sichtbar."
   },
   "kindle": {
     "settings": "Einstellungen",
@@ -548,7 +556,9 @@
     "backup_created": "Sicherung erstellt: {name}",
     "backup_auto": "Automatische Sicherung: {name}",
     "backup_restored": "Aus Sicherung wiederhergestellt: {name} – {books} Bücher, {files} Dateien",
-    "backup_failed": "Sicherung fehlgeschlagen"
+    "backup_failed": "Sicherung fehlgeschlagen",
+    "hidden": "Verborgen: {title}",
+    "unhidden": "Sichtbar gemacht: {title}"
   },
   "theme": {
     "label": "Darstellung",

@@ -35,7 +35,8 @@
     "unread": "안 읽음",
     "discover": "둘러보기",
     "incomplete": "정보 누락",
-    "archived": "보관됨"
+    "archived": "보관됨",
+    "hidden": "숨긴 책"
   },
   "browse": {
     "authors": "저자",
@@ -116,7 +117,12 @@
     "isbn": "ISBN",
     "dl_mobi": "구형 Kindle용 (다운로드할 때 생성)",
     "dl_azw3": "Kindle용 (다운로드할 때 생성)",
-    "dl_epub": "(다운로드할 때 생성)"
+    "dl_epub": "(다운로드할 때 생성)",
+    "hidden": "숨김",
+    "hidden_note": "숨김 – 이 책은 관리자만 볼 수 있습니다",
+    "hide": "숨기기",
+    "unhide": "보이게 하기",
+    "hide_help": "숨긴 책은 관리자만 볼 수 있습니다"
   },
   "action": {
     "download": "다운로드",
@@ -439,7 +445,9 @@
     "restore_confirm": "복원하려면 확인란을 선택하세요.",
     "restore_nofile": "백업 파일을 선택하세요.",
     "task_started": "작업을 백그라운드에서 시작했습니다.",
-    "reader_unsupported": "이 책은 브라우저에서 읽을 수 없습니다. 대신 다운로드하세요."
+    "reader_unsupported": "이 책은 브라우저에서 읽을 수 없습니다. 대신 다운로드하세요.",
+    "hidden": "책을 숨겼습니다. 관리자만 볼 수 있습니다.",
+    "unhidden": "책이 다시 모두에게 보입니다."
   },
   "langname": {
     "hu": "헝가리어",
@@ -610,7 +618,9 @@
     "backup_created": "백업 생성: {name}",
     "backup_auto": "자동 백업: {name}",
     "backup_restored": "백업에서 복원: {name} – {books}권, 파일 {files}개",
-    "backup_failed": "백업 실패"
+    "backup_failed": "백업 실패",
+    "hidden": "숨김: {title}",
+    "unhidden": "보이게 함: {title}"
   },
   "theme": {
     "label": "화면 모드",

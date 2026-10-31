@@ -35,7 +35,8 @@
     "unread": "Por ler",
     "discover": "Descobrir",
     "incomplete": "Dados em falta",
-    "archived": "Arquivados"
+    "archived": "Arquivados",
+    "hidden": "Livros ocultos"
   },
   "browse": {
     "authors": "Autores",
@@ -116,7 +117,12 @@
     "isbn": "ISBN",
     "dl_mobi": "para Kindle antigo (criado ao transferir)",
     "dl_azw3": "para Kindle (criado ao transferir)",
-    "dl_epub": "(criado ao transferir)"
+    "dl_epub": "(criado ao transferir)",
+    "hidden": "Oculto",
+    "hidden_note": "Oculto – só os administradores veem este livro",
+    "hide": "Ocultar",
+    "unhide": "Tornar visível",
+    "hide_help": "Os livros ocultos só são visíveis para os administradores"
   },
   "action": {
     "download": "Transferir",
@@ -439,7 +445,9 @@
     "restore_confirm": "Marque a confirmação para restaurar.",
     "restore_nofile": "Escolha um ficheiro de cópia de segurança.",
     "task_started": "A tarefa foi iniciada em segundo plano.",
-    "reader_unsupported": "Este livro não pode ser lido no navegador; transfira-o."
+    "reader_unsupported": "Este livro não pode ser lido no navegador; transfira-o.",
+    "hidden": "O livro está agora oculto – só os administradores o veem.",
+    "unhidden": "O livro voltou a estar visível para todos."
   },
   "langname": {
     "hu": "Húngaro",
@@ -610,7 +618,9 @@
     "backup_created": "Cópia de segurança criada: {name}",
     "backup_auto": "Cópia de segurança automática: {name}",
     "backup_restored": "Restaurado a partir da cópia: {name} – {books} livros, {files} ficheiros",
-    "backup_failed": "A cópia de segurança falhou"
+    "backup_failed": "A cópia de segurança falhou",
+    "hidden": "Ocultado: {title}",
+    "unhidden": "Tornado visível: {title}"
   },
   "theme": {
     "label": "Aspeto",

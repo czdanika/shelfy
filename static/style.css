@@ -513,3 +513,8 @@ input[type=text],input[type=password],input[type=email],input[type=number],input
 .installpop div.how .btn{width:100%}
 .installpop .foot{display:flex;justify-content:flex-end;margin-top:10px}
 .installpop .foot .btn{min-height:36px;padding:0 14px;border-color:transparent;color:var(--muted)}
+
+/* ---- rejtett könyvek (csak admin látja) ---- */
+.cover .hid{position:absolute;top:8px;right:8px;display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:999px;background:rgba(17,24,39,.82);color:#fff;font-size:11px;font-weight:600}
+.badge.hid-b{display:inline-flex;align-items:center;gap:4px;background:var(--line);color:var(--muted)}
+.hidnote{display:inline-flex;align-items:center;gap:6px;margin-bottom:8px;padding:4px 12px;border-radius:999px;background:var(--line);color:var(--muted);font-size:13px;font-weight:600}

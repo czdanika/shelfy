@@ -35,7 +35,8 @@
     "unread": "Non lus",
     "discover": "Découvrir",
     "incomplete": "Métadonnées manquantes",
-    "archived": "Archivés"
+    "archived": "Archivés",
+    "hidden": "Livres masqués"
   },
   "browse": {
     "authors": "Auteurs",
@@ -116,7 +117,12 @@
     "isbn": "ISBN",
     "dl_mobi": "pour Kindle ancien (créé au téléchargement)",
     "dl_azw3": "pour Kindle (créé au téléchargement)",
-    "dl_epub": "(créé au téléchargement)"
+    "dl_epub": "(créé au téléchargement)",
+    "hidden": "Masqué",
+    "hidden_note": "Masqué – seuls les administrateurs voient ce livre",
+    "hide": "Masquer",
+    "unhide": "Rendre visible",
+    "hide_help": "Les livres masqués ne sont visibles que par les administrateurs"
   },
   "action": {
     "download": "Télécharger",
@@ -439,7 +445,9 @@
     "restore_confirm": "Cochez la confirmation pour restaurer.",
     "restore_nofile": "Choisissez un fichier de sauvegarde.",
     "task_started": "La tâche a démarré en arrière-plan.",
-    "reader_unsupported": "Ce livre ne peut pas être lu dans le navigateur ; téléchargez-le plutôt."
+    "reader_unsupported": "Ce livre ne peut pas être lu dans le navigateur ; téléchargez-le plutôt.",
+    "hidden": "Le livre est maintenant masqué – seuls les administrateurs le voient.",
+    "unhidden": "Le livre est de nouveau visible par tous."
   },
   "kindle": {
     "settings": "Paramètres",
@@ -548,7 +556,9 @@
     "backup_created": "Sauvegarde créée : {name}",
     "backup_auto": "Sauvegarde automatique : {name}",
     "backup_restored": "Restauration depuis une sauvegarde : {name} – {books} livres, {files} fichiers",
-    "backup_failed": "Échec de la sauvegarde"
+    "backup_failed": "Échec de la sauvegarde",
+    "hidden": "Masqué : {title}",
+    "unhidden": "Rendu visible : {title}"
   },
   "theme": {
     "label": "Apparence",

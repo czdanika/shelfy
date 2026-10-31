@@ -35,7 +35,8 @@
     "unread": "未読",
     "discover": "発見",
     "incomplete": "情報不足",
-    "archived": "アーカイブ"
+    "archived": "アーカイブ",
+    "hidden": "非表示の本"
   },
   "browse": {
     "authors": "著者",
@@ -116,7 +117,12 @@
     "isbn": "ISBN",
     "dl_mobi": "旧型 Kindle 用（ダウンロード時に作成）",
     "dl_azw3": "Kindle 用（ダウンロード時に作成）",
-    "dl_epub": "（ダウンロード時に作成）"
+    "dl_epub": "（ダウンロード時に作成）",
+    "hidden": "非表示",
+    "hidden_note": "非表示 – この本は管理者だけが見られます",
+    "hide": "非表示にする",
+    "unhide": "表示する",
+    "hide_help": "非表示の本は管理者だけが見られます"
   },
   "action": {
     "download": "ダウンロード",
@@ -439,7 +445,9 @@
     "restore_confirm": "復元するには確認にチェックを入れてください。",
     "restore_nofile": "バックアップファイルを選択してください。",
     "task_started": "タスクをバックグラウンドで開始しました。",
-    "reader_unsupported": "この本はブラウザーで読めません。ダウンロードしてください。"
+    "reader_unsupported": "この本はブラウザーで読めません。ダウンロードしてください。",
+    "hidden": "本を非表示にしました。管理者だけが見られます。",
+    "unhidden": "本が再び全員に表示されます。"
   },
   "langname": {
     "hu": "ハンガリー語",
@@ -610,7 +618,9 @@
     "backup_created": "バックアップを作成：{name}",
     "backup_auto": "自動バックアップ：{name}",
     "backup_restored": "バックアップから復元：{name} – {books} 冊、{files} ファイル",
-    "backup_failed": "バックアップに失敗"
+    "backup_failed": "バックアップに失敗",
+    "hidden": "非表示にしました：{title}",
+    "unhidden": "表示にしました：{title}"
   },
   "theme": {
     "label": "外観",

@@ -142,3 +142,38 @@ def test_general_settings_and_sources(admin):
     assert [p.name for p in st.ingest.lookup.providers] == ["google", "dnb"]
     admin.post("/admin/settings/sources", data={"preset": "1"})  # német alapnyelv → DNB + Google + Open Library
     assert [p.name for p in st.ingest.lookup.providers] == ["dnb", "google", "openlibrary"]
+
+
+def test_hidden_books_only_for_admin(admin, tmp_path):
+    from test_backup import add_book
+    bid = add_book(admin, tmp_path, "Titkos napló")
+    other = add_book(admin, tmp_path, "Nyilvános regény")
+    make_user(admin, "olvaso", can_download=True)
+    r = admin.post(f"/book/{bid}/hide", data={"hidden": "1"}, follow_redirects=False)
+    assert r.status_code == 303 and admin.app.state.db.val("SELECT hidden FROM books WHERE id = ?", (bid,)) == 1
+    # admin: látja, jelölve, és a Rejtett könyvek nézetben is
+    assert "Titkos napló" in admin.get("/books").text
+    hv = admin.get("/books?view=hidden").text
+    assert "Titkos napló" in hv and "Nyilvános regény" not in hv
+    assert admin.get(f"/book/{bid}").status_code == 200
+    # olvasó: sehol nem látja
+    login(admin, "olvaso", "olvaso123")
+    assert "Titkos napló" not in admin.get("/books").text and "Nyilvános regény" in admin.get("/books").text
+    assert "Titkos napló" not in admin.get("/books?q=Titkos").text
+    assert "Titkos napló" not in admin.get("/books?view=hidden").text
+    assert "Titkos napló" not in admin.get("/kindle").text
+    for url in (f"/book/{bid}", f"/book/{bid}/cover", f"/book/{bid}/download/epub", f"/book/{bid}/reader", f"/kindle/book/{bid}"):
+        assert admin.get(url, follow_redirects=False).status_code == 404, url
+    assert admin.post(f"/book/{bid}/hide", data={"hidden": "0"}, follow_redirects=False).status_code == 404
+    assert admin.get(f"/book/{other}").status_code == 200
+    # vendégként sem
+    login(admin, "admin", "jelszo123")
+    admin.post("/admin/settings/general", data={"guest_browse": "1", "online_lookup": "1"})
+    admin.cookies.clear()
+    assert "Titkos napló" not in admin.get("/books").text
+    assert admin.get(f"/book/{bid}", follow_redirects=False).status_code == 404
+    # újra látható
+    login(admin, "admin", "jelszo123")
+    admin.post(f"/book/{bid}/hide", data={"hidden": "0"})
+    login(admin, "olvaso", "olvaso123")
+    assert admin.get(f"/book/{bid}").status_code == 200

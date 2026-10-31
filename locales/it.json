@@ -35,7 +35,8 @@
     "unread": "Da leggere",
     "discover": "Scopri",
     "incomplete": "Dati mancanti",
-    "archived": "Archiviati"
+    "archived": "Archiviati",
+    "hidden": "Libri nascosti"
   },
   "browse": {
     "authors": "Autori",
@@ -116,7 +117,12 @@
     "isbn": "ISBN",
     "dl_mobi": "per Kindle meno recenti (creato al download)",
     "dl_azw3": "per Kindle (creato al download)",
-    "dl_epub": "(creato al download)"
+    "dl_epub": "(creato al download)",
+    "hidden": "Nascosto",
+    "hidden_note": "Nascosto – solo gli amministratori vedono questo libro",
+    "hide": "Nascondi",
+    "unhide": "Rendi visibile",
+    "hide_help": "I libri nascosti sono visibili solo agli amministratori"
   },
   "action": {
     "download": "Scarica",
@@ -439,7 +445,9 @@
     "restore_confirm": "Spunta la conferma per ripristinare.",
     "restore_nofile": "Scegli un file di backup.",
     "task_started": "L'attività è stata avviata in background.",
-    "reader_unsupported": "Questo libro non si può leggere nel browser: scaricalo."
+    "reader_unsupported": "Questo libro non si può leggere nel browser: scaricalo.",
+    "hidden": "Il libro ora è nascosto – solo gli amministratori lo vedono.",
+    "unhidden": "Il libro è di nuovo visibile a tutti."
   },
   "langname": {
     "hu": "Ungherese",
@@ -610,7 +618,9 @@
     "backup_created": "Backup creato: {name}",
     "backup_auto": "Backup automatico: {name}",
     "backup_restored": "Ripristinato dal backup: {name} – {books} libri, {files} file",
-    "backup_failed": "Backup non riuscito"
+    "backup_failed": "Backup non riuscito",
+    "hidden": "Nascosto: {title}",
+    "unhidden": "Reso visibile: {title}"
   },
   "theme": {
     "label": "Aspetto",
