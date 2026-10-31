@@ -582,7 +582,9 @@
     "chi": "Chinesisch",
     "zho": "Chinesisch",
     "la": "Latein",
-    "lat": "Latein"
+    "lat": "Latein",
+    "ko": "Koreanisch",
+    "kor": "Koreanisch"
   },
   "backup": {
     "create_title": "Sicherung erstellen",

@@ -9,7 +9,7 @@
 
 A self-hosted ebook library for your home and family. You upload books, Shelfy inspects them and completes their metadata online, and you get a searchable, editable catalogue. It also converts formats, sends books to Kindle by e-mail, and has a simple Kindle view that works on old Kindles too.
 
-The interface ships in **English, German, French and Hungarian**, with a built-in user guide in each language. Every label lives in a translation file, and you can add or edit languages from the admin interface. Light and dark themes are included.
+The interface ships in **14 languages** – English, Hungarian, German, French, Italian, Spanish, Portuguese, Polish, Russian, Turkish, Japanese, Korean, Simplified and Traditional Chinese – with a built-in user guide in each, and a language picker in the top bar. Every label lives in a translation file, and you can add or edit languages from the admin interface. Light and dark themes are included.
 
 ![Library](docs/library.png)
 
@@ -73,7 +73,7 @@ services:
     volumes:
       - shelfy-data:/data
     environment:
-      - DEFAULT_LANGUAGE=en                     # en | de | fr | hu
+      - DEFAULT_LANGUAGE=en                     # en hu de fr it es pt pl ru tr ja ko zh-Hans zh-Hant
 volumes:
   shelfy-data:
 ```
@@ -94,7 +94,7 @@ The image is built for `linux/amd64` and `linux/arm64`, with the conversion tool
 | `DATA_DIR` | `/data` | database, caches, secret key |
 | `LIBRARY_DIR` | `/data/library` | book files (`Author/Title (id)/…`) |
 | `INGEST_DIR` | – | watched folder, including subfolders: ebook files copied here are imported automatically (and moved out of it) |
-| `DEFAULT_LANGUAGE` | `en` | default interface language; also the language of category tags |
+| `DEFAULT_LANGUAGE` | `en` | default interface language; also the language of category tags. One of `en`, `hu`, `de`, `fr`, `it`, `es`, `pt`, `pl`, `ru`, `tr`, `ja`, `ko`, `zh-Hans`, `zh-Hant` (region codes such as `en-us`, `zh-cn`, `zh-hk` also work). Before signing in, the browser's language is used if it is available. |
 | `ONLINE_LOOKUP` | `true` | enable or disable online metadata lookup |
 | `METADATA_PROVIDERS` | `moly,google,openlibrary` | metadata sources, in order |
 | `ADMIN_USER`, `ADMIN_PASSWORD` | – | first admin account (only if there are no users yet) |
@@ -136,7 +136,7 @@ docker compose start shelfy
 
 ## Translations
 
-Translations live in `locales/<code>.json`. English (`en.json`) is the reference: new languages are translated from it, and any missing text falls back to English. German (`de.json`), French (`fr.json`) and Hungarian (`hu.json`) are shipped as well.
+Translations live in `locales/<code>.json`. English (`en.json`) is the reference: new languages are translated from it, and any missing text falls back to English. Thirteen more are shipped: `hu`, `de`, `fr`, `it`, `es`, `pt`, `pl`, `ru`, `tr`, `ja`, `ko`, `zh-Hans` (Simplified Chinese) and `zh-Hant` (Traditional Chinese).
 
 The user guide is in `locales/help/<code>.html`, one file per language with the same sections (a missing language falls back to English). A customised guide can be placed in `DATA_DIR/locales/help/`.
 

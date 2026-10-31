@@ -97,7 +97,14 @@ def test_translation_editing(admin, cfg):
     admin.post("/admin/languages/en", data={"k:nav.library": ""})
     assert json.loads((cfg.data_dir / "locales" / "en.json").read_text())["nav.library"] == "Library"
 
-    r = admin.post("/admin/languages/new", data={"code": "it", "name": "Italiano"}, follow_redirects=False)
-    assert r.headers["location"] == "/admin/languages/it"
-    assert "Italiano" in admin.get("/admin/languages").text
+    r = admin.post("/admin/languages/new", data={"code": "nl", "name": "Nederlands"}, follow_redirects=False)
+    assert r.headers["location"] == "/admin/languages/nl"
+    assert "Nederlands" in admin.get("/admin/languages").text
     assert admin.post("/admin/languages/new", data={"code": "hu", "name": "x"}, follow_redirects=False).headers["location"].endswith("lang_error")
+
+
+def test_language_picker_and_browser_language(client):
+    r = client.get("/login", headers={"Accept-Language": "ko-KR,ko;q=0.9"})
+    assert "로그인" in r.text and 'name="code"' in r.text
+    client.get("/lang?code=zh-cn")
+    assert "登录" in client.get("/login").text

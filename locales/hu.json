@@ -467,7 +467,9 @@
     "chi": "kínai",
     "zho": "kínai",
     "la": "latin",
-    "lat": "latin"
+    "lat": "latin",
+    "ko": "koreai",
+    "kor": "koreai"
   },
   "kindle": {
     "settings": "Beállítások",

@@ -1,0 +1,128 @@
+<h2 id="start">Primeiros passos</h2>
+<p>O Shelfy é uma biblioteca de livros digitais para casa: carrega os seus livros, o Shelfy verifica-os e completa os metadados online, e depois qualquer pessoa da família pode explorá-los, transferi-los ou enviá-los para um Kindle.</p>
+<ol>
+  <li><strong>Carregar</strong> – arraste os livros para a página <a href="/upload">Carregar</a>.</li>
+  <li><strong>Rever</strong> – depois da verificação, confira os metadados propostos e adicione o livro à biblioteca.</li>
+  <li><strong>Kindle</strong> – introduza o endereço de e-mail do Kindle na página <a href="/me">A minha conta</a> e envie livros com um clique.</li>
+</ol>
+
+<h2 id="upload">Carregar livros</h2>
+<ul>
+  <li>Na página <a href="/upload">Carregar</a>, largue os ficheiros na caixa tracejada ou clique em «escolha no computador». Pode carregar vários ficheiros de uma vez.</li>
+  <li>Formatos suportados: EPUB, MOBI, AZW3, AZW, PRC, PDF, FB2, CBZ, CBR, DOCX, ODT, RTF, TXT, DJVU.</li>
+  <li><strong>Pasta monitorizada:</strong> se tiver sido configurada na instalação, os livros copiados para lá (incluindo subpastas) são importados automaticamente. Os outros ficheiros (imagens, etc.) não são tocados; os livros importados são retirados da pasta.</li>
+  <li>Para carregar é preciso a permissão de carregamento, atribuída por um administrador.</li>
+</ul>
+
+<h2 id="review">Verificação e revisão</h2>
+<p>Cada ficheiro carregado é verificado automaticamente. O <em>Registo da verificação</em> mostra o resultado passo a passo:</p>
+<ul>
+  <li><strong>Formato, integridade</strong> – o ficheiro é o que a extensão diz e está intacto?</li>
+  <li><strong>Ficheiro idêntico, duplicado</strong> – este mesmo ficheiro, ou um livro com o mesmo título e autor, já está na biblioteca?</li>
+  <li><strong>Metadados incorporados, capa</strong> – o que foi possível ler do ficheiro e o tamanho da capa incorporada.</li>
+  <li><strong>Pesquisa online</strong> – correspondências de Moly.hu, Google Books e Open Library, com uma percentagem de correspondência.</li>
+  <li><strong>Categoria</strong> – uma sugestão com base nas etiquetas e na descrição.</li>
+</ul>
+<p>Na página de revisão:</p>
+<ul>
+  <li>Escolha a certa nas <em>Correspondências</em> (ou «Só metadados do ficheiro»). Se nenhuma servir, refine a pesquisa com título, autor ou ISBN em <em>Pesquisar novamente</em>.</li>
+  <li>Os <em>Metadados propostos</em> podem ser editados antes de adicionar. Para a capa, escolha entre a incorporada e a online.</li>
+  <li>As <em>Categorias</em> são adicionadas ao livro como etiquetas – clique para as ativar ou desativar.</li>
+  <li>Se já tiver o livro, «Adicionar como formato …» associa o ficheiro ao livro existente como novo formato.</li>
+  <li>Se houver vários carregamentos à espera, aparecem todos no topo e «Adicionar e seguinte» passa logo ao próximo.</li>
+  <li><em>Aprovar todos</em> na fila adiciona de uma vez todos os livros com uma boa correspondência (os duplicados são ignorados).</li>
+</ul>
+<p class="tip">Ao importar uma coleção maior, ative <em>Administração → Definições → Adicionar automaticamente quando a correspondência for fiável</em>: tudo o que tiver pelo menos 85% de correspondência e não for duplicado é adicionado sozinho.</p>
+
+<h2 id="library">Explorar a biblioteca</h2>
+<ul>
+  <li><strong>Pesquisa</strong> – o campo no topo pesquisa título, autor, série, etiqueta e ISBN.</li>
+  <li><strong>Vistas</strong> – no menu à esquerda: todos, adicionados recentemente, populares, mais bem avaliados, por estado de leitura; em <em>Explorar</em>: autores, séries, etiquetas, editoras, idiomas, formatos, avaliações.</li>
+  <li><strong>Ordenação</strong> – na barra acima dos livros (adicionado, título, autor, publicação, série, avaliação). A escolha fica memorizada.</li>
+  <li><strong>Grelha e lista</strong> – alterne com os ícones no canto superior direito. A lista mostra ao lado da capa os dados principais e o início da descrição.</li>
+  <li><strong>Tamanho</strong> – o cursor define o tamanho das capas (e quantos livros cabem numa linha); ao lado escolhe quantos livros por página.</li>
+  <li><strong>Menu rápido</strong> – na vista em grelha, passe o rato sobre uma capa para transferir, enviar para o Kindle, editar ou adicionar a uma estante.</li>
+  <li><strong>Estantes</strong> – coloque qualquer livro numa estante pessoal a partir da página dele (ex.: «Férias»); as suas estantes aparecem no menu à esquerda.</li>
+</ul>
+
+<h2 id="book">A página do livro</h2>
+<ul>
+  <li><strong>Transferir</strong> – em qualquer formato existente. Se faltar MOBI, AZW3 ou EPUB, o Shelfy cria-o ao transferir.</li>
+  <li><strong>Converter</strong> – adiciona permanentemente um novo formato ao livro (requer a permissão de edição).</li>
+  <li><strong>Editar</strong> – todos os campos, incluindo a capa.</li>
+  <li><strong>Metadados online</strong> – uma nova pesquisa nas fontes online; vê lado a lado o valor atual e o online e marca o que quer adotar.</li>
+  <li><strong>Estado de leitura</strong> – por ler, a ler, lido; separado para cada utilizador.</li>
+  <li><strong>Histórico</strong> – quem transferiu, enviou ou editou o livro e quando (visível para editores).</li>
+</ul>
+
+<h2 id="kindle">Kindle</h2>
+<h3>Envio por e-mail</h3>
+<ol>
+  <li>Em <a href="/me">A minha conta</a>, introduza o endereço de e-mail do Kindle (…@kindle.com).</li>
+  <li>Na sua conta Amazon, adicione o endereço do remetente aos remetentes aprovados (<em>Gerir o seu conteúdo e dispositivos → Preferências → Definições de documentos pessoais</em>).</li>
+  <li>Na página do livro ou no menu rápido: <em>Enviar para o Kindle</em>.</li>
+</ol>
+<p>O administrador configura uma conta de envio partilhada, mas cada pessoa pode adicionar a sua em A minha conta (há lá uma ajuda para o Gmail). Se um livro só existir em MOBI ou AZW3, o Shelfy cria primeiro um EPUB, porque a Amazon agora só aceita EPUB. O tamanho máximo é 50 MB.</p>
+<h3>Transferir a partir do navegador do Kindle</h3>
+<p>Aberto num Kindle, o Shelfy mostra automaticamente a vista Kindle simples, adequada a tinta eletrónica. Em <em>Definições</em>, escolha um Kindle recente (AZW3) ou antigo (só MOBI). Com um Kindle antigo, use o endereço da rede local (http://…), porque o navegador antigo não consegue abrir muitos sites HTTPS.</p>
+<h3>No telemóvel</h3>
+<p>Use «Adicionar ao ecrã principal» no menu do navegador e o Shelfy abre como uma app separada com o seu próprio ícone.</p>
+
+<h2 id="account">A minha conta</h2>
+<ul>
+  <li>Nome apresentado, idioma da interface, endereço de e-mail do Kindle, alteração da palavra-passe.</li>
+  <li>Envio de e-mail pessoal (SMTP) – se ficar vazio, é usada a conta partilhada.</li>
+  <li>A minha atividade – as suas transferências, envios e carregamentos.</li>
+  <li>O idioma e o aspeto (automático / claro / escuro) definem-se na barra superior.</li>
+</ul>
+
+<h2 id="admin">Para administradores</h2>
+<ul>
+  <li><strong>Utilizadores</strong> – funções: administrador (acesso total), editor, leitor; as permissões (carregar, editar, transferir, eliminar) também podem ser definidas uma a uma. Aqui também pode dar a alguém definições de e-mail pessoais.</li>
+  <li><strong>Definições</strong> – envio de e-mail partilhado (SMTP), e-mail de teste, adição automática, estatísticas da biblioteca, estado do sistema.</li>
+  <li><strong>Idiomas</strong> – todos os textos podem ser traduzidos; veja o grau de conclusão de cada idioma e adicione novos. As traduções editadas na interface mantêm-se após as atualizações.</li>
+  <li><strong>Registo de atividade</strong> – cada evento importante com data e hora: carregamentos, adições, envios (incluindo falhas), transferências, inícios de sessão, alterações de definições. Filtre por tipo, utilizador e período, ou mostre só os erros.</li>
+</ul>
+<h3>Palavra-passe esquecida</h3>
+<p>Um administrador pode repor a palavra-passe de um utilizador na página Utilizadores. Se o administrador se esqueceu da sua, execute isto no servidor:</p>
+<pre>docker exec -it shelfy python -m app.reset_password &lt;utilizador&gt;</pre>
+
+<h2 id="backup">Cópia de segurança, restauro, mudança</h2>
+<p>O Shelfy tem duas partes:</p>
+<ul>
+  <li>a <strong>base de dados</strong> (<code>shelfy.db</code> na pasta de dados): metadados dos livros, utilizadores, estantes, estado de leitura, registo de atividade, definições – pequena, alguns MB;</li>
+  <li>a <strong>pasta da biblioteca</strong>: ficheiros dos livros e capas em pastas <code>Autor/Título (id)/</code> – a parte grande. A base de dados aponta para estes ficheiros.</li>
+</ul>
+<p>Juntas formam a biblioteca inteira. Em <em>Administração → Cópia de segurança</em>:</p>
+<ul>
+  <li><strong>Só a base de dados</strong> – um ZIP pequeno. Chega se a pasta da biblioteca estiver no NAS e a cópia de segurança do próprio NAS (ex.: para outro volume ou para a nuvem) a cobrir.</li>
+  <li><strong>Cópia completa</strong> – base de dados + todos os ficheiros dos livros e capas num único ZIP (100 livros são cerca de 100 MB). Muda o Shelfy inteiro de uma só vez.</li>
+  <li><strong>Cópia automática</strong> – uma cópia diária da base de dados na pasta <code>backups</code> da pasta de dados; escolha quantos dias manter.</li>
+</ul>
+<h3>Mudar para outra máquina</h3>
+<ol>
+  <li>No Shelfy antigo, transfira uma <strong>cópia completa</strong>.</li>
+  <li>Inicie o Shelfy no novo local e crie uma conta de administrador temporária.</li>
+  <li><em>Administração → Cópia de segurança → Restaurar</em>: carregue o ZIP. A base de dados e os ficheiros dos livros são repostos, e os antigos utilizadores podem entrar com as suas palavras-passe.</li>
+</ol>
+<p>Em alternativa, copie a pasta da biblioteca para o novo local no NAS e restaure só a cópia da base de dados. Depois, <em>Verificar a biblioteca</em> mostra os ficheiros em falta.</p>
+<h3>Pela linha de comandos para bibliotecas grandes</h3>
+<pre>docker exec shelfy python -m app.backup create --full      # cópia completa na pasta backups
+docker exec shelfy python -m app.backup check              # procurar ficheiros em falta
+docker compose stop shelfy
+docker compose run --rm shelfy python -m app.backup restore /data/backups/&lt;ficheiro&gt;.zip
+docker compose start shelfy</pre>
+<p class="tip">Uma cópia contém os hashes das palavras-passe e a chave de encriptação – guarde-a num local seguro. Antes de restaurar, o Shelfy guarda sempre o estado atual (<code>before-restore-…zip</code>).</p>
+
+<h2 id="tasks">Tarefas em segundo plano</h2>
+<p>As operações mais longas – verificação de carregamentos, conversão, envio para o Kindle, cópias de segurança, restauros – podem ser acompanhadas na página <a href="/tasks">Tarefas</a>: quem as iniciou, o estado, quanto tempo demoraram e o resultado. A barra lateral mostra quantas estão em curso. Os administradores podem iniciar aí uma verificação da biblioteca (ficheiros em falta) e uma procura de duplicados. As tarefas ficam na lista durante 14 dias.</p>
+
+<h2 id="faq">Perguntas frequentes</h2>
+<dl>
+  <dt>O livro não chega ao meu Kindle.</dt>
+  <dd>Veja o <em>Registo de atividade</em> (como administrador) ou <em>A minha atividade</em>: se o envio falhou, o motivo aparece aí. Se correu bem, provavelmente o endereço do remetente não está aprovado na Amazon.</dd>
+  <dt>Foram adotados metadados errados no carregamento.</dt>
+  <dd>Use <em>Metadados online</em> na página do livro para pesquisar de novo, ou corrija à mão com <em>Editar</em>.</dd>
+  <dt>Falta a capa.</dt>
+  <dd>A vista <em>Dados em falta</em> lista os livros sem capa ou descrição; Metadados online ou Editar (carregar uma capa) resolvem.</dd>
+</dl>

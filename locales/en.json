@@ -467,7 +467,9 @@
     "chi": "Chinese",
     "zho": "Chinese",
     "la": "Latin",
-    "lat": "Latin"
+    "lat": "Latin",
+    "ko": "Korean",
+    "kor": "Korean"
   },
   "kindle": {
     "settings": "Settings",

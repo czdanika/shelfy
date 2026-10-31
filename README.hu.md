@@ -10,7 +10,7 @@
 
 Saját, otthoni e-könyvtár: feltöltés, automatikus vizsgálat és adatgyűjtés, kereshető és szerkeszthető katalógus, konvertálás, küldés Kindle-re és egy egyszerű Kindle-nézet a régi Kindle-ökhöz is. Több felhasználóval, a családnak.
 
-A felület magyar, angol, német és francia nyelvű, mindegyikhez beépített használati útmutatóval. Minden felirat a `locales/*.json` fájlokban van, és a felületről is fordítható. Világos és sötét téma is van.
+A felület **14 nyelven** érhető el – angol, magyar, német, francia, olasz, spanyol, portugál, lengyel, orosz, török, japán, koreai, egyszerűsített és hagyományos kínai –, mindegyikhez beépített használati útmutatóval; a nyelv a felső sávban egy legördülő listából választható. Minden felirat a `locales/*.json` fájlokban van, és a felületről is fordítható. Világos és sötét téma is van.
 
 ![Könyvtár](docs/hu/library.png)
 
@@ -92,7 +92,7 @@ Az első megnyitáskor létrehozod az admin fiókot. Utána:
 | `DATA_DIR` | `/data` | adatbázis, gyorsítótár, titkosító kulcs |
 | `LIBRARY_DIR` | `/data/library` | a könyvek fájljai (Szerző/Cím (id)/…) |
 | `INGEST_DIR` | – | figyelt mappa almappákkal együtt: az ide másolt e-könyveket magától felveszi (és kiveszi innen) |
-| `DEFAULT_LANGUAGE` | `en` | a felület alapnyelve (`en`, `de`, `fr`, `hu`); a kategória-címkék is ezen a nyelven kerülnek a könyvekhez |
+| `DEFAULT_LANGUAGE` | `en` | a felület alapnyelve: `en`, `hu`, `de`, `fr`, `it`, `es`, `pt`, `pl`, `ru`, `tr`, `ja`, `ko`, `zh-Hans`, `zh-Hant` (régiós kód is jó, pl. `hu-hu`, `zh-cn`, `zh-hk`); a kategória-címkék is ezen a nyelven kerülnek a könyvekhez. Bejelentkezés előtt a böngésző nyelvét használja, ha elérhető. |
 | `ONLINE_LOOKUP` | `true` | online adatkeresés be/ki |
 | `METADATA_PROVIDERS` | `moly,google,openlibrary` | adatforrások sorrendben |
 | `ADMIN_USER`, `ADMIN_PASSWORD` | – | első admin fiók (ha nincs még felhasználó) |
@@ -134,7 +134,7 @@ docker compose start shelfy
 
 ## Fordítás
 
-A szövegek a `locales/<kód>.json` fájlokban vannak: angol (`en.json`, ez a referencia – a hiányzó fordítások helyén angol jelenik meg), német (`de.json`), francia (`fr.json`) és magyar (`hu.json`). A használati útmutató nyelvenként a `locales/help/<kód>.html` fájlban van; saját változat a `DATA_DIR/locales/help/` mappába tehető. Új nyelvet az **Adminisztráció → Nyelvek** oldalon lehet felvenni és fordítani. A felületen végzett módosítások a `DATA_DIR/locales` mappába kerülnek, így frissítéskor sem vesznek el.
+A szövegek a `locales/<kód>.json` fájlokban vannak: angol (`en.json`, ez a referencia – a hiányzó fordítások helyén angol jelenik meg), valamint magyar, német, francia, olasz, spanyol, portugál, lengyel, orosz, török, japán, koreai, egyszerűsített és hagyományos kínai (`hu.json`, `de.json`, … `zh-Hans.json`, `zh-Hant.json`). A használati útmutató nyelvenként a `locales/help/<kód>.html` fájlban van; saját változat a `DATA_DIR/locales/help/` mappába tehető. Új nyelvet az **Adminisztráció → Nyelvek** oldalon lehet felvenni és fordítani. A felületen végzett módosítások a `DATA_DIR/locales` mappába kerülnek, így frissítéskor sem vesznek el.
 
 Ellenőrzés, hogy minden használt kulcs le van-e fordítva:
 

@@ -107,3 +107,24 @@ def test_help_files_have_same_sections():
     ids = {f.stem: re.findall(r'<h2 id="([\w-]+)"', f.read_text()) for f in root.glob("*.html")}
     assert set(ids) >= {"hu", "en", "de", "fr"}
     assert len({tuple(v) for v in ids.values()}) == 1, ids
+
+
+def test_language_codes_resolve():
+    from app.i18n import I18n
+    i = I18n()
+    assert len(i.languages) >= 14
+    assert i.resolve("hu-hu") == "hu" and i.resolve("en-US") == "en" and i.resolve("de_DE") == "de"
+    assert i.resolve("zh-cn") == "zh-Hans" and i.resolve("zh-hk") == "zh-Hant" and i.resolve("zh-TW") == "zh-Hant"
+    assert i.resolve("xx") is None and i.resolve("") is None
+    assert i.from_header("fi;q=0.9, ja-JP;q=0.8, en;q=0.5") == "ja"
+    assert i.from_header("zh-HK,zh;q=0.9") == "zh-Hant"
+
+
+def test_help_pages_for_every_language():
+    import re
+    from pathlib import Path
+    from app.i18n import I18n
+    root = Path(__file__).resolve().parent.parent / "locales" / "help"
+    ref = re.findall(r'<h2 id="(\w+)"', (root / "en.html").read_text(encoding="utf-8"))
+    for code in I18n().languages:
+        assert re.findall(r'<h2 id="(\w+)"', (root / f"{code}.html").read_text(encoding="utf-8")) == ref, code

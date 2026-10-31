@@ -17,7 +17,11 @@ services:
       # - /srv/books/shelfy:/data/library         # keep the book files in a separate folder (optional)
       # - /srv/books/inbox:/ingest                # watched folder (with subfolders): ebooks copied here are imported, then removed from here
     environment:
-      - DEFAULT_LANGUAGE=en                      # en | de | fr | hu
+      # Default interface language (also used for category tags). Each user can still pick their own.
+      #   en English   hu Magyar     de Deutsch    fr Français   it Italiano   es Español   pt Português
+      #   pl Polski    ru Русский    tr Türkçe     ja 日本語      ko 한국어      zh-Hans 简体中文  zh-Hant 繁體中文
+      #   Region codes work too: en-us, hu-hu, zh-cn, zh-hk, zh-tw …
+      - DEFAULT_LANGUAGE=en
       # - INGEST_DIR=/ingest
       - ONLINE_LOOKUP=true                       # Moly.hu / Google Books / Open Library lookup
       - METADATA_PROVIDERS=moly,google,openlibrary

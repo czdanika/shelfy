@@ -1,0 +1,128 @@
+<h2 id="start">快速入门</h2>
+<p>Shelfy 是家用电子书库：上传图书后，Shelfy 会检查文件并在线补全元数据，之后家里的每个人都可以浏览、下载图书或发送到 Kindle。</p>
+<ol>
+  <li><strong>上传</strong> – 把图书拖到<a href="/upload">上传</a>页面。</li>
+  <li><strong>审核</strong> – 检查完成后，核对建议的元数据，再把图书加入书库。</li>
+  <li><strong>Kindle</strong> – 在<a href="/me">我的账户</a>中填写 Kindle 邮箱地址，即可一键发送图书。</li>
+</ol>
+
+<h2 id="upload">上传图书</h2>
+<ul>
+  <li>在<a href="/upload">上传</a>页面，把文件拖进虚线框，或点击“从电脑中选择”。可以一次上传多个文件。</li>
+  <li>支持的格式：EPUB、MOBI、AZW3、AZW、PRC、PDF、FB2、CBZ、CBR、DOCX、ODT、RTF、TXT、DJVU。</li>
+  <li><strong>监视文件夹：</strong>如果安装时已设置，复制到该文件夹（含子文件夹）的电子书会被自动导入。其他文件（图片等）不受影响；导入后的图书会被移出该文件夹。</li>
+  <li>上传需要上传权限，由管理员授予。</li>
+</ul>
+
+<h2 id="review">检查与审核</h2>
+<p>每个上传的文件都会自动检查。<em>检查日志</em>会逐步显示结果：</p>
+<ul>
+  <li><strong>格式、完整性</strong> – 文件是否与扩展名一致，是否完好？</li>
+  <li><strong>相同文件、重复</strong> – 书库中是否已有完全相同的文件，或书名和作者相同的图书？</li>
+  <li><strong>内嵌元数据、封面</strong> – 从文件中读取到了哪些信息，内嵌封面有多大。</li>
+  <li><strong>在线查询</strong> – 来自 Moly.hu、Google Books 和 Open Library 的匹配结果及匹配度。</li>
+  <li><strong>分类</strong> – 根据标签和简介给出的建议。</li>
+</ul>
+<p>在审核页面：</p>
+<ul>
+  <li>从<em>匹配结果</em>中选出正确的一项（或“仅文件元数据”）。如果都不对，在<em>重新搜索</em>中用书名、作者或 ISBN 缩小范围。</li>
+  <li>添加前可以编辑<em>建议的元数据</em>。封面可在内嵌封面和在线封面之间选择。</li>
+  <li><em>分类</em>会作为标签添加到图书，点击即可开关。</li>
+  <li>如果已有这本书，“作为 … 格式添加”会把文件作为新格式附加到现有图书。</li>
+  <li>如果有多个上传等待审核，它们都会列在顶部，“添加并继续下一本”会直接跳到下一本。</li>
+  <li>队列中的<em>全部批准</em>会一次性添加所有匹配良好的图书（跳过重复）。</li>
+</ul>
+<p class="tip">导入大量图书时，请打开<em>管理 → 设置 → 匹配可靠时自动添加</em>：匹配度不低于 85% 且不重复的图书会自动添加。</p>
+
+<h2 id="library">浏览书库</h2>
+<ul>
+  <li><strong>搜索</strong> – 顶部搜索框可搜索书名、作者、系列、标签和 ISBN。</li>
+  <li><strong>视图</strong> – 左侧菜单：全部、最近添加、热门、评分最高、按阅读状态；在<em>浏览</em>下：作者、系列、标签、出版社、语言、格式、评分。</li>
+  <li><strong>排序</strong> – 在图书上方的栏中选择（添加时间、书名、作者、出版时间、系列、评分）。你的选择会被记住。</li>
+  <li><strong>网格和列表</strong> – 用右上角的图标切换。列表会在封面旁显示主要信息和简介开头。</li>
+  <li><strong>大小</strong> – 滑块调整封面大小（也就是每行显示几本书）;旁边可以选择每页显示多少本。</li>
+  <li><strong>快捷菜单</strong> – 在网格视图中把鼠标移到封面上，即可下载、发送到 Kindle、编辑或加入书架。</li>
+  <li><strong>书架</strong> – 在图书页面把任意图书放进个人书架（例如“假期”）;你的书架会显示在左侧菜单中。</li>
+</ul>
+
+<h2 id="book">图书页面</h2>
+<ul>
+  <li><strong>下载</strong> – 可下载任何已有格式。如果缺少 MOBI、AZW3 或 EPUB,Shelfy 会在下载时生成。</li>
+  <li><strong>转换</strong> – 为图书永久添加一种新格式（需要编辑权限）。</li>
+  <li><strong>编辑</strong> – 所有字段，包括封面。</li>
+  <li><strong>在线元数据</strong> – 重新搜索在线来源；当前值和在线值并排显示，勾选要采用的项即可。</li>
+  <li><strong>阅读状态</strong> – 未读、在读、已读；每个用户各自独立。</li>
+  <li><strong>历史记录</strong> – 谁在何时下载、发送或编辑了这本书（编辑可见）。</li>
+</ul>
+
+<h2 id="kindle">Kindle</h2>
+<h3>通过邮件发送</h3>
+<ol>
+  <li>在<a href="/me">我的账户</a>中填写 Kindle 邮箱地址(…@kindle.com)。</li>
+  <li>在 Amazon 账户中，把发件地址添加到已认可的发件人(<em>管理我的内容和设备 → 首选项 → 个人文档设置</em>)。</li>
+  <li>在图书页面或快捷菜单中点击<em>发送到 Kindle</em>。</li>
+</ol>
+<p>管理员会设置一个共享发送账户，但每个人也可以在“我的账户”中添加自己的账户（那里有 Gmail 设置帮助）。如果一本书只有 MOBI 或 AZW3 格式，Shelfy 会先生成 EPUB，因为 Amazon 现在只接受 EPUB。最大文件大小为 50 MB。</p>
+<h3>从 Kindle 浏览器下载</h3>
+<p>在 Kindle 上打开时，Shelfy 会自动显示适合墨水屏的简洁 Kindle 视图。在<em>设置</em>中选择较新的 Kindle(AZW3)或旧款 Kindle（仅 MOBI）。旧款 Kindle 请使用局域网地址(http://…)，因为旧浏览器无法打开很多 HTTPS 网站。</p>
+<h3>在手机上</h3>
+<p>在浏览器菜单中选择“添加到主屏幕”,Shelfy 就会像独立应用一样打开，并有自己的图标。</p>
+
+<h2 id="account">我的账户</h2>
+<ul>
+  <li>显示名称、界面语言、Kindle 邮箱地址、修改密码。</li>
+  <li>个人邮件发送(SMTP)– 留空则使用共享账户。</li>
+  <li>我的活动 – 你自己的下载、发送和上传记录。</li>
+  <li>语言和外观（自动 / 浅色 / 深色）可在顶部栏中设置。</li>
+</ul>
+
+<h2 id="admin">管理员须知</h2>
+<ul>
+  <li><strong>用户</strong> – 角色：管理员（完全访问）、编辑、读者；权限（上传、编辑、下载、删除）也可以逐项设置。还可以在这里为某人设置个人邮件。</li>
+  <li><strong>设置</strong> – 共享邮件发送(SMTP)、测试邮件、自动添加、书库统计、系统状态。</li>
+  <li><strong>语言</strong> – 所有文字都可翻译；可以查看各语言的完成度并添加新语言。在界面中编辑的翻译在更新后依然保留。</li>
+  <li><strong>活动日志</strong> – 所有重要事件及其时间：上传、添加、发送（包括失败）、下载、登录、设置更改。可按类型、用户和时间段筛选，或只显示错误。</li>
+</ul>
+<h3>忘记密码</h3>
+<p>管理员可以在“用户”页面重置用户密码。如果管理员忘记了自己的密码，请在服务器上运行：</p>
+<pre>docker exec -it shelfy python -m app.reset_password &lt;用户名&gt;</pre>
+
+<h2 id="backup">备份、恢复、迁移</h2>
+<p>Shelfy 由两部分组成：</p>
+<ul>
+  <li><strong>数据库</strong>(数据文件夹中的 <code>shelfy.db</code>):图书元数据、用户、书架、阅读状态、活动日志、设置 – 很小，只有几 MB;</li>
+  <li><strong>书库文件夹</strong>：<code>作者/书名 (id)/</code> 文件夹中的图书文件和封面 – 占大部分空间。数据库指向这些文件。</li>
+</ul>
+<p>两者合起来才是完整的书库。在<em>管理 → 备份</em>中：</p>
+<ul>
+  <li><strong>仅数据库</strong> – 一个小 ZIP。如果书库文件夹在 NAS 上，且 NAS 自身的备份（如备份到其他存储卷或云端）已覆盖它，这就够了。</li>
+  <li><strong>完整备份</strong> – 数据库 + 所有图书文件和封面，打包成一个 ZIP（100 本书约 100 MB）。可一次迁移整个 Shelfy。</li>
+  <li><strong>自动备份</strong> – 每天把数据库备份到数据文件夹中的 <code>backups</code> 文件夹；可选择保留多少天。</li>
+</ul>
+<h3>迁移到另一台设备</h3>
+<ol>
+  <li>在旧的 Shelfy 中下载<strong>完整备份</strong>。</li>
+  <li>在新位置启动 Shelfy，并创建一个临时管理员账户。</li>
+  <li><em>管理 → 备份 → 恢复</em>：上传 ZIP。数据库和图书文件会恢复到位，原来的用户可以用自己的密码登录。</li>
+</ol>
+<p>也可以把书库文件夹复制到 NAS 上的新位置，然后只恢复数据库备份。之后<em>检查书库</em>会列出缺少的文件。</p>
+<h3>大型书库请使用命令行</h3>
+<pre>docker exec shelfy python -m app.backup create --full      # 完整备份到 backups 文件夹
+docker exec shelfy python -m app.backup check              # 查找缺少的文件
+docker compose stop shelfy
+docker compose run --rm shelfy python -m app.backup restore /data/backups/&lt;文件&gt;.zip
+docker compose start shelfy</pre>
+<p class="tip">备份包含密码哈希和加密密钥，请妥善保管。恢复前，Shelfy 总会先保存当前状态(<code>before-restore-…zip</code>)。</p>
+
+<h2 id="tasks">后台任务</h2>
+<p>较长的操作（检查上传、转换、发送到 Kindle、备份、恢复）可以在<a href="/tasks">任务</a>页面查看：谁启动的、当前状态、运行时长和结果。侧边栏会显示正在运行的任务数。管理员可以在这里启动书库检查（查找缺少的文件）和重复查找。任务会在列表中保留 14 天。</p>
+
+<h2 id="faq">常见问题</h2>
+<dl>
+  <dt>图书没有到达我的 Kindle。</dt>
+  <dd>查看<em>活动日志</em>（管理员）或<em>我的活动</em>：如果发送失败，那里会显示原因。如果发送成功，很可能是发件地址未在 Amazon 中认可。</dd>
+  <dt>上传时采用了错误的元数据。</dt>
+  <dd>在图书页面用<em>在线元数据</em>重新搜索，或用<em>编辑</em>手动修改。</dd>
+  <dt>缺少封面。</dt>
+  <dd><em>信息不全</em>视图会列出没有封面或简介的图书；可以用在线元数据或编辑（上传封面）解决。</dd>
+</dl>

@@ -12,6 +12,13 @@ from pathlib import Path
 LOCALES_DIR = Path(__file__).resolve().parent.parent / "locales"
 REFERENCE = "en"  # referencia nyelv: ebből fordítunk, és erre esik vissza a hiányzó fordítás
 
+# Más rendszerek nyelvkódjai (böngésző, TerraMaster TOS: en-us, zh-cn, zh-hk…) → a Shelfy kódjai
+ALIASES = {
+    "zh": "zh-Hans", "zh-cn": "zh-Hans", "zh-sg": "zh-Hans", "zh-hans": "zh-Hans",
+    "zh-hk": "zh-Hant", "zh-tw": "zh-Hant", "zh-mo": "zh-Hant", "zh-hant": "zh-Hant",
+    "pt-br": "pt", "nb": "no", "nn": "no",
+}
+
 
 def _flatten(d: dict, prefix: str = "") -> dict[str, str]:
     out: dict[str, str] = {}
@@ -75,6 +82,39 @@ class I18n:
 
     def has(self, lang: str | None) -> bool:
         return bool(lang) and lang in self.catalogs
+
+    def resolve(self, code: str | None) -> str | None:
+        """Nyelvkód illesztése a meglévő fordításokhoz: pontos egyezés, ismert álnév (zh-cn, zh-hk…),
+        végül az alapnyelv (en-us → en, hu-hu → hu). Ha nincs ilyen fordítás: None."""
+        if not code:
+            return None
+        code = code.strip().replace("_", "-")
+        if code in self.catalogs:
+            return code
+        low = code.lower()
+        for c in self.catalogs:
+            if c.lower() == low:
+                return c
+        for cand in (ALIASES.get(low), ALIASES.get(low.split("-")[0]), low.split("-")[0]):
+            if cand and cand in self.catalogs:
+                return cand
+        return None
+
+    def from_header(self, header: str | None) -> str | None:
+        """Accept-Language fejléc → a legjobb elérhető nyelv."""
+        langs = []
+        for i, part in enumerate((header or "").split(",")):
+            tag, _, q = part.strip().partition(";q=")
+            try:
+                weight = float(q) if q else 1.0
+            except ValueError:
+                weight = 0.0
+            if tag and tag != "*":
+                langs.append((-weight, i, tag))
+        for _, _, tag in sorted(langs):
+            if (c := self.resolve(tag)):
+                return c
+        return None
 
     def t(self, lang: str, key: str, **kw) -> str:
         text = self.catalogs.get(lang, {}).get(key)

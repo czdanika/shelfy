@@ -45,7 +45,7 @@ ZOOM_MIN, ZOOM_MAX, ZOOM_DEFAULT = 90, 260, 160  # könyvkártya szélessége px
 # Kindle 1/2/DX és Kindle Keyboard ("Kindle/3.0" a "+" nélkül): csak MOBI-t tölt le
 OLD_KINDLE_UA = re.compile(r"Kindle/(?:[12]\.\d|3\.0(?!\+))")
 KINDLE_UA = re.compile(r"Kindle|Silk/")
-PUBLIC = ("/theme/", "/login", "/setup", "/static/", "/lang/", "/health")
+PUBLIC = ("/theme/", "/login", "/setup", "/static/", "/lang", "/health")
 SMTP_KEYS = ("smtp_host", "smtp_port", "smtp_security", "smtp_user", "smtp_password", "smtp_from")
 FACETS = {"authors": "author", "series": "series", "tags": "tag", "publishers": "publisher",
           "languages": "lang", "formats": "fmt", "ratings": "rating"}
@@ -58,6 +58,7 @@ def create_app(cfg: Config | None = None, transport=None) -> FastAPI:
     db = Database(cfg.data_dir / "shelfy.db")
     lib = Library(db, cfg.library_dir)
     i18n = I18n(override_dir=cfg.data_dir / "locales")
+    cfg.default_language = i18n.resolve(cfg.default_language) or REFERENCE  # pl. hu-hu, zh-cn is jó
     sessions = Sessions(cfg.secret_key)
     throttle = Throttle()
     converter = Converter(cfg)
@@ -132,10 +133,12 @@ def create_app(cfg: Config | None = None, transport=None) -> FastAPI:
         return u if s.get("fp") == u.fingerprint else None
 
     def lang_of(request: Request, user: User | None = None) -> str:
-        for cand in (request.cookies.get("shelfy_lang"), user.language if user else None, cfg.default_language):
-            if i18n.has(cand):
-                return cand
-        return REFERENCE
+        for cand in (request.cookies.get("shelfy_lang"), user.language if user else None):
+            if (c := i18n.resolve(cand)):
+                return c
+        if not user and (c := i18n.from_header(request.headers.get("accept-language"))):
+            return c  # bejelentkezés előtt a böngésző nyelve
+        return i18n.resolve(cfg.default_language) or REFERENCE
 
     def save(request: Request, resp: Response, data: dict) -> Response:
         resp.set_cookie(COOKIE, sessions.dump(data), max_age=YEAR, httponly=True, samesite="lax",
@@ -348,13 +351,14 @@ def create_app(cfg: Config | None = None, transport=None) -> FastAPI:
             resp.delete_cookie("shelfy_theme")
         return resp
 
+    @app.get("/lang")
     @app.get("/lang/{code}")
-    async def set_lang(request: Request, code: str):
+    async def set_lang(request: Request, code: str = ""):
         back = request.headers.get("referer") or "/"
         if urlsplit(back).netloc not in ("", request.url.netloc):
             back = "/"
         resp = RedirectResponse(back, status_code=303)
-        if i18n.has(code):
+        if (code := i18n.resolve(code)):
             resp.set_cookie("shelfy_lang", code, max_age=YEAR, samesite="lax")
         return resp
 
@@ -1316,7 +1320,7 @@ def create_app(cfg: Config | None = None, transport=None) -> FastAPI:
     @app.post("/admin/languages/new")
     async def admin_language_new(request: Request, code: str = Form(...), name: str = Form(...)):
         code = code.strip().lower()
-        if not re.fullmatch(r"[a-z]{2,3}", code) or i18n.has(code):
+        if not re.fullmatch(r"[a-z]{2,3}(-[A-Za-z0-9]{2,4})?", code) or i18n.has(code):
             return flash("/admin/languages", "lang_error")
         i18n.save(code, {}, name.strip() or code)
         return RedirectResponse(f"/admin/languages/{code}", status_code=303)

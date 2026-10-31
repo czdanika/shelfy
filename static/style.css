@@ -1,14 +1,14 @@
-/* Shelfy – B változat (sötét oldalsáv, világos tartalom, zöldeskék + borostyán) */
+/* Shelfy – sötét oldalsáv, világos tartalom, acélkék kiemelés + borostyán */
 :root{
   --side:#111827; --side-2:#1F2937; --side-text:#E5E7EB; --side-muted:#9CA3AF;
   --bg:#F6F7F9; --card:#FFFFFF; --line:#E5E7EB; --line-2:#D1D5DB;
-  --text:#18202E; --muted:#4B5563; --accent:#0F766E; --accent-d:#0B5A54; --accent-l:#CCFBF1;
+  --text:#18202E; --muted:#4B5563; --accent:#2F6690; --accent-d:#24506F; --accent-l:#D3E3F0;
   --amber:#F59E0B; --amber-l:#FEF3C7; --danger:#B91C1C; --danger-l:#FEE2E2; --ok:#166534; --ok-l:#DCFCE7;
   --warn:#92400E; --warn-l:#FEF3C7; --radius:12px;
-  --subtle:#F3F4F6; --subtle-2:#E5E7EB; --line-3:#9CA3AF; --text-2:#575A5D; --accent-soft:#EEF6F5; --accent-ink:#115E59;
+  --subtle:#F3F4F6; --subtle-2:#E5E7EB; --line-3:#9CA3AF; --text-2:#575A5D; --accent-soft:#EEF4F9; --accent-ink:#1F4A6B;
   --info:#3730A3; --info-l:#E0E7FF; --warn-bg:#FFFBEB; --warn-line:#FCD34D; --danger-line:#FCA5A5;
   color-scheme:light;
-  --serif:"Source Sans 3", "Source Sans Pro", "Helvetica Neue", Arial, sans-serif; --sans:"Source Sans 3", "Source Sans Pro", "Helvetica Neue", Arial, sans-serif;
+  --serif:"Source Sans 3", "Source Sans Pro", "Helvetica Neue", Arial, "PingFang SC", "Hiragino Sans", "Microsoft YaHei", "Noto Sans CJK SC", "Malgun Gothic", sans-serif; --sans:var(--serif);
 }
 *{box-sizing:border-box}
 html,body{margin:0}
@@ -31,12 +31,14 @@ h2{font-family:var(--serif);font-size:19px;font-weight:700}
 .side a.item:hover{background:var(--side-2)}
 .side a.item.on{background:var(--side-2);color:#fff;font-weight:600;box-shadow:inset 3px 0 0 var(--amber)}
 .side a.item .n{font-size:12px;color:var(--side-muted)}
-.side a.item.add{color:#5EEAD4;font-weight:600}
+.side a.item.add{color:#9CC5EA;font-weight:600}
 .main{flex:999 1 600px;min-width:0;display:flex;flex-direction:column}
 .top{background:var(--card);border-bottom:1px solid var(--line);padding:12px 28px;display:flex;flex-wrap:wrap;gap:12px 18px;align-items:center}
 .search{flex:1 1 320px;display:flex;align-items:center;gap:10px;height:44px;padding:0 14px;border-radius:10px;background:var(--subtle);border:1px solid var(--line)}
 .search input{flex:1;min-width:0;border:0;background:transparent;font:inherit;font-size:15px;outline:none}
-.lang{display:flex;gap:6px;font-size:13px;font-weight:600;color:var(--muted)}
+.langpick{display:flex;align-items:center;gap:6px;color:var(--muted)}
+.langpick select{width:auto;border:0;background:transparent;padding:4px 2px;font-size:13px;font-weight:600;color:var(--muted);cursor:pointer}
+.langpick select:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 .avatar{width:38px;height:38px;border-radius:50%;background:#FDE68A;color:#78350F;display:flex;align-items:center;justify-content:center;font-weight:700;text-decoration:none}
 .content{padding:26px 28px 48px;display:flex;flex-direction:column;gap:20px}
 
@@ -336,7 +338,7 @@ input[type=text],input[type=password],input[type=email],input[type=number],input
 .side{position:sticky;top:0;height:100vh;overflow-y:auto;gap:12px;padding:16px 10px 16px;flex:0 0 220px;max-width:220px}
 .side .brand span{font-size:21px}
 .side .label{font-size:10px;padding:0 10px 3px;letter-spacing:1.4px}
-.side a.item{font-size:13px;padding:4px 10px;font-weight:400;color:#D1D5DB}
+.side a.item,.side span.item{font-size:13px;padding:4px 10px;font-weight:400;color:#D1D5DB}
 .side a.item.on{font-weight:600;color:#fff}
 .side a.item .n{font-size:11px}
 .sidestats{padding-top:8px;font-size:11px}
@@ -379,12 +381,12 @@ input[type=text],input[type=password],input[type=email],input[type=number],input
   --side:#0B0D11; --side-2:#1A1E25; --side-text:#E5E7EB; --side-muted:#8B93A0;
   --bg:#111418; --card:#191D23; --subtle:#20252D; --subtle-2:#262C35; --line:#2A3039; --line-2:#3A414C; --line-3:#5B6370;
   --text:#E6E8EB; --text-2:#B6BCC5; --muted:#8E96A2;
-  --accent:#14B8A6; --accent-d:#0D9488; --accent-l:#134E4A; --accent-soft:#13302D; --accent-ink:#5EEAD4;
+  --accent:#5B9BD5; --accent-d:#3F7FB8; --accent-l:#1C3550; --accent-soft:#15263A; --accent-ink:#9CC5EA;
   --ok:#4ADE80; --ok-l:#13301F; --warn:#FBBF24; --warn-l:#3A2C0C; --warn-bg:#2A2210; --warn-line:#7C5A12;
   --danger:#F87171; --danger-l:#3B1818; --danger-line:#7F2B2B; --info:#A5B4FC; --info-l:#1F2547; --amber-l:#3A2C0C;
   color-scheme:dark;
 }
-:root[data-theme="dark"] .btn.primary,:root[data-theme="dark"] .search button,:root[data-theme="dark"] .chip input:checked+span{color:#0B1F1D}
+:root[data-theme="dark"] .btn.primary,:root[data-theme="dark"] .search button,:root[data-theme="dark"] .chip input:checked+span{color:#0D1B2A}
 :root[data-theme="dark"] .cover .lift,:root[data-theme="dark"] .brow-cover,:root[data-theme="dark"] .detail .big .lift{box-shadow:0 6px 18px rgba(0,0,0,.55)}
 :root[data-theme="dark"] .quick a,:root[data-theme="dark"] .quick button{background:var(--card);color:var(--text)}
 :root[data-theme="dark"] .stars{color:#6B7280}
