@@ -77,7 +77,7 @@
         <div class="field"><label for="r-isbn">ISBN</label><input id="r-isbn" name="isbn" type="text" value="{{ up.extracted.isbn or '' }}"></div>
         <div class="field"><label for="r-only">{{ t('review.source') }}</label>
           <select id="r-only" name="only"><option value="">{{ t('review.all_sources') }}</option>
-            {% for s in ('moly', 'google', 'openlibrary') %}<option value="{{ s }}">{{ t('source.' ~ s) }}</option>{% endfor %}</select></div>
+            {% for s in sources %}<option value="{{ s }}">{{ t('source.' ~ s) }}</option>{% endfor %}</select></div>
         <button class="btn" type="submit">{{ icon('search', 16) }} {{ t('review.search_again') }}</button>
       </form>
     </section>

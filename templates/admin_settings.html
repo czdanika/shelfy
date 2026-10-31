@@ -3,9 +3,54 @@
 {% block title %}{{ t('admin.nav_settings') }}{% endblock %}
 {% block content %}
 <h1>{{ t('admin.nav_settings') }}</h1>
-<div class="row" style="align-items: flex-start; gap: 18px">
-  <form class="card" method="post" action="/admin/settings" style="flex: 999 1 460px; display: flex; flex-direction: column; gap: 16px">
-    <h2 style="font-size: 18px">{{ t('admin.mail_title') }}</h2>
+<div class="settings-wrap">
+<div class="settings-main">
+  <form id="general" class="card" method="post" action="/admin/settings/general">
+    <h2>{{ t('admin.general_title') }}</h2>
+    <div class="field" style="max-width: 320px"><label for="dl">{{ t('admin.default_lang') }}</label>
+      <select id="dl" name="default_language">{% for code, name in languages|sort(attribute='1') %}<option value="{{ code }}" {% if code == cfg.default_language %}selected{% endif %}>{{ name }}</option>{% endfor %}</select></div>
+    <span class="small muted">{{ t('admin.default_lang_help') }}</span>
+    <label class="check"><input type="checkbox" name="online_lookup" value="1" {% if cfg.online_lookup %}checked{% endif %}> {{ t('admin.online_lookup') }}</label>
+    <span class="small muted">{{ t('admin.online_lookup_help') }}</span>
+    <label class="check"><input type="checkbox" name="watch_folder" value="1" {% if watch and cfg.ingest_dir %}checked{% endif %} {% if not cfg.ingest_dir %}disabled{% endif %}> {{ t('admin.watch_folder') }}{% if cfg.ingest_dir %} <code class="mono">{{ cfg.ingest_dir }}</code>{% endif %}</label>
+    <span class="small muted">{{ t('admin.watch_folder_help') if cfg.ingest_dir else t('admin.watch_folder_off') }}</span>
+    <label class="check"><input type="checkbox" name="auto_approve" value="1" {% if s.auto_approve == '1' %}checked{% endif %}> {{ t('admin.auto_approve') }}</label>
+    <span class="small muted">{{ t('admin.auto_approve_help') }}</span>
+    <h3>{{ t('admin.access_title') }}</h3>
+    <label class="check"><input type="checkbox" name="guest_browse" value="1" {% if s.guest_browse == '1' %}checked{% endif %}> {{ t('admin.guest_browse') }}</label>
+    <span class="small muted">{{ t('admin.guest_browse_help') }}</span>
+    <div class="row"><button class="btn primary" type="submit">{{ icon('check', 16) }} {{ t('action.save') }}</button></div>
+  </form>
+
+  <form id="sources" class="card" method="post" action="/admin/settings/sources">
+    <h2>{{ t('admin.sources_title') }}</h2>
+    <span class="small muted">{{ t('admin.sources_help') }}</span>
+    <table class="srctable">
+      {% for p in providers %}
+      <tr class="{{ '' if p.on else 'off' }}">
+        <td class="n">{{ loop.index }}.</td>
+        <td><label class="check"><input type="checkbox" name="on" value="{{ p.name }}" {% if p.on %}checked{% endif %}> <b>{{ t('source.' ~ p.name) }}</b></label>
+          <div class="small muted">{{ t('admin.src_' ~ p.name) }}</div><input type="hidden" name="order" value="{{ p.name }}"></td>
+        <td class="small">{% if p.langs %}{% for l in p.langs %}<span class="pill">{{ langname(l) }}</span> {% endfor %}{% else %}<span class="muted">{{ t('admin.sources_all_langs') }}</span>{% endif %}</td>
+        <td class="mv">
+          <button class="btn small" type="submit" name="move" value="{{ p.name }}:up" title="{{ t('admin.sources_up') }}" aria-label="{{ t('admin.sources_up') }}" {% if loop.first %}disabled{% endif %}>▲</button>
+          <button class="btn small" type="submit" name="move" value="{{ p.name }}:down" title="{{ t('admin.sources_down') }}" aria-label="{{ t('admin.sources_down') }}" {% if loop.last %}disabled{% endif %}>▼</button>
+        </td>
+      </tr>
+      {% endfor %}
+    </table>
+    <div class="field" style="max-width: 460px"><label for="gk">{{ t('admin.google_key') }}</label>
+      <input id="gk" name="google_api_key" type="password" autocomplete="off" placeholder="{{ '••••••••' if google_key else 'AIza…' }}">
+      <span class="small muted">{{ t('admin.google_key_help') }} <a href="https://console.cloud.google.com/apis/library/books.googleapis.com" target="_blank" rel="noopener">console.cloud.google.com ↗</a></span>
+      {% if google_key %}<label class="check small"><input type="checkbox" name="google_key_clear" value="1"> {{ t('admin.google_key_clear') }}</label>{% endif %}</div>
+    <div class="row">
+      <button class="btn primary" type="submit">{{ icon('check', 16) }} {{ t('action.save') }}</button>
+      <button class="btn" type="submit" name="preset" value="1">{{ t('admin.sources_preset', language=langname(cfg.default_language)) }}</button>
+    </div>
+  </form>
+
+  <form id="mail" class="card" method="post" action="/admin/settings">
+    <h2>{{ t('admin.mail_title') }}</h2>
     <p class="small muted" style="margin: -8px 0 0">{{ t('admin.mail_help') }}</p>
     {% include "_mailhelp.html" %}
     <div class="grid2">
@@ -19,16 +64,11 @@
       <div class="field"><label for="sf">{{ t('admin.smtp_from') }}</label><input id="sf" name="smtp_from" type="email" value="{{ s.smtp_from or '' }}"></div>
       <div class="field" style="grid-column: 1 / -1"><label for="ks">{{ t('admin.kindle_subject') }}</label><input id="ks" name="kindle_subject" type="text" value="{{ s.kindle_subject or '' }}"></div>
     </div>
-    <h2 style="font-size: 18px">{{ t('admin.ingest_title') }}</h2>
-    <label class="check"><input type="checkbox" name="auto_approve" value="1" {% if s.auto_approve == '1' %}checked{% endif %}> {{ t('admin.auto_approve') }}</label>
-    <span class="small muted" style="margin-top: -10px">{{ t('admin.auto_approve_help') }}</span>
-    <h2 style="font-size: 18px">{{ t('admin.access_title') }}</h2>
-    <label class="check"><input type="checkbox" name="guest_browse" value="1" {% if s.guest_browse == '1' %}checked{% endif %}> {{ t('admin.guest_browse') }}</label>
-    <span class="small muted" style="margin-top: -10px">{{ t('admin.guest_browse_help') }}</span>
     <div class="row"><button class="btn primary" type="submit">{{ icon('check', 16) }} {{ t('action.save') }}</button></div>
   </form>
+</div>
 
-  <div style="flex: 1 1 300px; display: flex; flex-direction: column; gap: 18px">
+<div class="settings-side">
     <form class="card" method="post" action="/admin/settings/test-mail" style="display: flex; flex-direction: column; gap: 10px">
       <h2 style="font-size: 17px">{{ t('admin.test_mail') }}</h2>
       <div class="field"><label for="to">{{ t('admin.test_to') }}</label><input id="to" name="to" type="email" required value="{{ user.kindle_email or '' }}"></div>
@@ -57,8 +97,8 @@
       <ul class="checks small">
         <li><span class="dot {{ 'ok' if converter.has_meta else 'error' }}">{{ icon('check' if converter.has_meta else 'x', 14) }}</span> ebook-meta</li>
         <li><span class="dot {{ 'ok' if converter.has_convert else 'error' }}">{{ icon('check' if converter.has_convert else 'x', 14) }}</span> ebook-convert</li>
-        <li><span class="dot {{ 'ok' if cfg.online_lookup else 'info' }}">{{ icon('check' if cfg.online_lookup else 'info', 14) }}</span>
-          <span>{{ t('upload.online') }}: {% if cfg.online_lookup %}{% for pr in cfg.providers %}{{ t('source.' ~ pr) }}{% if not loop.last %}, {% endif %}{% endfor %}{% else %}{{ t('common.off') }}{% endif %}</span></li>
+        <li><span class="dot {{ 'ok' if cfg.online_lookup and sources else 'info' }}">{{ icon('check' if cfg.online_lookup and sources else 'info', 14) }}</span>
+          <span>{{ t('upload.online') }}: {% if cfg.online_lookup and sources %}{% for pr in sources %}{{ t('source.' ~ pr) }}{% if not loop.last %}, {% endif %}{% endfor %}{% else %}{{ t('common.off') }}{% endif %}</span></li>
       </ul>
       <dl class="small" style="margin: 0; display: grid; grid-template-columns: auto 1fr; gap: 6px 12px">
         <dt class="muted">{{ t('admin.library_dir') }}</dt><dd class="mono" style="margin: 0; overflow-wrap: anywhere">{{ cfg.library_dir }}</dd>

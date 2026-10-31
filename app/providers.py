@@ -1,4 +1,4 @@
-"""Online metaadat-források: Moly.hu, Google Books, Open Library.
+"""Online metaadat-források: Moly.hu, Google Books, Open Library és nemzeti könyvtárak (DNB, BnF, BN, NDL).
 
 Mindegyik ugyanazt a Candidate szerkezetet adja vissza. A lekérdezések udvariasak: azonosítható
 User-Agent, egy forrásra egyszerre egy kérés, rövid gyorsítótár.
@@ -10,6 +10,7 @@ import html
 import json
 import re
 import time
+import xml.etree.ElementTree as ET
 from dataclasses import asdict, dataclass, field
 from difflib import SequenceMatcher
 from urllib.parse import quote_plus, urljoin
@@ -54,10 +55,16 @@ def similarity(a: str, b: str) -> float:
     return SequenceMatcher(None, a, b).ratio()
 
 
+def name_similarity(a: str, b: str) -> float:
+    """Nevek: a sorrend nem számít ('Madách Imre' = 'Imre Madách')."""
+    srt = lambda x: " ".join(sorted(norm(x).split()))
+    return max(similarity(a, b), similarity(srt(a), srt(b)))
+
+
 def score(c: Candidate, title: str, authors: list[str]) -> float:
     s = similarity(c.title, title) * 0.65
     if authors and c.authors:
-        s += max(similarity(x, y) for x in authors for y in c.authors) * 0.35
+        s += max(name_similarity(x, y) for x in authors for y in c.authors) * 0.35
     elif not authors:
         s += 0.15
     return round(s, 3)
@@ -173,12 +180,15 @@ def parse_moly_book(text: str, url: str) -> Candidate | None:
 
 class GoogleBooks(Provider):
     name = "google"
+    api_key: str | None = None  # opcionális saját Google API-kulcs (a kulcs nélküli kvóta gyakran elfogy)
 
     async def search(self, title: str, authors: list[str], isbn: str | None = None) -> list[Candidate]:
         q = f"isbn:{isbn}" if isbn else f"intitle:{title}" + (f" inauthor:{authors[0]}" if authors else "")
-        r = await self.get("https://www.googleapis.com/books/v1/volumes", params={"q": q, "maxResults": 5})
-        if r.status_code != 200:
-            return []
+        params = {"q": q, "maxResults": 5}
+        if self.api_key:
+            params["key"] = self.api_key
+        r = await self.get("https://www.googleapis.com/books/v1/volumes", params=params)
+        r.raise_for_status()  # 429: elfogyott a kulcs nélküli közös kvóta → a felületen látszik
         return parse_google(r.json())
 
 
@@ -238,14 +248,240 @@ def parse_openlibrary(data: dict) -> list[Candidate]:
     return out
 
 
-PROVIDERS = {"moly": Moly, "google": GoogleBooks, "openlibrary": OpenLibrary}
+# ---------------------------------------------------------------- nemzeti könyvtárak (MARC / Dublin Core)
+
+def _name_order(name: str) -> str:
+    """'Schlink, Bernhard' → 'Bernhard Schlink'; kelet-ázsiai nevek: '村上, 春樹' → '村上春樹'."""
+    name = re.sub(r"\s*\(?\d{3,4}-?\d{0,4}\)?\.?$", "", (name or "").strip()).strip(" ,.")
+    if "," not in name:
+        return name
+    last, first = (x.strip() for x in name.split(",", 1))
+    if re.search(r"[\u3040-\u30ff\u3400-\u9fff\uac00-\ud7af]", last):
+        return last + first
+    return f"{first} {last}".strip()
+
+
+def _clean_title(t: str) -> str:
+    t = re.sub(r"[\x88\x89\x98\x9c]", "", t or "")  # MARC rendezési jelek
+    return re.sub(r"\s*[/:;=.,]\s*$", "", t).strip()
+
+
+def _year(s) -> int | None:
+    m = re.search(r"(1[5-9]\d\d|20\d\d)", str(s or ""))
+    return int(m.group(1)) if m else None
+
+
+def _isbn(s) -> str | None:
+    v = re.sub(r"[^0-9Xx]", "", (str(s or "").split() or [""])[0])
+    return v if len(v) in (10, 13) else None
+
+
+def _marc_fields(rec, ns: str) -> dict[str, list[dict[str, list[str]]]]:
+    """MARC XML rekord → {tag: [{kód: [értékek]}]}"""
+    out: dict = {}
+    for df in rec.iter(f"{ns}datafield"):
+        subs: dict = {}
+        for sf in df.iter(f"{ns}subfield"):
+            subs.setdefault(sf.get("code"), []).append((sf.text or "").strip())
+        out.setdefault(df.get("tag"), []).append(subs)
+    for cf in rec.iter(f"{ns}controlfield"):
+        out.setdefault(cf.get("tag"), []).append({"": [(cf.text or "").strip()]})
+    return out
+
+
+def _first(f: dict, tag: str, code: str) -> str | None:
+    for d in f.get(tag, []):
+        if d.get(code) and d[code][0]:
+            return d[code][0]
+    return None
+
+
+class DNB(Provider):
+    """Deutsche Nationalbibliothek – SRU, MARC21 (német nyelvű könyvek)."""
+    name = "dnb"
+
+    async def search(self, title: str, authors: list[str], isbn: str | None = None) -> list[Candidate]:
+        q = f"num={isbn}" if isbn else f'tit="{title}"' + (f' and per="{authors[0]}"' if authors else "")
+        r = await self.get("https://services.dnb.de/sru/dnb", params={
+            "version": "1.1", "operation": "searchRetrieve", "query": q, "recordSchema": "MARC21-xml", "maximumRecords": 6})
+        return parse_dnb(r.text) if r.status_code == 200 else []
+
+
+def parse_dnb(text: str) -> list[Candidate]:
+    ns = "{http://www.loc.gov/MARC21/slim}"
+    out = []
+    for rec in ET.fromstring(text).iter(f"{ns}record"):
+        f = _marc_fields(rec, ns)
+        title = _clean_title(_first(f, "245", "a") or "")
+        if not title:
+            continue
+        idn = _first(f, "001", "")
+        isbn = next((i for d in f.get("020", []) for i in [_isbn((d.get("a") or [""])[0])] if i and len(i) == 13), None) \
+            or next((i for d in f.get("020", []) for i in [_isbn((d.get("a") or [""])[0])] if i), None)
+        authors = [_name_order(d["a"][0]) for t in ("100", "700") for d in f.get(t, []) if d.get("a")
+                   and (t == "100" or "aut" in d.get("4", []))]
+        pub = _first(f, "264", "b") or _first(f, "260", "b")
+        tags = list(dict.fromkeys(d["a"][0] for d in f.get("650", []) if d.get("a")))[:12]
+        series, idx = _first(f, "490", "a"), _first(f, "490", "v")
+        out.append(Candidate(source="dnb", url=f"https://d-nb.info/{idn}" if idn else "", title=title, authors=authors,
+                             year=_year(_first(f, "264", "c") or _first(f, "260", "c")), publisher=pub,
+                             language=_first(f, "041", "a"), isbn=isbn, tags=tags,
+                             series=series, series_index=float(idx) if idx and re.fullmatch(r"\d+(\.\d+)?", idx) else None,
+                             cover_url=f"https://portal.dnb.de/opac/mvb/cover?isbn={isbn}" if isbn else None))
+    return out
+
+
+class BnF(Provider):
+    """Bibliothèque nationale de France – SRU, UNIMARC (francia nyelvű könyvek)."""
+    name = "bnf"
+
+    async def search(self, title: str, authors: list[str], isbn: str | None = None) -> list[Candidate]:
+        q = f'bib.isbn all "{isbn}"' if isbn else f'bib.title all "{title}"' + (f' and bib.author all "{authors[0]}"' if authors else "")
+        r = await self.get("https://catalogue.bnf.fr/api/SRU", params={
+            "version": "1.2", "operation": "searchRetrieve", "query": q + ' and bib.doctype any "a"',
+            "recordSchema": "unimarcXchange", "maximumRecords": 6})
+        return parse_bnf(r.text) if r.status_code == 200 else []
+
+
+def parse_bnf(text: str) -> list[Candidate]:
+    out = []
+    for rec in ET.fromstring(text).iter():
+        if not rec.tag.endswith("}record") or "zing" in rec.tag:
+            continue
+        ns = rec.tag[:-len("record")]
+        f = _marc_fields(rec, ns)
+        title = _clean_title(_first(f, "200", "a") or "")
+        if not title:
+            continue
+        authors = []
+        for t in ("700", "701"):
+            for d in f.get(t, []):
+                if d.get("a"):
+                    authors.append(f"{(d.get('b') or [''])[0]} {d['a'][0]}".strip())
+        if not authors and _first(f, "200", "f"):
+            authors = [a.strip() for a in re.split(r"[;,]| et ", _first(f, "200", "f")) if a.strip()][:3]
+        ark = rec.get("id") or ""
+        out.append(Candidate(source="bnf", url=f"https://catalogue.bnf.fr/{ark}" if ark else "", title=title, authors=authors,
+                             year=_year(_first(f, "214", "d") or _first(f, "210", "d")),
+                             publisher=_first(f, "214", "c") or _first(f, "210", "c"), language=_first(f, "101", "a"),
+                             isbn=_isbn(_first(f, "010", "a")), description=_first(f, "330", "a"),
+                             tags=list(dict.fromkeys(d["a"][0] for d in f.get("606", []) if d.get("a")))[:12],
+                             series=_first(f, "225", "a") if not (_first(f, "225", "a") or "").isdigit() else None))
+    return out
+
+
+class BNPolska(Provider):
+    """Biblioteka Narodowa (Lengyelország) – data.bn.org.pl JSON (lengyel nyelvű könyvek)."""
+    name = "bn_pl"
+
+    async def search(self, title: str, authors: list[str], isbn: str | None = None) -> list[Candidate]:
+        params = {"limit": 6, "kind": "książka"}
+        if isbn:
+            params["isbnIssn"] = isbn
+        else:
+            params["title"] = title
+            if authors:
+                params["author"] = authors[0]
+        r = await self.get("https://data.bn.org.pl/api/institutions/bibs.json", params=params)
+        return parse_bn_pl(r.json()) if r.status_code == 200 else []
+
+
+def parse_bn_pl(data: dict) -> list[Candidate]:
+    out = []
+    for b in data.get("bibs") or []:
+        f: dict = {}
+        for fld in (b.get("marc") or {}).get("fields") or []:
+            for tag, v in fld.items():
+                if isinstance(v, dict):
+                    subs: dict = {}
+                    for sf in v.get("subfields") or []:
+                        for k, x in sf.items():
+                            subs.setdefault(k, []).append(x)
+                    f.setdefault(tag, []).append(subs)
+        title = _clean_title(_first(f, "245", "a") or b.get("title") or "")
+        if not title:
+            continue
+        authors = [_name_order(d["a"][0]) for d in f.get("100", []) if d.get("a")]
+        pub = (_first(f, "264", "b") or _first(f, "260", "b") or "").strip(" ,:;") or None
+        tags = list(dict.fromkeys(d["a"][0].strip(" .") for t in ("650", "655") for d in f.get(t, []) if d.get("a")))[:12]
+        out.append(Candidate(source="bn_pl", url=f"https://katalogi.bn.org.pl/discovery/search?query=any,contains,{b.get('isbnIssn') or quote_plus(title)}&vid=48OMNIS_NLOP:48OMNIS_NLOP",
+                             title=title, authors=authors, year=_year(b.get("publicationYear")), publisher=pub,
+                             language="pol" if b.get("language") == "polski" else None, isbn=_isbn(b.get("isbnIssn")),
+                             tags=tags, genres=[b["genre"]] if b.get("genre") else []))
+    return out
+
+
+class NDL(Provider):
+    """National Diet Library (Japán) – OpenSearch (japán nyelvű könyvek)."""
+    name = "ndl"
+
+    async def search(self, title: str, authors: list[str], isbn: str | None = None) -> list[Candidate]:
+        params = {"cnt": 6, "mediatype": "books"}
+        if isbn:
+            params["isbn"] = isbn
+        else:
+            params["title"] = title
+            if authors:
+                params["creator"] = authors[0]
+        r = await self.get("https://ndlsearch.ndl.go.jp/api/opensearch", params=params)
+        return parse_ndl(r.text) if r.status_code == 200 else []
+
+
+def parse_ndl(text: str) -> list[Candidate]:
+    dc, dcndl = "{http://purl.org/dc/elements/1.1/}", "{http://ndl.go.jp/dcndl/terms/}"
+    xsi = "{http://www.w3.org/2001/XMLSchema-instance}type"
+    out = []
+    for it in ET.fromstring(text).iter("item"):
+        title = (it.findtext(f"{dc}title") or it.findtext("title") or "").strip()
+        if not title:
+            continue
+        isbn = None
+        for idf in it.findall(f"{dc}identifier"):
+            if (idf.get(xsi) or "").startswith("dcndl:ISBN"):
+                isbn = _isbn(idf.text) or isbn
+        series = it.findtext(f"{dcndl}seriesTitle")
+        idx = None
+        if series and ";" in series:
+            series, _, num = series.partition(";")
+            idx = float(num.strip()) if re.fullmatch(r"\d+", num.strip()) else None
+        out.append(Candidate(source="ndl", url=it.findtext("link") or "", title=title,
+                             authors=[_name_order(c.text) for c in it.findall(f"{dc}creator") if c.text][:3],
+                             year=_year(it.findtext(f"{dc}date") or it.findtext("{http://purl.org/dc/terms/}issued")),
+                             publisher=it.findtext(f"{dc}publisher"), isbn=isbn, series=(series or "").strip() or None,
+                             series_index=idx,
+                             cover_url=f"https://ndlsearch.ndl.go.jp/thumbnail/{isbn}.jpg" if isbn else None))
+    return out
+
+
+PROVIDERS = {"moly": Moly, "google": GoogleBooks, "openlibrary": OpenLibrary,
+             "dnb": DNB, "bnf": BnF, "bn_pl": BNPolska, "ndl": NDL}
+# melyik forrás milyen nyelvű könyvekhez jó (a felületen és az alapértelmezett választásnál)
+PROVIDER_LANGS = {"moly": ("hu",), "google": (), "openlibrary": (), "dnb": ("de",), "bnf": ("fr",), "bn_pl": ("pl",), "ndl": ("ja",)}
+
+
+def default_providers(lang: str) -> list[str]:
+    """Az alapnyelvhez illő kezdő forráslista: a nyelv saját forrása elöl, utána a nemzetközi források."""
+    base = (lang or "en").split("-")[0].lower()
+    own = [n for n, ls in PROVIDER_LANGS.items() if base in ls]
+    return own + ["google", "openlibrary"]
+
+
+PRIORITY_STEP = 0.03  # sorrendbeli helyenként ennyi előnyt kap egy forrás a rangsorolásnál (a kijelzett % nem változik)
 
 
 class Lookup:
     def __init__(self, names: tuple[str, ...], transport=None) -> None:
         self.http = httpx.AsyncClient(timeout=httpx.Timeout(20.0, connect=8.0), follow_redirects=True, transport=transport)
-        self.providers = [PROVIDERS[n](self.http) for n in names if n in PROVIDERS]
         self.cache: dict[tuple, tuple[float, list[Candidate]]] = {}
+        self.configure(names)
+
+    def configure(self, names, google_key: str | None = None) -> None:
+        """A bekapcsolt források, fontossági sorrendben (az első a legfontosabb)."""
+        self.providers = [PROVIDERS[n](self.http) for n in names if n in PROVIDERS]
+        for p in self.providers:
+            if isinstance(p, GoogleBooks):
+                p.api_key = google_key or None
+        self.cache.clear()
 
     async def close(self) -> None:
         await self.http.aclose()
@@ -263,6 +499,8 @@ class Lookup:
             try:
                 res = await p.search(title, authors, isbn)
                 return p.name, res, "ok" if res else "empty"
+            except httpx.HTTPStatusError as e:
+                return p.name, [], f"error: HTTP {e.response.status_code}"
             except Exception as e:  # hálózati hiba, változott oldal stb.
                 return p.name, [], f"error: {e.__class__.__name__}"
 
@@ -275,7 +513,10 @@ class Lookup:
                 if isbn and c.isbn and c.isbn.replace("-", "") == isbn:
                     c.score = max(c.score, 0.99)
                 cands.append(c)
-        cands.sort(key=lambda c: -c.score)
+        rank = {p.name: i for i, p in enumerate(self.providers)}
+        n = len(self.providers)
+        # a pontszám dönt; közel egyforma találatoknál a fontosabb forrás kerül előre
+        cands.sort(key=lambda c: -(c.score + PRIORITY_STEP * (n - 1 - rank.get(c.source, n - 1))))
         self.cache[key] = (time.time(), cands)
         return cands, status
 

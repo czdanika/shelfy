@@ -48,6 +48,7 @@ class Ingest:
         self.dir = upload_dir
         self.dir.mkdir(parents=True, exist_ok=True)
         self.online = online
+        self.watch_enabled = lambda: True  # a figyelt mappa a felületről szüneteltethető
         self.default_lang = default_lang
         self.translate = translate or (lambda lang, key: key)
         self.events = events
@@ -101,7 +102,8 @@ class Ingest:
         sizes: dict[Path, int] = {}
         while True:
             try:
-                await asyncio.to_thread(self._scan, folder, sizes)
+                if self.watch_enabled():
+                    await asyncio.to_thread(self._scan, folder, sizes)
             except OSError:
                 pass
             await asyncio.sleep(10)

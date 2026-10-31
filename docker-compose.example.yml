@@ -23,8 +23,9 @@ services:
       #   Region codes work too: en-us, hu-hu, zh-cn, zh-hk, zh-tw …
       - DEFAULT_LANGUAGE=en
       # - INGEST_DIR=/ingest
-      - ONLINE_LOOKUP=true                       # Moly.hu / Google Books / Open Library lookup
-      - METADATA_PROVIDERS=moly,google,openlibrary
+      # Online lookup and its sources can be changed later in Settings; these are only the starting values.
+      # - ONLINE_LOOKUP=true
+      # - METADATA_PROVIDERS=moly,google,openlibrary   # moly google openlibrary dnb bnf bn_pl ndl (default: by language)
       # First admin from environment variables (otherwise create it in the browser):
       # - ADMIN_USER=admin
       # - ADMIN_PASSWORD=at-least-8-characters

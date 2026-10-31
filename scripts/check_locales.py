@@ -45,6 +45,8 @@ def dynamic() -> set[str]:
     keys |= {f"book.dl_{f}" for f in ("mobi", "azw3", "epub")}
     from app.events import GROUPS, KINDS
     keys |= {f"log.{k}" for k in KINDS} | {f"log.group_{g}" for g in GROUPS}
+    from app.providers import PROVIDERS
+    keys |= {f"source.{n}" for n in PROVIDERS} | {f"admin.src_{n}" for n in PROVIDERS}
     from app.tasks import KINDS as TASK_KINDS, STATUSES as TASK_STATUSES
     keys |= {f"tasks.kind_{k}" for k in TASK_KINDS} | {f"tasks.status_{k}" for k in TASK_STATUSES}
     keys |= {f"tasks.msg_{k}" for k in ("inspected", "unsupported", "exception", "interrupted", "sent", "failed", "approved_n",

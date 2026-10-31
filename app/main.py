@@ -32,7 +32,7 @@ from .i18n import REFERENCE, I18n
 from .images import thumbnail
 from .ingest import Ingest
 from .library import MIME, SORT_GROUPS, SORTS, Library, Meta, ascii_name
-from .providers import Lookup
+from .providers import PROVIDER_LANGS, PROVIDERS, Lookup, default_providers
 from .tools import Converter, kindle_personal_doc, send_mail, sha256_file
 
 BASE = Path(__file__).resolve().parent.parent
@@ -64,11 +64,41 @@ def create_app(cfg: Config | None = None, transport=None) -> FastAPI:
     sessions = Sessions(cfg.secret_key)
     throttle = Throttle()
     converter = Converter(cfg)
-    lookup = Lookup(cfg.providers, transport=transport)
+    lookup = Lookup((), transport=transport)
     events = Events(db)
     tasks = Tasks(db)
     ingest = Ingest(db, lib, converter, lookup, cfg.data_dir / "uploads", events=events, tasks=tasks,
                     online=cfg.online_lookup, default_lang=cfg.default_language, translate=i18n.t)
+
+    # ---- a felületről állítható beállítások (a környezeti változók csak a kezdőértéket adják)
+    env_lang = cfg.default_language
+
+    def provider_list() -> list[dict]:
+        """Források fontossági sorrendben: [{'name', 'on', 'langs'}]."""
+        saved = db.get_setting("providers")
+        items = []
+        try:
+            items = [x for x in json.loads(saved) if x.get("name") in PROVIDERS] if saved else []
+        except ValueError:
+            items = []
+        if not items:
+            start = list(cfg.providers) if cfg.providers else default_providers(cfg.default_language)
+            items = [{"name": n, "on": True} for n in start if n in PROVIDERS]
+        names = {x["name"] for x in items}
+        items += [{"name": n, "on": False} for n in PROVIDERS if n not in names]
+        return [dict(x, langs=PROVIDER_LANGS.get(x["name"], ())) for x in items]
+
+    def apply_settings() -> None:
+        cfg.default_language = i18n.resolve(db.get_setting("default_language")) or i18n.resolve(env_lang) or REFERENCE
+        ol = db.get_setting("online_lookup")
+        cfg.online_lookup = (ol == "1") if ol in ("0", "1") else cfg.online_lookup
+        lookup.configure([x["name"] for x in provider_list() if x["on"]],
+                         google_key=sessions.unseal(db.get_setting("google_api_key")))
+        ingest.online = cfg.online_lookup
+        ingest.default_lang = cfg.default_language
+        ingest.watch_enabled = lambda: db.get_setting("watch_folder") != "0"
+
+    apply_settings()
     covers_dir = cfg.data_dir / "cache" / "covers"
     covers_dir.mkdir(parents=True, exist_ok=True)
 
@@ -93,6 +123,7 @@ def create_app(cfg: Config | None = None, transport=None) -> FastAPI:
 
     @asynccontextmanager
     async def lifespan(_app):
+        apply_settings()
         ingest.start(cfg.ingest_dir)
         backup_task = asyncio.create_task(auto_backups())
         yield
@@ -228,6 +259,7 @@ def create_app(cfg: Config | None = None, transport=None) -> FastAPI:
             "user": user, "version": __version__, "path": request.url.path,
             "query": dict(request.query_params), "qs": qs, "now": now(),
             "event_text": partial(event_text, lang),
+            "sources": [p.name for p in lookup.providers],
             "theme": request.cookies.get("shelfy_theme") if request.cookies.get("shelfy_theme") in ("light", "dark") else "auto",
         }
         if user and user.is_guest:
@@ -275,8 +307,9 @@ def create_app(cfg: Config | None = None, transport=None) -> FastAPI:
         return i18n.t(lang_of(request, getattr(request.state, "user", None)), key, **kw)
 
     def flash(url: str, msg: str) -> RedirectResponse:
+        url, _, frag = url.partition("#")
         sep = "&" if "?" in url else "?"
-        return RedirectResponse(f"{url}{sep}msg={msg}", status_code=303)
+        return RedirectResponse(f"{url}{sep}msg={msg}" + (f"#{frag}" if frag else ""), status_code=303)
 
     # ------------------------------------------------------------------ belépés, első indítás
     @app.get("/setup", response_class=HTMLResponse)
@@ -1263,6 +1296,7 @@ def create_app(cfg: Config | None = None, transport=None) -> FastAPI:
             if tmp:
                 tmp.unlink(missing_ok=True)
         i18n.reload()
+        apply_settings()
         tasks.finish(tasks.create("restore", user, subject=name or (file.filename if file else ""), status="running"),
                      True, "restored", books=res["books"], files=res["restored_files"], missing=res["missing"])
         events.log("backup_restored", user, name=name or (file.filename if file else ""), books=res["books"],
@@ -1284,6 +1318,8 @@ def create_app(cfg: Config | None = None, transport=None) -> FastAPI:
         st = lib.stats()
         st.update(cache=dir_size(cfg.data_dir / "cache"), disk_free=disk.free, disk_total=disk.total)
         return render(request, "admin_settings.html", s=settings_dict(), converter=converter, cfg=cfg, stats=st,
+                      providers=provider_list(), google_key=bool(db.get_setting("google_api_key")),
+                      watch=db.get_setting("watch_folder") != "0",
                       msg=request.query_params.get("msg"), section="settings")
 
     @app.post("/admin/settings")
@@ -1291,10 +1327,47 @@ def create_app(cfg: Config | None = None, transport=None) -> FastAPI:
         form = await request.form()
         save_mail(form, "global")
         db.set_setting("kindle_subject", (form.get("kindle_subject") or "").strip() or None)
+        events.log("settings_saved", request.state.user)
+        return flash("/admin/settings#mail", "saved")
+
+    @app.post("/admin/settings/general")
+    async def admin_settings_general(request: Request):
+        form = await request.form()
+        lang = i18n.resolve(form.get("default_language"))
+        db.set_setting("default_language", lang)
+        db.set_setting("online_lookup", "1" if form.get("online_lookup") else "0")
+        db.set_setting("watch_folder", "1" if form.get("watch_folder") else "0")
         db.set_setting("auto_approve", "1" if form.get("auto_approve") else "0")
         db.set_setting("guest_browse", "1" if form.get("guest_browse") else "0")
+        apply_settings()
         events.log("settings_saved", request.state.user)
-        return flash("/admin/settings", "saved")
+        return flash("/admin/settings#general", "saved")
+
+    @app.post("/admin/settings/sources")
+    async def admin_settings_sources(request: Request):
+        form = await request.form()
+        order = [n for n in form.getlist("order") if n in PROVIDERS]
+        order += [n for n in PROVIDERS if n not in order]
+        on = set(form.getlist("on"))
+        move = (form.get("move") or "").partition(":")
+        if move[0] in order:  # ▲ / ▼ gomb: egy hellyel feljebb vagy lejjebb
+            i = order.index(move[0])
+            j = i - 1 if move[2] == "up" else i + 1
+            if 0 <= j < len(order):
+                order[i], order[j] = order[j], order[i]
+        if form.get("preset"):  # az alapnyelvhez illő kezdő beállítás
+            start = default_providers(cfg.default_language)
+            order = start + [n for n in PROVIDERS if n not in start]
+            on = set(start)
+        db.set_setting("providers", json.dumps([{"name": n, "on": n in on} for n in order]))
+        key = (form.get("google_api_key") or "").strip()
+        if form.get("google_key_clear"):
+            db.set_setting("google_api_key", None)
+        elif key:
+            db.set_setting("google_api_key", sessions.seal(key))
+        apply_settings()
+        events.log("settings_saved", request.state.user)
+        return flash("/admin/settings#sources", "saved")
 
     @app.post("/admin/settings/test-mail")
     async def admin_test_mail(request: Request, to: str = Form(...)):

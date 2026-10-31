@@ -452,3 +452,18 @@ input[type=text],input[type=password],input[type=email],input[type=number],input
 .pbar{display:inline-block;width:90px;height:6px;border-radius:3px;background:var(--line);vertical-align:middle;margin-right:6px;overflow:hidden}
 .pbar i{display:block;height:100%;background:var(--accent)}
 .st-error .pbar i{background:var(--danger)} .st-done .pbar i{background:var(--ok)}
+/* beállítások */
+.settings-wrap{display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:18px;align-items:start;max-width:1200px}
+@media (max-width:900px){.settings-wrap{grid-template-columns:minmax(0,1fr)}}
+.settings-main,.settings-side{display:flex;flex-direction:column;gap:18px;min-width:0}
+.settings-main .card{display:flex;flex-direction:column;gap:12px}
+.settings-main h2{font-size:18px;margin:0}.settings-main h3{font-size:15px;margin:8px 0 0}
+.settings-main .check+.small{margin-top:-8px;padding-left:28px}
+.srctable{width:100%;border-collapse:collapse}
+.srctable td{padding:10px 8px;border-top:1px solid var(--line);vertical-align:middle}
+.srctable tr:first-child td{border-top:0}
+.srctable td.n{width:28px;color:var(--muted);font-variant-numeric:tabular-nums}
+.srctable td.mv{white-space:nowrap;text-align:right;width:90px}
+.srctable td.mv .btn{padding:2px 8px;min-width:0}
+.srctable tr.off b{color:var(--muted);font-weight:400}
+.srctable .pill{margin:1px 0}

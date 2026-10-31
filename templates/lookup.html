@@ -24,7 +24,7 @@
       <div class="field"><label for="l-isbn">ISBN</label><input id="l-isbn" name="isbn" type="text" value="{{ q.isbn }}" placeholder="{{ b.isbn or '' }}"></div>
       <div class="field"><label for="l-only">{{ t('review.source') }}</label>
         <select id="l-only" name="only"><option value="">{{ t('review.all_sources') }}</option>
-          {% for s in ('moly', 'google', 'openlibrary') %}<option value="{{ s }}" {% if q.only == s %}selected{% endif %}>{{ t('source.' ~ s) }}</option>{% endfor %}</select></div>
+          {% for s in sources %}<option value="{{ s }}" {% if q.only == s %}selected{% endif %}>{{ t('source.' ~ s) }}</option>{% endfor %}</select></div>
       <button class="btn primary" type="submit">{{ icon('search', 16) }} {{ t('lookup.search') }}</button>
       {% if sources %}<span class="small muted">{{ sources }}</span>{% endif %}
     </form>

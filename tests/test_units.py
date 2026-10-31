@@ -128,3 +128,20 @@ def test_help_pages_for_every_language():
     ref = re.findall(r'<h2 id="(\w+)"', (root / "en.html").read_text(encoding="utf-8"))
     for code in I18n().languages:
         assert re.findall(r'<h2 id="(\w+)"', (root / f"{code}.html").read_text(encoding="utf-8")) == ref, code
+
+
+def test_library_providers_parse():
+    import json
+    from pathlib import Path
+    from app.providers import parse_bn_pl, parse_bnf, parse_dnb, parse_ndl, default_providers, name_similarity
+    d = Path(__file__).parent / "data"
+    dnb = parse_dnb((d / "dnb.xml").read_text(encoding="utf-8"))
+    assert any(c.title == "Der Vorleser" and c.authors == ["Bernhard Schlink"] and c.isbn == "9783257073690" for c in dnb)
+    bnf = parse_bnf((d / "bnf.xml").read_text(encoding="utf-8"))
+    assert any(c.authors == ["Albert Camus"] and c.publisher == "Gallimard" for c in bnf)
+    ndl = parse_ndl((d / "ndl.xml").read_text(encoding="utf-8"))
+    assert ndl and ndl[0].authors == ["村上春樹"] and ndl[0].cover_url
+    bn = parse_bn_pl(json.loads((d / "bn.json").read_text(encoding="utf-8")))
+    assert bn[0].title == "Lalka" and bn[0].authors == ["Bolesław Prus"] and bn[0].year == 1994
+    assert default_providers("hu")[0] == "moly" and default_providers("de")[0] == "dnb" and default_providers("en") == ["google", "openlibrary"]
+    assert name_similarity("Madách Imre", "Imre Madách") == 1.0

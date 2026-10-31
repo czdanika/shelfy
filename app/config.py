@@ -25,7 +25,7 @@ class Config:
     convert_timeout: int = 300
     admin_user: str | None = None
     admin_password: str | None = None
-    providers: tuple[str, ...] = ("moly", "google", "openlibrary")
+    providers: tuple[str, ...] | None = None  # None: az alapnyelvhez illő kezdő lista (a felületen átállítható)
     online_lookup: bool = True
 
 
@@ -47,7 +47,8 @@ def load_config() -> Config:
                 kf.chmod(0o600)
             except OSError:
                 pass
-    providers = tuple(p.strip() for p in os.environ.get("METADATA_PROVIDERS", "moly,google,openlibrary").split(",") if p.strip())
+    env_prov = os.environ.get("METADATA_PROVIDERS")
+    providers = tuple(p.strip() for p in env_prov.split(",") if p.strip()) if env_prov else None
     return Config(
         data_dir=data,
         library_dir=lib,

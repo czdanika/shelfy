@@ -195,7 +195,7 @@ def restore_backup(path: Path, db, data_dir: Path, library_dir: Path, sessions, 
             if old_secret and old_secret != secret:
                 from .auth import Sessions
                 old = Sessions(old_secret)
-                rows = con.execute("SELECT key, value FROM settings WHERE key = 'smtp_password'").fetchall()
+                rows = con.execute("SELECT key, value FROM settings WHERE key IN ('smtp_password', 'google_api_key')").fetchall()
                 rows_u = con.execute("SELECT id, smtp_password FROM users WHERE smtp_password IS NOT NULL").fetchall() \
                     if "smtp_password" in [c[1] for c in con.execute("PRAGMA table_info(users)")] else []
                 for k, v in rows:

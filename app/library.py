@@ -397,6 +397,8 @@ class Library:
 
 
 def norm(s: str) -> str:
+    """Összehasonlításhoz: kisbetű, ékezet nélkül, csak betűk és számok – bármilyen írásrendszerben
+    (cirill, kínai, japán, koreai is megmarad, különben ezek a címek üresre normálódnának)."""
     t = unicodedata.normalize("NFKD", s or "")
-    t = "".join(c for c in t if not unicodedata.combining(c)).casefold()
-    return re.sub(r"[^a-z0-9]+", " ", t).strip()
+    t = unicodedata.normalize("NFKC", "".join(c for c in t if not unicodedata.combining(c))).casefold()
+    return re.sub(r"[\W_]+", " ", t).strip()

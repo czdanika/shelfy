@@ -81,7 +81,6 @@ def test_settings_keep_password(admin):
     assert db.get_setting("smtp_host") == "smtp2.example"
     assert db.get_setting("smtp_password").startswith("enc:")  # titkosítva
     assert admin.app.state.db and "titok" not in db.get_setting("smtp_password")
-    assert db.get_setting("auto_approve") == "0"
     assert "titok" not in admin.get("/admin/settings").text
 
 
@@ -113,7 +112,7 @@ def test_language_picker_and_browser_language(client):
 def test_guest_browse_toggle(admin, tmp_path):
     from test_backup import add_book
     bid = add_book(admin, tmp_path, "Vendégkönyv")
-    admin.post("/admin/settings", data={"guest_browse": "1"})
+    admin.post("/admin/settings/general", data={"guest_browse": "1", "online_lookup": "1"})
     admin.cookies.clear()
     assert admin.get("/books", follow_redirects=False).status_code == 200
     page = admin.get(f"/book/{bid}").text
@@ -125,3 +124,21 @@ def test_guest_browse_toggle(admin, tmp_path):
     # kikapcsolva: minden a bejelentkezésre visz
     admin.app.state.db.set_setting("guest_browse", "0")
     assert admin.get("/books", follow_redirects=False).status_code == 303
+
+
+def test_general_settings_and_sources(admin):
+    st = admin.app.state
+    r = admin.post("/admin/settings/general", data={"default_language": "de-de", "auto_approve": "1"}, follow_redirects=False)
+    assert r.headers["location"].endswith("msg=saved#general")
+    assert st.db.get_setting("default_language") == "de" and st.db.get_setting("online_lookup") == "0"
+    assert st.ingest.default_lang == "de" and st.ingest.online is False
+    # forrás-sorrend: a moly kikapcsolva, a dnb az első
+    admin.post("/admin/settings/sources", data={"order": ["dnb", "google", "moly", "openlibrary", "bnf", "bn_pl", "ndl"],
+                                                "on": ["dnb", "google"], "google_api_key": "AIzaTEST"})
+    assert [p.name for p in st.ingest.lookup.providers] == ["dnb", "google"]
+    assert st.ingest.lookup.providers[1].api_key == "AIzaTEST"
+    assert "AIzaTEST" not in admin.get("/admin/settings").text
+    admin.post("/admin/settings/sources", data={"order": ["dnb", "google"], "on": ["dnb", "google"], "move": "google:up"})
+    assert [p.name for p in st.ingest.lookup.providers] == ["google", "dnb"]
+    admin.post("/admin/settings/sources", data={"preset": "1"})  # német alapnyelv → DNB + Google + Open Library
+    assert [p.name for p in st.ingest.lookup.providers] == ["dnb", "google", "openlibrary"]

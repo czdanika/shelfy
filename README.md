@@ -22,7 +22,7 @@ The interface ships in **14 languages** – English, Hungarian, German, French, 
   - is this exact file, or this book, already in the library?
   - what metadata is embedded?
   - how good is the cover?
-- **Metadata lookup** from Moly.hu, Google Books and Open Library. You pick the right match, and description, series, year, tags and cover come over in one click. Everything stays editable before you approve.
+- **Metadata lookup** from Moly.hu, Google Books, Open Library and national libraries (German DNB, French BnF, Polish BN, Japanese NDL). You choose the sources and their priority in Settings. You pick the right match, and description, series, year, tags and cover come over in one click. Everything stays editable before you approve.
 - **Automatic categorisation** from tags and description (crime, fantasy, science fiction, historical fiction…). Category names are translated, too.
 - **Browsing and sorting** by author, series, tag, publisher, language, format and rating, plus personal shelves and reading status.
 - **Grid and list views**: a size slider sets how many covers fit in a row, and you choose how many books appear per page. The list view shows the cover with details and the start of the description.
@@ -95,9 +95,9 @@ The image is built for `linux/amd64` and `linux/arm64`, with the conversion tool
 | `DATA_DIR` | `/data` | database, caches, secret key |
 | `LIBRARY_DIR` | `/data/library` | book files (`Author/Title (id)/…`) |
 | `INGEST_DIR` | – | watched folder, including subfolders: ebook files copied here are imported automatically (and moved out of it) |
-| `DEFAULT_LANGUAGE` | `en` | default interface language; also the language of category tags. One of `en`, `hu`, `de`, `fr`, `it`, `es`, `pt`, `pl`, `ru`, `tr`, `ja`, `ko`, `zh-Hans`, `zh-Hant` (region codes such as `en-us`, `zh-cn`, `zh-hk` also work). Before signing in, the browser's language is used if it is available. |
-| `ONLINE_LOOKUP` | `true` | enable or disable online metadata lookup |
-| `METADATA_PROVIDERS` | `moly,google,openlibrary` | metadata sources, in order |
+| `DEFAULT_LANGUAGE` | `en` | starting default interface language (can be changed in Settings); also the language of category tags. One of `en`, `hu`, `de`, `fr`, `it`, `es`, `pt`, `pl`, `ru`, `tr`, `ja`, `ko`, `zh-Hans`, `zh-Hant` (region codes such as `en-us`, `zh-cn`, `zh-hk` also work). Before signing in, the browser's language is used if it is available. |
+| `ONLINE_LOOKUP` | `true` | starting value for online metadata lookup (can be switched in Settings) |
+| `METADATA_PROVIDERS` | by language | starting list of metadata sources, in order of priority: `moly`, `google`, `openlibrary`, `dnb`, `bnf`, `bn_pl`, `ndl`. If unset, the default language decides (e.g. `hu` → Moly.hu first, `de` → DNB first). Sources, their order and an optional Google Books API key are managed in Settings. |
 | `ADMIN_USER`, `ADMIN_PASSWORD` | – | first admin account (only if there are no users yet) |
 | `SECRET_KEY` | generated | key for the encrypted session cookie |
 | `CONVERT_TIMEOUT` | `300` | conversion timeout in seconds |
