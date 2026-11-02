@@ -43,6 +43,10 @@
       <input id="gk" name="google_api_key" type="password" autocomplete="off" placeholder="{{ '••••••••' if google_key else 'AIza…' }}">
       <span class="small muted">{{ t('admin.google_key_help') }} <a href="https://console.cloud.google.com/apis/library/books.googleapis.com" target="_blank" rel="noopener">console.cloud.google.com ↗</a></span>
       {% if google_key %}<label class="check small"><input type="checkbox" name="google_key_clear" value="1"> {{ t('admin.google_key_clear') }}</label>{% endif %}</div>
+    <div class="field" style="max-width: 460px"><label for="hk">{{ t('admin.hardcover_key') }}</label>
+      <input id="hk" name="hardcover_token" type="password" autocomplete="off" placeholder="{{ '••••••••' if hardcover_token else 'eyJ…' }}">
+      <span class="small muted">{{ t('admin.hardcover_key_help') }} <a href="https://hardcover.app/account/api/keys/new?scope=read:catalog" target="_blank" rel="noopener">hardcover.app/account/api ↗</a></span>
+      {% if hardcover_token %}<label class="check small"><input type="checkbox" name="hardcover_token_clear" value="1"> {{ t('admin.google_key_clear') }}</label>{% endif %}</div>
     <div class="row">
       <button class="btn primary" type="submit">{{ icon('check', 16) }} {{ t('action.save') }}</button>
       <button class="btn" type="submit" name="preset" value="1">{{ t('admin.sources_preset', language=langname(cfg.default_language)) }}</button>

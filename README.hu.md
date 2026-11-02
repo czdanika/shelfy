@@ -23,7 +23,7 @@ A felület **14 nyelven** érhető el – angol, magyar, német, francia, olasz,
   - megvan-e már ugyanez a fájl vagy ugyanez a könyv
   - milyen adatok vannak a fájlban
   - milyen a borító
-- **Információk letöltése**: Moly.hu, Google Books, Open Library és nemzeti könyvtárak (német DNB, francia BnF, lengyel BN, japán NDL); a forrásokat és a sorrendjüket a Beállításokban választod ki. A leírás, a sorozat, a kiadás éve, a címkék és a borító egyetlen kattintással átvehető. A találatok közül te választasz, és az adatok jóváhagyás előtt szerkeszthetők.
+- **Információk letöltése**: Moly.hu, Google Books, Open Library, Hardcover (saját ingyenes API-kulccsal; sok önkiadott Kindle-könyv) és nemzeti könyvtárak (német DNB, francia BnF, lengyel BN, japán NDL); a forrásokat és a sorrendjüket a Beállításokban választod ki. A leírás, a sorozat, a kiadás éve, a címkék és a borító egyetlen kattintással átvehető. A találatok közül te választasz, és az adatok jóváhagyás előtt szerkeszthetők. Az ISBN helyett Amazon-azonosító (ASIN) vagy Amazon-link is megadható, az egybeírt „Szerző - Cím” alakot pedig a Shelfy maga bontja szét.
 - **Automatikus kategorizálás** a címkékből és a leírásból (krimi, fantasy, sci-fi, történelmi regény…).
 - **Böngészés és rendezés**: szerzők, sorozatok, címkék, kiadók, nyelvek, formátumok és értékelés szerint, valamint a saját polcaid és olvasási állapot.
 - **Rács és lista nézet**: csúszkával állítható, hány borító férjen egy sorba, és választható, hány könyv legyen egy oldalon. Listában a borító mellett az adatok és a leírás eleje is látszik.
@@ -199,7 +199,7 @@ Az adataid az adatmappában maradnak; az adatbázist indításkor magától fris
 | `INGEST_DIR` | – | figyelt mappa almappákkal együtt: az ide másolt e-könyveket magától felveszi (és kiveszi innen) |
 | `DEFAULT_LANGUAGE` | `en` | a felület alapnyelve: `en`, `hu`, `de`, `fr`, `it`, `es`, `pt`, `pl`, `ru`, `tr`, `ja`, `ko`, `zh-Hans`, `zh-Hant` (régiós kód is jó, pl. `hu-hu`, `zh-cn`, `zh-hk`); a kategória-címkék is ezen a nyelven kerülnek a könyvekhez. Bejelentkezés előtt a böngésző nyelvét használja, ha elérhető. |
 | `ONLINE_LOOKUP` | `true` | az online adatkeresés kezdőértéke (a Beállításokban átkapcsolható) |
-| `METADATA_PROVIDERS` | nyelv szerint | az adatforrások kezdő listája fontossági sorrendben: `moly`, `google`, `openlibrary`, `dnb`, `bnf`, `bn_pl`, `ndl`. Ha nincs megadva, az alapnyelv dönt (pl. `hu` → a Moly.hu az első). A forrásokat, a sorrendjüket és egy opcionális Google Books API-kulcsot a Beállításokban lehet kezelni. |
+| `METADATA_PROVIDERS` | nyelv szerint | az adatforrások kezdő listája fontossági sorrendben: `moly`, `google`, `openlibrary`, `hardcover`, `dnb`, `bnf`, `bn_pl`, `ndl`. Ha nincs megadva, az alapnyelv dönt (pl. `hu` → a Moly.hu az első). A forrásokat, a sorrendjüket és az opcionális Google Books és Hardcover API-kulcsot a Beállításokban lehet kezelni. |
 | `ADMIN_USER`, `ADMIN_PASSWORD` | – | első admin fiók (ha nincs még felhasználó) |
 | `SECRET_KEY` | automatikus | a munkamenet-sütik titkosító kulcsa |
 | `CONVERT_TIMEOUT` | `300` | konvertálás időkorlátja másodpercben |

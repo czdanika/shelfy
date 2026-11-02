@@ -1,4 +1,4 @@
-"""Online metaadat-források: Moly.hu, Google Books, Open Library és nemzeti könyvtárak (DNB, BnF, BN, NDL).
+"""Online metaadat-források: Moly.hu, Google Books, Open Library, Hardcover és nemzeti könyvtárak (DNB, BnF, BN, NDL).
 
 Mindegyik ugyanazt a Candidate szerkezetet adja vissza. A lekérdezések udvariasak: azonosítható
 User-Agent, egy forrásra egyszerre egy kérés, rövid gyorsítótár.
@@ -72,13 +72,19 @@ def name_similarity(a: str, b: str) -> float:
     return best
 
 
+SUBTITLE = re.compile(r"\s*[:|]\s+")  # „Főcím: alcím” – az alcímet a források gyakran nem ismerik vagy másképp írják
 SERIES_SUFFIX = re.compile(r"\s*[\(\[][^()\[\]]*\d+(?:\.\d+)?\.?[\)\]]\s*$")
 
 
 def title_similarity(a: str, b: str) -> float:
-    """Cím: a végén zárójelben álló sorozatjelölés ('A kutya se látta (Hercule Poirot 23.)') nem ront az egyezésen."""
+    """Cím: a végén zárójelben álló sorozatjelölés ('A kutya se látta (Hercule Poirot 23.)') és a kettőspont
+    utáni alcím ('The Martian: Stranded on Mars') nem ront az egyezésen."""
     a2, b2 = SERIES_SUFFIX.sub("", a or ""), SERIES_SUFFIX.sub("", b or "")
-    return max(similarity(a, b), similarity(a2, b2), similarity(a2, b), similarity(a, b2))
+    best = max(similarity(a, b), similarity(a2, b2), similarity(a2, b), similarity(a, b2))
+    a3, b3 = SUBTITLE.split(a2, maxsplit=1)[0], SUBTITLE.split(b2, maxsplit=1)[0]
+    if (a3, b3) != (a2, b2):  # alcím nélkül is egyezik: közel teljes egyezés, de a pontos cím előnyben marad
+        best = max(best, similarity(a3, b3) * 0.97)
+    return best
 
 
 def score(c: Candidate, title: str, authors: list[str]) -> float:
@@ -154,12 +160,16 @@ class Provider:
         self.last = 0.0
 
     async def get(self, url: str, **kw) -> httpx.Response:
+        return await self.request("GET", url, **kw)
+
+    async def request(self, method: str, url: str, headers: dict | None = None, **kw) -> httpx.Response:
         async with self.lock:
             wait = self.last + self.min_interval - time.monotonic()
             if wait > 0:
                 await asyncio.sleep(wait)
             try:
-                return await self.http.get(url, headers={"User-Agent": UA, "Accept-Language": "hu,en;q=0.8"}, **kw)
+                return await self.http.request(method, url, headers={"User-Agent": UA, "Accept-Language": "hu,en;q=0.8",
+                                                                     **(headers or {})}, **kw)
             finally:
                 self.last = time.monotonic()
 
@@ -345,6 +355,110 @@ def parse_openlibrary(data: dict) -> list[Candidate]:
                              publisher=(d.get("publisher") or [None])[0], isbn=(d.get("isbn") or [None])[0],
                              tags=(d.get("subject") or [])[:15], cover_url=cover,
                              language=(d.get("language") or [None])[0]))
+    return out
+
+
+# ---------------------------------------------------------------- Hardcover
+
+class MissingKey(Exception):
+    """A forráshoz saját API-kulcs kell, de nincs megadva."""
+
+
+class Hardcover(Provider):
+    """Hardcover.app GraphQL API: sok önkiadott (Kindle) könyv, a kiadásoknál Amazon-azonosítóval (ASIN).
+    Saját, ingyenes API-kulcs kell hozzá (read:catalog jogosultság elég); percenként legfeljebb 60 kérés."""
+    name = "hardcover"
+    min_interval = 1.0
+    token: str | None = None
+    API = "https://api.hardcover.app/v1/graphql"
+    EDITION = """title subtitle isbn_13 asin release_date image { url } publisher { name } language { code3 }
+        book { slug title description rating cached_tags contributions { author { name } } }"""
+
+    async def gql(self, query: str, variables: dict | None = None) -> dict:
+        if not self.token:
+            raise MissingKey()
+        r = await self.request("POST", self.API, json={"query": query, "variables": variables or {}},
+                               headers={"authorization": f"Bearer {self.token}"})
+        r.raise_for_status()
+        data = r.json()
+        if data.get("errors"):
+            raise RuntimeError(str(data["errors"])[:200])
+        return data.get("data") or {}
+
+    async def search(self, title: str, authors: list[str], isbn: str | None = None) -> list[Candidate]:
+        if isbn:
+            return await self.editions("isbn_13", isbn)
+        return await self.search_text(" ".join([title] + authors[:1]))
+
+    async def search_text(self, text: str) -> list[Candidate]:
+        d = await self.gql('query($q: String!) { search(query: $q, query_type: "Book", per_page: 5) { results } }', {"q": text})
+        return parse_hardcover_search((d.get("search") or {}).get("results"))
+
+    async def search_asin(self, asin: str) -> list[Candidate]:
+        return await self.editions("asin", asin)
+
+    async def editions(self, column: str, value: str) -> list[Candidate]:
+        # az érték ellenőrzött ISBN-13 vagy ASIN (csak betű és szám), ezért beírható a lekérdezésbe
+        if not re.fullmatch(r"[0-9A-Z]{10,13}", value):
+            raise ValueError(value)
+        d = await self.gql(f'query {{ editions(where: {{{column}: {{_eq: "{value}"}}}}, limit: 5) {{ {self.EDITION} }} }}')
+        return parse_hardcover_editions(d.get("editions") or [])
+
+
+def _hc_title(title: str, subtitle: str | None) -> str:
+    """A Hardcover címe néha már tartalmazza az alcímet – ilyenkor nem fűzzük hozzá még egyszer."""
+    return title + (f": {subtitle}" if subtitle and norm(subtitle) not in norm(title) else "")
+
+
+def _hc_tags(cached) -> list[str]:
+    """A Hardcover gyorsítótárazott címkéi: {'Genre': [{'tag': 'Fantasy', …}], 'Mood': […]} vagy egyszerű lista."""
+    out = []
+    groups = cached.get("Genre", []) + cached.get("Tag", []) if isinstance(cached, dict) else cached or []
+    for t in groups:
+        name = t.get("tag") if isinstance(t, dict) else t
+        if isinstance(name, str) and name.strip():
+            out.append(name.strip())
+    return out[:15]
+
+
+def parse_hardcover_search(results) -> list[Candidate]:
+    if isinstance(results, str):
+        results = json.loads(results)
+    out = []
+    for h in (results or {}).get("hits") or []:
+        d = h.get("document") or {}
+        if not d.get("title"):
+            continue
+        fs = d.get("featured_series") or {}
+        series = ((fs.get("series") or {}).get("name") if isinstance(fs, dict) else None) or (d.get("series_names") or [None])[0]
+        pos = d.get("featured_series_position") or (fs.get("position") if isinstance(fs, dict) else None)
+        isbn = next((i for i in d.get("isbns") or [] if len(str(i)) == 13), None)
+        out.append(Candidate(source="hardcover", url=f"https://hardcover.app/books/{d['slug']}" if d.get("slug") else "",
+                             title=_hc_title(d["title"], d.get("subtitle")),
+                             authors=d.get("author_names") or [], year=d.get("release_year"), isbn=isbn,
+                             description=strip_html(d.get("description") or "") or None,
+                             genres=d.get("genres") or [],  # a „tags” itt olvasói jellemzés („Plot driven”), nem címke
+                             series=series, series_index=float(pos) if isinstance(pos, (int, float)) else None,
+                             rating=round(d["rating"]) if d.get("rating") else None,
+                             cover_url=(d.get("image") or {}).get("url")))
+    return out
+
+
+def parse_hardcover_editions(rows: list[dict]) -> list[Candidate]:
+    out = []
+    for e in rows:
+        b = e.get("book") or {}
+        title = e.get("title") or b.get("title")
+        if not title:
+            continue
+        rating = b.get("rating")
+        out.append(Candidate(source="hardcover", url=f"https://hardcover.app/books/{b['slug']}" if b.get("slug") else "",
+                             title=_hc_title(title, e.get("subtitle")),
+                             authors=[c["author"]["name"] for c in b.get("contributions") or [] if (c.get("author") or {}).get("name")],
+                             year=_year(e.get("release_date")), publisher=(e.get("publisher") or {}).get("name"),
+                             language=(e.get("language") or {}).get("code3"), isbn=e.get("isbn_13"),
+                             description=strip_html(b.get("description") or "") or None, tags=_hc_tags(b.get("cached_tags")),
+                             rating=round(float(rating)) if rating else None, cover_url=(e.get("image") or {}).get("url")))
     return out
 
 
@@ -553,10 +667,10 @@ def parse_ndl(text: str) -> list[Candidate]:
     return out
 
 
-PROVIDERS = {"moly": Moly, "google": GoogleBooks, "openlibrary": OpenLibrary,
+PROVIDERS = {"moly": Moly, "google": GoogleBooks, "openlibrary": OpenLibrary, "hardcover": Hardcover,
              "dnb": DNB, "bnf": BnF, "bn_pl": BNPolska, "ndl": NDL}
 # melyik forrás milyen nyelvű könyvekhez jó (a felületen és az alapértelmezett választásnál)
-PROVIDER_LANGS = {"moly": ("hu",), "google": (), "openlibrary": (), "dnb": ("de",), "bnf": ("fr",), "bn_pl": ("pl",), "ndl": ("ja",)}
+PROVIDER_LANGS = {"moly": ("hu",), "google": (), "openlibrary": (), "hardcover": (), "dnb": ("de",), "bnf": ("fr",), "bn_pl": ("pl",), "ndl": ("ja",)}
 
 
 def default_providers(lang: str) -> list[str]:
@@ -577,16 +691,22 @@ class Lookup:
         self.throttle = transport is None  # tesztben (saját transport) nincs várakozás
         self.configure(names)
 
-    def configure(self, names, google_key: str | None = None) -> None:
+    def configure(self, names, google_key: str | None = None, hardcover_token: str | None = None) -> None:
         """A bekapcsolt források, fontossági sorrendben (az első a legfontosabb)."""
         self.providers = [PROVIDERS[n](self.http) for n in names if n in PROVIDERS]
-        # Amazon-azonosítót (ASIN) csak az Open Library old fel – akkor is ezt kérdezzük, ha forrásként nincs bekapcsolva
-        self.asin_source = next((p for p in self.providers if isinstance(p, OpenLibrary)), None) or OpenLibrary(self.http)
-        for p in self.providers + [self.asin_source]:
+        # Amazon-azonosítót (ASIN) a Hardcover (ha van kulcs) és az Open Library old fel –
+        # akkor is ezeket kérdezzük, ha forrásként nincsenek bekapcsolva
+        def own(cls):
+            return next((p for p in self.providers if isinstance(p, cls)), None) or cls(self.http)
+        token = re.sub(r"^bearer\s+", "", (hardcover_token or "").strip(), flags=re.I) or None
+        self.asin_sources = ([own(Hardcover)] if token else []) + [own(OpenLibrary)]
+        for p in self.providers + self.asin_sources:
             if not self.throttle:
                 p.min_interval = 0
             if isinstance(p, GoogleBooks):
                 p.api_key = google_key or None
+            if isinstance(p, Hardcover):
+                p.token = token
         self.cache.clear()
 
     async def close(self) -> None:
@@ -613,6 +733,8 @@ class Lookup:
                 return p.name, res, "ok" if res else "empty"
             except httpx.HTTPStatusError as e:
                 return p.name, [], f"error: HTTP {e.response.status_code}"
+            except MissingKey:
+                return p.name, [], "error: no API key"
             except Exception as e:  # hálózati hiba, változott oldal stb.
                 return p.name, [], f"error: {e.__class__.__name__}"
 
@@ -629,7 +751,11 @@ class Lookup:
             return max((c.score for c in found.values()), default=0.0)
 
         if asin:
-            hits = await self.asin_source.search_asin(asin)
+            hits = []
+            for src in self.asin_sources:
+                hits = (await one(src, src.search_asin(asin)))[1]
+                if hits:
+                    break
             for c in hits:
                 c.score = 0.99
                 found[(c.source, c.url or c.title)] = c
@@ -645,6 +771,9 @@ class Lookup:
                     break
                 await stage([(p, p.search(t, [a], None)) for p in provs if p.structured],
                             lambda c, t=t, a=a: score(c, t, [a]))
+            main = SUBTITLE.split(title, maxsplit=1)[0].strip()
+            if best() < WEAK_MATCH and main != title.strip() and len(main) >= 3:  # hosszú alcím nélkül, csak a főcímmel
+                await stage([(p, p.search(main, authors, None)) for p in provs], lambda c: score(c, main, authors))
             if best() < WEAK_MATCH:
                 text = " ".join([DASH_SPLIT.sub(" ", re.sub(r"_+", " ", title))] + authors[:1])
                 await stage([(p, p.search_text(text)) for p in provs if type(p).search_text is not Provider.search_text],

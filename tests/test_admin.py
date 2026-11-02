@@ -142,6 +142,12 @@ def test_general_settings_and_sources(admin):
     assert [p.name for p in st.ingest.lookup.providers] == ["google", "dnb"]
     admin.post("/admin/settings/sources", data={"preset": "1"})  # német alapnyelv → DNB + Google + Open Library
     assert [p.name for p in st.ingest.lookup.providers] == ["dnb", "google", "openlibrary"]
+    # az első Hardcover-kulcs a forrást is bekapcsolja; a kulcs nem jelenik meg az oldalon
+    admin.post("/admin/settings/sources", data={"order": ["dnb", "hardcover"], "on": ["dnb"], "hardcover_token": "hc-TITOK"})
+    hc = next(p for p in st.ingest.lookup.providers if p.name == "hardcover")
+    assert hc.token == "hc-TITOK" and "hc-TITOK" not in admin.get("/admin/settings").text
+    admin.post("/admin/settings/sources", data={"order": ["dnb", "hardcover"], "on": ["dnb", "hardcover"], "hardcover_token_clear": "1"})
+    assert st.db.get_setting("hardcover_token") is None and [p.token for p in st.ingest.lookup.providers if p.name == "hardcover"] == [None]
 
 
 def test_hidden_books_only_for_admin(admin, tmp_path):

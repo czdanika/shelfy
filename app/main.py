@@ -95,7 +95,8 @@ def create_app(cfg: Config | None = None, transport=None) -> FastAPI:
         ol = db.get_setting("online_lookup")
         cfg.online_lookup = (ol == "1") if ol in ("0", "1") else cfg.online_lookup
         lookup.configure([x["name"] for x in provider_list() if x["on"]],
-                         google_key=sessions.unseal(db.get_setting("google_api_key")))
+                         google_key=sessions.unseal(db.get_setting("google_api_key")),
+                         hardcover_token=sessions.unseal(db.get_setting("hardcover_token")))
         ingest.online = cfg.online_lookup
         ingest.default_lang = cfg.default_language
         ingest.watch_enabled = lambda: db.get_setting("watch_folder") != "0"
@@ -290,7 +291,7 @@ def create_app(cfg: Config | None = None, transport=None) -> FastAPI:
         p = dict(e["params"])
         if p.get("reason"):
             p["reason"] = i18n.t(lang, "msg." + p["reason"])
-        if p.get("source") in ("moly", "google", "openlibrary"):
+        if p.get("source") in ("moly", "google", "openlibrary", "hardcover"):
             p["source"] = i18n.t(lang, "source." + p["source"])
         if p.get("source") in ("web", "folder"):
             p["source"] = i18n.t(lang, "upload.src_" + p["source"])
@@ -1576,6 +1577,7 @@ def create_app(cfg: Config | None = None, transport=None) -> FastAPI:
         st.update(cache=dir_size(cfg.data_dir / "cache"), disk_free=disk.free, disk_total=disk.total)
         return render(request, "admin_settings.html", s=settings_dict(), converter=converter, cfg=cfg, stats=st,
                       providers=provider_list(), google_key=bool(db.get_setting("google_api_key")),
+                      hardcover_token=bool(db.get_setting("hardcover_token")),
                       watch=db.get_setting("watch_folder") != "0",
                       msg=request.query_params.get("msg"), section="settings")
 
@@ -1616,12 +1618,19 @@ def create_app(cfg: Config | None = None, transport=None) -> FastAPI:
             start = default_providers(cfg.default_language)
             order = start + [n for n in PROVIDERS if n not in start]
             on = set(start)
+        hc = (form.get("hardcover_token") or "").strip()
+        if hc and not db.get_setting("hardcover_token"):
+            on.add("hardcover")  # az első kulcs megadásával a forrás be is kapcsol
         db.set_setting("providers", json.dumps([{"name": n, "on": n in on} for n in order]))
         key = (form.get("google_api_key") or "").strip()
         if form.get("google_key_clear"):
             db.set_setting("google_api_key", None)
         elif key:
             db.set_setting("google_api_key", sessions.seal(key))
+        if form.get("hardcover_token_clear"):
+            db.set_setting("hardcover_token", None)
+        elif hc:
+            db.set_setting("hardcover_token", sessions.seal(hc))
         apply_settings()
         events.log("settings_saved", request.state.user)
         return flash("/admin/settings#sources", "saved")

@@ -210,3 +210,75 @@ def test_lookup_asin_and_free_text_fallback():
     assert status == {"openlibrary": "ok"}
     assert {"title": "Piszkos Fred a kapitány", "author": "Rejtő Jenő"}.items() <= next(
         c for c in calls if c.get("author") == "Rejtő Jenő").items()  # a szétbontott változat is lefutott
+
+
+def test_lookup_retries_without_subtitle():
+    import asyncio
+    import json
+
+    import httpx
+
+    from app.providers import Lookup
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        docs = [{"key": "/works/OL5W", "title": "The Ultimate Guide", "author_name": ["Szerző Sára"]}] \
+            if request.url.params.get("title") == "The Ultimate Guide" else []
+        return httpx.Response(200, text=json.dumps({"docs": docs}))
+
+    async def go():
+        lk = Lookup(("openlibrary",), transport=httpx.MockTransport(handler))
+        try:
+            return (await lk.search("The Ultimate Guide: POSITIONS, TIPS, MORE", []))[0]
+        finally:
+            await lk.close()
+
+    cands = asyncio.run(go())
+    assert cands and cands[0].title == "The Ultimate Guide" and cands[0].score >= 0.8
+
+
+def test_hardcover_parsers_and_asin_lookup():
+    import asyncio
+    import json
+
+    import httpx
+
+    from app.providers import Lookup, parse_hardcover_search
+
+    hits = parse_hardcover_search(json.dumps({"hits": [{"document": {
+        "title": "Kindle Könyv", "subtitle": "Alcím", "author_names": ["Szerző Sára"], "release_year": 2017, "slug": "kindle-konyv",
+        "isbns": ["1234567890", "9781234567897"], "image": {"url": "https://img.example/c.jpg"}, "rating": 4.4,
+        "genres": ["Self-help"], "series_names": ["Sorozat"], "featured_series_position": 2}}]}))
+    assert hits[0].title == "Kindle Könyv: Alcím" and hits[0].isbn == "9781234567897" and hits[0].series == "Sorozat"
+    assert parse_hardcover_search({"hits": [{"document": {"title": "A: B", "subtitle": "B"}}]})[0].title == "A: B"
+    assert hits[0].series_index == 2.0 and hits[0].rating == 4 and hits[0].url == "https://hardcover.app/books/kindle-konyv"
+
+    seen = []
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        if request.url.host != "api.hardcover.app":
+            return httpx.Response(200, text='{"docs": []}')  # Open Library: nem ismeri
+        seen.append(request.headers.get("authorization"))
+        q = json.loads(request.content)["query"]
+        if 'asin: {_eq: "B0749P1MSW"}' in q:
+            return httpx.Response(200, json={"data": {"editions": [{
+                "title": "Kindle Könyv", "asin": "B0749P1MSW", "release_date": "2017-08-01", "language": {"code3": "eng"},
+                "image": {"url": "https://img.example/c.jpg"}, "publisher": {"name": "Saját kiadás"},
+                "book": {"slug": "kindle-konyv", "description": "<p>Leírás</p>", "rating": "3.6",
+                         "cached_tags": {"Genre": [{"tag": "Self-help"}]},
+                         "contributions": [{"author": {"name": "Szerző Sára"}}]}}]}})
+        return httpx.Response(200, json={"data": {"search": {"results": {"hits": []}}}})
+
+    async def go():
+        lk = Lookup(("moly",), transport=httpx.MockTransport(handler))
+        lk.configure(("moly",), hardcover_token="Bearer titok")
+        try:
+            return await lk.search("ismeretlen", [], "https://www.amazon.com/dp/B0749P1MSW?lv=shuf")
+        finally:
+            await lk.close()
+
+    cands, _ = asyncio.run(go())
+    c = cands[0]
+    assert (c.source, c.title, c.authors, c.year, c.publisher, c.language, c.rating) == \
+        ("hardcover", "Kindle Könyv", ["Szerző Sára"], 2017, "Saját kiadás", "eng", 4)
+    assert c.description == "Leírás" and c.tags == ["Self-help"] and c.score >= 0.99
+    assert seen and set(seen) == {"Bearer titok"}  # a bemásolt „Bearer ” előtag nem duplázódik
