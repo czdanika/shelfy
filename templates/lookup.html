@@ -21,7 +21,7 @@
       <input type="hidden" name="go" value="1">
       <div class="field"><label for="l-title">{{ t('book.title') }}</label><input id="l-title" name="title" type="text" value="{{ q.title }}"></div>
       <div class="field"><label for="l-author">{{ t('book.author') }}</label><input id="l-author" name="author" type="text" value="{{ q.author }}"></div>
-      <div class="field"><label for="l-isbn">ISBN</label><input id="l-isbn" name="isbn" type="text" value="{{ q.isbn }}" placeholder="{{ b.isbn or '' }}"></div>
+      <div class="field"><label for="l-isbn">ISBN / ASIN</label><input id="l-isbn" name="isbn" type="text" value="{{ q.isbn }}" placeholder="{{ b.isbn or '' }}"></div>
       <div class="field"><label for="l-only">{{ t('review.source') }}</label>
         <select id="l-only" name="only"><option value="">{{ t('review.all_sources') }}</option>
           {% for s in sources %}<option value="{{ s }}" {% if q.only == s %}selected{% endif %}>{{ t('source.' ~ s) }}</option>{% endfor %}</select></div>

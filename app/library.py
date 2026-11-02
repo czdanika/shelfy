@@ -391,15 +391,6 @@ class Library:
 
     # ------------------------------------------------------------------ duplikátumok
     @staticmethod
-    def _isbn13(v: str | None) -> str | None:
-        d = re.sub(r"[^0-9Xx]", "", v or "").upper()
-        if len(d) == 10:
-            core = "978" + d[:9]
-            chk = (10 - sum(int(c) * (1 if i % 2 == 0 else 3) for i, c in enumerate(core)) % 10) % 10
-            return core + str(chk)
-        return d if len(d) == 13 else None
-
-    @staticmethod
     def _title_key(t: str) -> str:
         """Cím összehasonlításhoz: a végén álló zárójeles rész (pl. sorozat, kiadás) nélkül."""
         return norm(re.sub(r"\s*[\(\[][^\)\]]*[\)\]]\s*$", "", t or "")) or norm(t)
@@ -451,7 +442,7 @@ class Library:
         for r in self.db.q("SELECT ba.book_id, a.name FROM book_authors ba JOIN authors a ON a.id = ba.author_id"):
             authors.setdefault(r["book_id"], set()).add(self._author_key(r["name"]))
         for r in self.db.q("SELECT id, title, isbn FROM books"):
-            k = self._isbn13(r["isbn"])
+            k = isbn13(r["isbn"])
             if k:
                 by_isbn.setdefault(k, []).append(r["id"])
             by_title.setdefault(self._title_key(r["title"]), []).append(r["id"])
@@ -539,6 +530,16 @@ class Library:
                     if not na or names & na:
                         ids.append(r["id"])
         return ids
+
+
+def isbn13(v: str | None) -> str | None:
+    """ISBN-10 vagy -13 (kötőjellel, szóközzel is) → ISBN-13; más → None."""
+    d = re.sub(r"[^0-9Xx]", "", v or "").upper()
+    if len(d) == 10:
+        core = "978" + d[:9]
+        chk = (10 - sum(int(c) * (1 if i % 2 == 0 else 3) for i, c in enumerate(core)) % 10) % 10
+        return core + str(chk)
+    return d if len(d) == 13 else None
 
 
 def norm(s: str) -> str:

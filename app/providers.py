@@ -18,7 +18,7 @@ from urllib.parse import quote_plus, urljoin
 import httpx
 
 from . import __version__
-from .library import norm
+from .library import isbn13, norm
 
 UA = f"Shelfy/{__version__} (self-hosted ebook library)"
 
@@ -90,6 +90,53 @@ def score(c: Candidate, title: str, authors: list[str]) -> float:
     return round(s, 3)
 
 
+def text_score(c: Candidate, text: str) -> float:
+    """Egybeírt szerző + cím ('rejtő jenő piszkos fred a kapitány'): a találat címének és szerzőjének
+    szavai mennyire vannak meg a keresett szövegben, és a keresett szöveg mennyi része magyarázható velük."""
+    q = set(norm(text).split())
+    words = norm(SERIES_SUFFIX.sub("", c.title or "")).split()
+    if not q or not words:
+        return 0.0
+    names = [norm(a).split() for a in c.authors if norm(a)]
+    best_name = max(names, key=lambda n: sum(w in q for w in n) / len(n), default=[])
+    t_cov = sum(w in q for w in words) / len(words)
+    a_cov = sum(w in q for w in best_name) / len(best_name) if best_name else 0.0
+    explained = len(q & (set(words) | set(best_name))) / len(q)
+    return round(t_cov * 0.45 + a_cov * 0.25 + explained * 0.3, 3)
+
+
+DASH_SPLIT = re.compile(r"\s+[-–—]\s+")
+
+
+def split_combined(text: str) -> list[tuple[str, str]]:
+    """'Rejtő Jenő - Piszkos Fred' → [(cím, szerző)] mindkét sorrendben; 'Az by Stephen King' → egy sorrend."""
+    text = re.sub(r"_+", " ", text or "").strip()
+    m = re.match(r"(.+?)\s+by\s+(.+)$", text, flags=re.I)
+    if m:
+        return [(m.group(1).strip(), m.group(2).strip())]
+    parts = DASH_SPLIT.split(text, maxsplit=1)
+    if len(parts) != 2 or not all(x.strip() for x in parts):
+        return []
+    a, b = (x.strip() for x in parts)
+    return [(b, a), (a, b)]
+
+
+ASIN_RE = re.compile(r"(?<![0-9A-Z])B0[0-9A-Z]{8}(?![0-9A-Z])")
+
+
+def parse_ident(s: str | None) -> tuple[str | None, str | None]:
+    """Keresőmezőbe írt azonosító → (ISBN-13, ASIN). Elfogad ISBN-10/13-at, Amazon-azonosítót (B0…)
+    és Amazon-linket is; a nyomtatott könyvek ASIN-je maga az ISBN-10, ezt ISBN-ként kezeljük."""
+    v = (s or "").strip().upper()
+    m = re.search(r"/(?:DP|GP/PRODUCT)/([0-9A-Z]{10})", v)
+    if m:
+        v = m.group(1)
+    m = ASIN_RE.search(v)
+    if m:
+        return None, m.group(0)
+    return isbn13(v), None
+
+
 def strip_html(s: str) -> str:
     s = re.sub(r"<br\s*/?>|</p>", "\n", s or "", flags=re.I)
     s = re.sub(r"<[^>]+>", "", s)
@@ -99,6 +146,7 @@ def strip_html(s: str) -> str:
 class Provider:
     name = "base"
     min_interval = 0.5  # másodperc két kérés között – nagy importnál se terheljük a forrást
+    structured = True  # külön cím- és szerzőmezővel keres (a szétbontott „Szerző - Cím” ezért náluk segít)
 
     def __init__(self, client: httpx.AsyncClient) -> None:
         self.http = client
@@ -118,11 +166,16 @@ class Provider:
     async def search(self, title: str, authors: list[str], isbn: str | None = None) -> list[Candidate]:
         raise NotImplementedError
 
+    async def search_text(self, text: str) -> list[Candidate]:
+        """Szabad szavas keresés, ahogy egy keresőbe beírnánk; ahol a forrás nem tud ilyet, nincs találat."""
+        return []
+
 
 # ---------------------------------------------------------------- Moly.hu
 
 class Moly(Provider):
     name = "moly"
+    structured = False  # a Moly eleve egy mezőben, szabad szavasan keres
     min_interval = 1.5  # a Moly.hu nyilvános oldalait olvassuk: kíméletes tempó
     BASE = "https://moly.hu"
 
@@ -214,8 +267,10 @@ class GoogleBooks(Provider):
     api_key: str | None = None  # opcionális saját Google API-kulcs (a kulcs nélküli kvóta gyakran elfogy)
 
     async def search(self, title: str, authors: list[str], isbn: str | None = None) -> list[Candidate]:
-        q = f"isbn:{isbn}" if isbn else f"intitle:{title}" + (f" inauthor:{authors[0]}" if authors else "")
-        params = {"q": q, "maxResults": 5}
+        return await self.search_text(f"isbn:{isbn}" if isbn else f"intitle:{title}" + (f" inauthor:{authors[0]}" if authors else ""))
+
+    async def search_text(self, text: str) -> list[Candidate]:
+        params = {"q": text, "maxResults": 5}
         if self.api_key:
             params["key"] = self.api_key
         r = await self.get("https://www.googleapis.com/books/v1/volumes", params=params)
@@ -248,17 +303,31 @@ def parse_google(data: dict) -> list[Candidate]:
 
 # ---------------------------------------------------------------- Open Library
 
+OL_FIELDS = "key,title,author_name,first_publish_year,publisher,isbn,subject,cover_i,language"
+
+
 class OpenLibrary(Provider):
     name = "openlibrary"
 
     async def search(self, title: str, authors: list[str], isbn: str | None = None) -> list[Candidate]:
-        params = {"limit": 5, "fields": "key,title,author_name,first_publish_year,publisher,isbn,subject,cover_i,language"}
+        params = {}
         if isbn:
             params["isbn"] = isbn
         else:
             params["title"] = title
             if authors:
                 params["author"] = authors[0]
+        return await self._query(params)
+
+    async def search_text(self, text: str) -> list[Candidate]:
+        return await self._query({"q": text})
+
+    async def search_asin(self, asin: str) -> list[Candidate]:
+        """Az Open Library a kiadásoknál az Amazon-azonosítót is nyilvántartja."""
+        return await self._query({"q": f"id_amazon:{asin}"})
+
+    async def _query(self, params: dict) -> list[Candidate]:
+        params = {"limit": 5, "fields": OL_FIELDS, **params}
         r = await self.get("https://openlibrary.org/search.json", params=params)
         if r.status_code != 200:
             return []
@@ -497,6 +566,7 @@ def default_providers(lang: str) -> list[str]:
     return own + ["google", "openlibrary"]
 
 
+WEAK_MATCH = 0.8  # ez alatt a legjobb találat bizonytalan: jöhet a szétbontott és a szabad szavas keresés
 PRIORITY_STEP = 0.03  # sorrendbeli helyenként ennyi előnyt kap egy forrás a rangsorolásnál (a kijelzett % nem változik)
 
 
@@ -510,7 +580,9 @@ class Lookup:
     def configure(self, names, google_key: str | None = None) -> None:
         """A bekapcsolt források, fontossági sorrendben (az első a legfontosabb)."""
         self.providers = [PROVIDERS[n](self.http) for n in names if n in PROVIDERS]
-        for p in self.providers:
+        # Amazon-azonosítót (ASIN) csak az Open Library old fel – akkor is ezt kérdezzük, ha forrásként nincs bekapcsolva
+        self.asin_source = next((p for p in self.providers if isinstance(p, OpenLibrary)), None) or OpenLibrary(self.http)
+        for p in self.providers + [self.asin_source]:
             if not self.throttle:
                 p.min_interval = 0
             if isinstance(p, GoogleBooks):
@@ -522,31 +594,63 @@ class Lookup:
 
     async def search(self, title: str, authors: list[str], isbn: str | None = None,
                      only: str | None = None, fresh: bool = False) -> tuple[list[Candidate], dict[str, str]]:
-        """Minden forrás párhuzamosan; (pontozott találatok, forrásonkénti állapot). fresh=True: gyorsítótár nélkül."""
-        key = (norm(title), tuple(norm(a) for a in authors), isbn, only)
+        """Minden forrás párhuzamosan; (pontozott találatok, forrásonkénti állapot). fresh=True: gyorsítótár nélkül.
+
+        Az isbn mezőben ISBN, Amazon-azonosító (ASIN) vagy Amazon-link is lehet. Ha a szokásos cím + szerző
+        keresés nem ad jó találatot, a „Szerző - Cím” alakú címet szétbontva, végül szabad szavasan is keresünk."""
+        isbn, asin = parse_ident(isbn)
+        key = (norm(title), tuple(norm(a) for a in authors), isbn, asin, only)
         hit = self.cache.get(key)
         if hit and not fresh and time.time() - hit[0] < 3600:
             return hit[1], {}
         provs = [p for p in self.providers if not only or p.name == only]
+        found: dict[tuple[str, str], Candidate] = {}
+        status: dict[str, str] = {}
 
-        async def one(p: Provider):
+        async def one(p: Provider, call):
             try:
-                res = await p.search(title, authors, isbn)
+                res = await call
                 return p.name, res, "ok" if res else "empty"
             except httpx.HTTPStatusError as e:
                 return p.name, [], f"error: HTTP {e.response.status_code}"
             except Exception as e:  # hálózati hiba, változott oldal stb.
                 return p.name, [], f"error: {e.__class__.__name__}"
 
-        results = await asyncio.gather(*(one(p) for p in provs))
-        cands, status = [], {}
-        for name, res, st in results:
-            status[name] = st
-            for c in res:
-                c.score = score(c, title, authors)
-                if isbn and c.isbn and c.isbn.replace("-", "") == isbn:
-                    c.score = max(c.score, 0.99)
-                cands.append(c)
+        async def stage(calls, scorer) -> None:
+            for name, res, st in await asyncio.gather(*(one(p, c) for p, c in calls)):
+                if name not in status or st == "ok" or (st == "empty" and status[name] != "ok"):
+                    status[name] = st
+                for c in res:
+                    found.setdefault((c.source, c.url or c.title), c)
+            for c in found.values():  # a korábbi találatok is számítanak az új (pl. szétbontott) keresés szerint
+                c.score = max(c.score, scorer(c))
+
+        def best() -> float:
+            return max((c.score for c in found.values()), default=0.0)
+
+        if asin:
+            hits = await self.asin_source.search_asin(asin)
+            for c in hits:
+                c.score = 0.99
+                found[(c.source, c.url or c.title)] = c
+            if hits:  # a feloldott cím + szerző alapján a többi forrás is kereshet
+                title, authors = hits[0].title, hits[0].authors[:1]
+
+        await stage([(p, p.search(title, authors, isbn)) for p in provs],
+                    lambda c: max(score(c, title, authors), 0.99 if isbn and isbn13(c.isbn) == isbn else 0))
+
+        if not isbn and best() < WEAK_MATCH:
+            for t, a in ([] if authors else split_combined(title)):
+                if best() >= WEAK_MATCH:
+                    break
+                await stage([(p, p.search(t, [a], None)) for p in provs if p.structured],
+                            lambda c, t=t, a=a: score(c, t, [a]))
+            if best() < WEAK_MATCH:
+                text = " ".join([DASH_SPLIT.sub(" ", re.sub(r"_+", " ", title))] + authors[:1])
+                await stage([(p, p.search_text(text)) for p in provs if type(p).search_text is not Provider.search_text],
+                            lambda c: text_score(c, text))
+
+        cands = list(found.values())
         rank = {p.name: i for i, p in enumerate(self.providers)}
         n = len(self.providers)
         # a pontszám dönt; közel egyforma találatoknál a fontosabb forrás kerül előre

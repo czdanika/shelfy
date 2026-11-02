@@ -153,3 +153,60 @@ def test_matching_series_suffix_and_initials():
     assert name_similarity("J. K. Rowling", "Stephen King") < 0.6
     c = Candidate(source="moly", url="", title="A kutya se látta (Hercule Poirot 23.)", authors=["Agatha Christie"])
     assert score(c, "A kutya se látta", ["Agatha Christie"]) >= 0.95
+
+
+def test_identifiers_and_combined_text():
+    from app.providers import Candidate, parse_ident, split_combined, text_score
+    assert parse_ident("963-07-1234-5") == ("9789630712347", None)
+    assert parse_ident("b07cvsx2hn") == (None, "B07CVSX2HN")
+    assert parse_ident("https://www.amazon.com/Martian-Andy-Weir/dp/B072LBZJF1/ref=sr_1_1") == (None, "B072LBZJF1")
+    assert parse_ident("https://www.amazon.de/dp/0553418025") == ("9780553418026", None)  # papírkönyv: az ASIN = ISBN-10
+    assert parse_ident("") == (None, None)
+    assert split_combined("Rejtő Jenő - Piszkos Fred a kapitány") == [("Piszkos Fred a kapitány", "Rejtő Jenő"),
+                                                                     ("Rejtő Jenő", "Piszkos Fred a kapitány")]
+    assert split_combined("The Martian by Andy Weir") == [("The Martian", "Andy Weir")]
+    assert split_combined("Egri csillagok") == []
+    good = Candidate(source="openlibrary", url="a", title="Piszkos Fred a kapitány", authors=["Jenő Rejtő"])
+    other = Candidate(source="openlibrary", url="b", title="Piszkos Fred és a többiek", authors=["Jenő Rejtő"])
+    assert text_score(good, "rejto jeno piszkos fred a kapitany") == 1.0
+    assert text_score(other, "rejto jeno piszkos fred a kapitany") < 0.8
+
+
+def test_lookup_asin_and_free_text_fallback():
+    import asyncio
+    import json
+
+    import httpx
+
+    from app.providers import Lookup
+
+    calls = []
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        q = dict(request.url.params)
+        calls.append(q)
+        if q.get("q") == "id_amazon:B072LBZJF1":
+            docs = [{"key": "/works/OL1W", "title": "The Martian", "author_name": ["Andy Weir"]}]
+        elif q.get("q") == "Rejtő Jenő Piszkos Fred a kapitány":  # szabad szavas keresés
+            docs = [{"key": "/works/OL2W", "title": "Piszkos Fred a kapitány", "author_name": ["Jenő Rejtő"]},
+                    {"key": "/works/OL3W", "title": "Piszkos Fred és a többiek", "author_name": ["Jenő Rejtő"]}]
+        else:  # mezőnkénti keresés: az egybeírt címre nincs jó találat
+            docs = [{"key": "/works/OL9W", "title": "Valami egészen más", "author_name": ["Nem Ő"]}]
+        return httpx.Response(200, text=json.dumps({"docs": docs}))
+
+    async def go():
+        lk = Lookup(("openlibrary",), transport=httpx.MockTransport(handler))
+        try:
+            asin, _ = await lk.search("ismeretlen", [], "B072LBZJF1")
+            combined, status = await lk.search("Rejtő Jenő - Piszkos Fred a kapitány", [])
+            return asin, combined, status
+        finally:
+            await lk.close()
+
+    asin, combined, status = asyncio.run(go())
+    assert asin[0].title == "The Martian" and asin[0].score >= 0.99
+    assert any(c.get("title") == "The Martian" and c.get("author") == "Andy Weir" for c in calls)  # tovább keres a feloldott címmel
+    assert combined[0].title == "Piszkos Fred a kapitány" and combined[0].score >= 0.8
+    assert status == {"openlibrary": "ok"}
+    assert {"title": "Piszkos Fred a kapitány", "author": "Rejtő Jenő"}.items() <= next(
+        c for c in calls if c.get("author") == "Rejtő Jenő").items()  # a szétbontott változat is lefutott

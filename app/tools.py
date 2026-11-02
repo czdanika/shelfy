@@ -113,9 +113,12 @@ def parse_opf(text: str) -> dict:
     for e in md.findall("dc:identifier", OPF_NS):
         scheme = (e.get("{http://www.idpf.org/2007/opf}scheme") or "").lower()
         val = (e.text or "").strip()
+        val = re.sub(r"^(urn:)?(isbn|asin|amazon):", "", val, flags=re.I)
         if scheme == "isbn" or re.fullmatch(r"(97[89])?\d{9}[\dXx]", val.replace("-", "")):
             if re.fullmatch(r"(97[89])?\d{9}[\dXx]", val.replace("-", "")):
                 meta["isbn"] = val.replace("-", "")
+        elif scheme in ("amazon", "asin", "mobi-asin") and re.fullmatch(r"B0[0-9A-Z]{8}", val.upper()):
+            meta["asin"] = val.upper()  # Kindle-könyvek Amazon-azonosítója: online kereséshez
     for e in md.findall("opf:meta", OPF_NS):
         name, content = e.get("name"), e.get("content")
         if name == "calibre:series" and content:

@@ -272,7 +272,8 @@ class Ingest:
             q = query or {}
             title = q.get("title") or meta.get("title") or Path(up["filename"]).stem
             authors = q.get("authors") if q.get("authors") is not None else meta.get("authors") or []
-            cands, status = await self.lookup.search(title, authors, q.get("isbn") or meta.get("isbn"), q.get("only"))
+            ident = q.get("isbn") or meta.get("isbn") or meta.get("asin")
+            cands, status = await self.lookup.search(title, authors, ident, q.get("only"))
             best = cands[0].score if cands else 0
             checks.append(check("online", "ok" if best >= 0.8 else ("warn" if cands else "info"),
                                 n=len(cands), best=f"{round(best * 100)}%",

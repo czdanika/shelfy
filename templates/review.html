@@ -74,7 +74,7 @@
       <form method="post" action="/upload/{{ up.id }}/research" style="display: flex; flex-direction: column; gap: 10px">
         <div class="field"><label for="r-title">{{ t('book.title') }}</label><input id="r-title" name="title" type="text" value="{{ up.extracted.title or '' }}"></div>
         <div class="field"><label for="r-author">{{ t('book.author') }}</label><input id="r-author" name="author" type="text" value="{{ (up.extracted.authors or [])|first or '' }}"></div>
-        <div class="field"><label for="r-isbn">ISBN</label><input id="r-isbn" name="isbn" type="text" value="{{ up.extracted.isbn or '' }}"></div>
+        <div class="field"><label for="r-isbn">ISBN / ASIN</label><input id="r-isbn" name="isbn" type="text" value="{{ up.extracted.isbn or up.extracted.asin or '' }}"></div>
         <div class="field"><label for="r-only">{{ t('review.source') }}</label>
           <select id="r-only" name="only"><option value="">{{ t('review.all_sources') }}</option>
             {% for s in sources %}<option value="{{ s }}">{{ t('source.' ~ s) }}</option>{% endfor %}</select></div>
