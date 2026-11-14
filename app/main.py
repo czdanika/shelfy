@@ -281,6 +281,7 @@ def create_app(cfg: Config | None = None, transport=None) -> FastAPI:
             "query": dict(request.query_params), "qs": qs, "now": now(),
             "event_text": partial(event_text, lang),
             "sources": [p.name for p in lookup.providers],
+            "send_via": send_methods(user) if user else [],  # Kindle-re küldés módjai: adatlap, lista, Kindle-nézet
             "theme": request.cookies.get("shelfy_theme") if request.cookies.get("shelfy_theme") in ("light", "dark") else "auto",
         }
         if user and user.is_guest:
@@ -518,7 +519,6 @@ def create_app(cfg: Config | None = None, transport=None) -> FastAPI:
         pos = db.one("SELECT percent FROM reading_pos WHERE user_id = ? AND book_id = ?", (user.id, bid))
         return render(request, "book.html", b=b, read_state=state, more=more, msg=request.query_params.get("msg"),
                       can_read=reader_kind(b) is not None, read_pct=pos["percent"] if pos else None,
-                      send_via=send_methods(user),
                       can_convert=converter.has_convert,
                       history=events.query(book_id=bid, per_page=15)[0] if request.state.user.can("can_edit") else [])
 
@@ -1806,7 +1806,6 @@ def create_app(cfg: Config | None = None, transport=None) -> FastAPI:
         on_kindle = "Kindle" in request.headers.get("user-agent", "")
         direct = ("mobi", "azw", "prc", "txt") if dev == "old" else ("azw3", "mobi", "azw", "prc", "txt") if on_kindle else FORMATS
         return {"device": dev, "kfmt": "mobi" if dev == "old" else "azw3", "direct": direct,
-                "send_via": send_methods(request.state.user),
                 "can_convert": converter.has_convert, "msg": request.query_params.get("msg")}
 
     KFACETS = {"authors": "author", "series": "series", "tags": "tag", "publishers": "publisher",

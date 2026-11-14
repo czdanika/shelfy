@@ -130,3 +130,16 @@ def test_disconnect(admin, linked, tmp_path):
     assert admin.app.state.db.val("SELECT stk_client FROM users WHERE id = 1") is None
     bid = add_book(admin, tmp_path)
     assert "mail_off" in admin.post(f"/book/{bid}/send", follow_redirects=False).headers["location"]
+
+
+def test_list_view_offers_each_method(admin, linked, tmp_path, monkeypatch):
+    bid = add_book(admin, tmp_path)
+    # csak Amazon, Kindle e-mail cím nélkül: a listában is van küldés ikon, és megmondja, mivel küld
+    html = admin.get("/books").text
+    assert html.count(f'action="/book/{bid}/send"') == 1 and 'name="via" value="amazon"' in html
+    assert "Küldés Kindle-re: Amazon Send to Kindle" in html
+    mail_on(admin, monkeypatch)
+    for view in ("/books?layout=grid", "/books?layout=list"):
+        html = admin.get(view).text
+        assert 'name="via" value="amazon"' in html and 'name="via" value="mail"' in html
+        assert "Küldés Kindle-re: E-mail" in html

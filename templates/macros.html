@@ -18,6 +18,7 @@
   'trash': '<path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/>',
   'shelf': '<path d="M4 4v16M20 4v16M4 12h16M4 20h16"/>',
   'chev': '<path d="M6 9l6 6 6-6"/>',
+  'mail': '<path d="M3 6h18v12H3zM3 7l9 6 9-6"/>',
 } -%}
 <svg width="{{ size }}" height="{{ size }}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">{{ paths[name]|safe }}</svg>
 {%- endmacro %}
@@ -31,7 +32,7 @@
 {%- if n %}<span class="stars" aria-label="{{ n }}/5">{{ '★' * n }}{{ '☆' * (5 - n) }}</span>{% endif -%}
 {%- endmacro %}
 
-{% macro bookcard(b, t, user, now_ts) %}
+{% macro bookcard(b, t, user, now_ts, send_via=[]) %}
 <article class="book">
   <div class="cover">
     <a class="lift" href="/book/{{ b.id }}" aria-label="{{ b.title }}">
@@ -42,7 +43,7 @@
     <div class="quick">
       {% if not user.can('can_download') %}{% elif 'epub' in b.formats %}<a href="/book/{{ b.id }}/download/epub" title="{{ t('action.download') }} EPUB" aria-label="{{ t('action.download') }}">{{ icon('download') }}</a>
       {% elif b.formats %}<a href="/book/{{ b.id }}/download/{{ b.formats[0] }}" title="{{ t('action.download') }} {{ b.formats[0]|upper }}" aria-label="{{ t('action.download') }}">{{ icon('download') }}</a>{% endif %}
-      {% if user.kindle_email %}<form method="post" action="/book/{{ b.id }}/send"><button type="submit" title="{{ t('action.send_kindle') }}" aria-label="{{ t('action.send_kindle') }}">{{ icon('send') }}</button></form>{% endif %}
+      {% for v in send_via %}{% set how = t('me.stk_title') if v == 'amazon' else t('me.via_mail') %}<form method="post" action="/book/{{ b.id }}/send"><input type="hidden" name="via" value="{{ v }}"><button type="submit" title="{{ t('action.send_kindle') }}: {{ how }}" aria-label="{{ t('action.send_kindle') }}: {{ how }}">{{ icon('mail' if v == 'mail' and send_via|length > 1 else 'send') }}</button></form>{% endfor %}
       {% if user.can('can_edit') %}<a href="/book/{{ b.id }}/edit" title="{{ t('action.edit') }}" aria-label="{{ t('action.edit') }}">{{ icon('edit') }}</a>{% endif %}
       {% if not user.is_guest %}<a href="/book/{{ b.id }}#shelf" title="{{ t('action.shelf') }}" aria-label="{{ t('action.shelf') }}">{{ icon('plus') }}</a>{% endif %}
     </div>
@@ -54,7 +55,7 @@
 </article>
 {% endmacro %}
 
-{% macro bookrow(b, t, user, now_ts, langname) %}
+{% macro bookrow(b, t, user, now_ts, langname, send_via=[]) %}
 <article class="brow">
   <a class="brow-cover" href="/book/{{ b.id }}" aria-label="{{ b.title }}">
     {% if b.has_cover %}<img src="/book/{{ b.id }}/cover?v={{ (b.updated_at or 0)|int }}&w=200" alt="" loading="lazy">{% else %}{{ placeholder(b) }}{% endif %}
@@ -83,7 +84,7 @@
       {% if user.can('can_download') and b.formats %}
       {% set f0 = 'epub' if 'epub' in b.formats else b.formats[0] %}
       <a href="/book/{{ b.id }}/download/{{ f0 }}" title="{{ t('action.download') }} {{ f0|upper }}" aria-label="{{ t('action.download') }}">{{ icon('download') }}</a>
-      {% if user.kindle_email %}<form method="post" action="/book/{{ b.id }}/send"><button type="submit" title="{{ t('action.send_kindle') }}" aria-label="{{ t('action.send_kindle') }}">{{ icon('send') }}</button></form>{% endif %}
+      {% for v in send_via %}{% set how = t('me.stk_title') if v == 'amazon' else t('me.via_mail') %}<form method="post" action="/book/{{ b.id }}/send"><input type="hidden" name="via" value="{{ v }}"><button type="submit" title="{{ t('action.send_kindle') }}: {{ how }}" aria-label="{{ t('action.send_kindle') }}: {{ how }}">{{ icon('mail' if v == 'mail' and send_via|length > 1 else 'send') }}</button></form>{% endfor %}
       {% endif %}
       {% if user.can('can_edit') %}<a href="/book/{{ b.id }}/edit" title="{{ t('action.edit') }}" aria-label="{{ t('action.edit') }}">{{ icon('edit') }}</a>{% endif %}
       {% if not user.is_guest %}<a href="/book/{{ b.id }}#shelf" title="{{ t('action.shelf') }}" aria-label="{{ t('action.shelf') }}">{{ icon('plus') }}</a>{% endif %}

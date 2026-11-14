@@ -39,11 +39,11 @@
 {% if books %}
 {% if layout == 'list' %}
 <div class="blist" id="books" style="--card: {{ zoom }}px">
-  {% for b in books %}{{ bookrow(b, t, user, now, langname) }}{% endfor %}
+  {% for b in books %}{{ bookrow(b, t, user, now, langname, send_via) }}{% endfor %}
 </div>
 {% else %}
 <div class="books {% if zoom <= 120 %}dense{% endif %}" id="books" style="--card: {{ zoom }}px">
-  {% for b in books %}{{ bookcard(b, t, user, now) }}{% endfor %}
+  {% for b in books %}{{ bookcard(b, t, user, now, send_via) }}{% endfor %}
 </div>
 {% endif %}
 <div class="row" style="justify-content: center">{% include "_pager.html" %}</div>
