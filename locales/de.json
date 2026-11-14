@@ -329,12 +329,15 @@
     "new_password": "Neues Passwort",
     "password_error": "Passwort nicht geändert: Das aktuelle Passwort ist falsch oder das neue kürzer als 8 Zeichen.",
     "stk_title": "Amazon Send to Kindle",
-    "stk_help": "Sendet Bücher ohne E-Mail direkt an dein Amazon-Konto, bis 200 MB. Wenn verbunden, nutzt Shelfy zuerst diesen Weg und sendet per E-Mail, falls er fehlschlägt. Dies ist eine inoffizielle Verbindung: Shelfy erscheint als Gerät in deinem Amazon-Konto und kann ausfallen, wenn Amazon den Dienst ändert.",
+    "stk_help": "Sendet Bücher ohne E-Mail direkt an dein Amazon-Konto, bis 200 MB. Dies ist eine inoffizielle Verbindung: Shelfy erscheint als Gerät in deinem Amazon-Konto und kann ausfallen, wenn Amazon den Dienst ändert.",
     "stk_open": "1. Amazon-Anmeldung öffnen",
     "stk_step2": "2. Kopiere nach der Anmeldung die vollständige Adresse der Seite, auf die Amazon dich leitet, und füge sie hier ein",
     "stk_connect": "Verbinden",
     "stk_connected": "Verbunden: {name}",
-    "stk_disconnect": "Verbindung trennen"
+    "stk_disconnect": "Verbindung trennen",
+    "kindle_via": "An Kindle senden über",
+    "via_mail": "E-Mail",
+    "via_both": "Beides – ich wähle beim Senden"
   },
   "admin": {
     "title": "Administration",

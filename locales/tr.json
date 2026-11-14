@@ -329,12 +329,15 @@
     "new_password": "Yeni parola",
     "password_error": "Parola değiştirilmedi: mevcut parola yanlış ya da yeni parola 8 karakterden kısa.",
     "stk_title": "Amazon Send to Kindle",
-    "stk_help": "Kitapları e-posta olmadan doğrudan Amazon hesabınıza gönderir, 200 MB'a kadar. Bağlıysa Shelfy önce bu yolu kullanır, başarısız olursa e-postayla gönderir. Bu resmi olmayan bir bağlantıdır: Shelfy, Amazon hesabınızda bir cihaz olarak görünür ve Amazon hizmeti değiştirirse çalışmayabilir.",
+    "stk_help": "Kitapları e-posta olmadan doğrudan Amazon hesabınıza gönderir, 200 MB'a kadar. Bu resmi olmayan bir bağlantıdır: Shelfy, Amazon hesabınızda bir cihaz olarak görünür ve Amazon hizmeti değiştirirse çalışmayabilir.",
     "stk_open": "1. Amazon oturum açma sayfasını aç",
     "stk_step2": "2. Oturum açtıktan sonra Amazon'un sizi götürdüğü sayfanın tam adresini kopyalayıp buraya yapıştırın",
     "stk_connect": "Bağla",
     "stk_connected": "Bağlı: {name}",
-    "stk_disconnect": "Bağlantıyı kes"
+    "stk_disconnect": "Bağlantıyı kes",
+    "kindle_via": "Kindle'a şununla gönder",
+    "via_mail": "E-posta",
+    "via_both": "İkisi de – gönderirken seçerim"
   },
   "admin": {
     "title": "Yönetim",

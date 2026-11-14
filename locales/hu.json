@@ -329,12 +329,15 @@
     "new_password": "Új jelszó",
     "password_error": "A jelszó nem változott: hibás a jelenlegi jelszó, vagy az új 8 karakternél rövidebb.",
     "stk_title": "Amazon Send to Kindle",
-    "stk_help": "Küldés közvetlenül az Amazon-fiókodba, e-mail nélkül, 200 MB-ig. Ha össze van kapcsolva, a Shelfy először ezt használja, és ha nem sikerül, e-mailben küld. Nem hivatalos kapcsolat: a Shelfy eszközként jelenik meg az Amazon-fiókodban, és leállhat, ha az Amazon változtat a szolgáltatáson.",
+    "stk_help": "Küldés közvetlenül az Amazon-fiókodba, e-mail nélkül, 200 MB-ig. Nem hivatalos kapcsolat: a Shelfy eszközként jelenik meg az Amazon-fiókodban, és leállhat, ha az Amazon változtat a szolgáltatáson.",
     "stk_open": "1. Amazon bejelentkezés megnyitása",
     "stk_step2": "2. Belépés után másold ide annak az oldalnak a teljes címét, ahová az Amazon vitt",
     "stk_connect": "Összekapcsolás",
     "stk_connected": "Összekapcsolva: {name}",
-    "stk_disconnect": "Kapcsolat bontása"
+    "stk_disconnect": "Kapcsolat bontása",
+    "kindle_via": "Küldés Kindle-re ezzel",
+    "via_mail": "E-mail",
+    "via_both": "Mindkettő – küldéskor választok"
   },
   "admin": {
     "title": "Adminisztráció",

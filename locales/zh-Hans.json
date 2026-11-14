@@ -329,12 +329,15 @@
     "new_password": "新密码",
     "password_error": "密码未修改：当前密码错误，或新密码少于 8 个字符。",
     "stk_title": "Amazon Send to Kindle",
-    "stk_help": "无需电子邮件，直接将图书发送到你的 Amazon 账户，最大 200 MB。连接后，Shelfy 会优先使用此方式，失败时改用电子邮件发送。这是非官方连接：Shelfy 会作为一台设备显示在你的 Amazon 账户中，如果 Amazon 更改服务，可能会失效。",
+    "stk_help": "无需电子邮件，直接将图书发送到你的 Amazon 账户，最大 200 MB。这是非官方连接：Shelfy 会作为一台设备显示在你的 Amazon 账户中，如果 Amazon 更改服务，可能会失效。",
     "stk_open": "1. 打开 Amazon 登录页面",
     "stk_step2": "2. 登录后，复制 Amazon 跳转到的页面的完整地址并粘贴到这里",
     "stk_connect": "连接",
     "stk_connected": "已连接：{name}",
-    "stk_disconnect": "断开连接"
+    "stk_disconnect": "断开连接",
+    "kindle_via": "发送到 Kindle 的方式",
+    "via_mail": "电子邮件",
+    "via_both": "两者皆可（发送时选择）"
   },
   "admin": {
     "title": "管理",

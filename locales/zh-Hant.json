@@ -329,12 +329,15 @@
     "new_password": "新密碼",
     "password_error": "密碼未修改：當前密碼錯誤，或新密碼少於 8 個字元。",
     "stk_title": "Amazon Send to Kindle",
-    "stk_help": "無需電子郵件，直接將書籍傳送到你的 Amazon 帳戶，最大 200 MB。連結後，Shelfy 會優先使用此方式，失敗時改用電子郵件傳送。這是非官方連結：Shelfy 會以一部裝置顯示在你的 Amazon 帳戶中，如果 Amazon 變更服務，可能會失效。",
+    "stk_help": "無需電子郵件，直接將書籍傳送到你的 Amazon 帳戶，最大 200 MB。這是非官方連結：Shelfy 會以一部裝置顯示在你的 Amazon 帳戶中，如果 Amazon 變更服務，可能會失效。",
     "stk_open": "1. 開啟 Amazon 登入頁面",
     "stk_step2": "2. 登入後，複製 Amazon 導向的頁面的完整網址並貼到這裡",
     "stk_connect": "連結",
     "stk_connected": "已連結：{name}",
-    "stk_disconnect": "中斷連結"
+    "stk_disconnect": "中斷連結",
+    "kindle_via": "傳送到 Kindle 的方式",
+    "via_mail": "電子郵件",
+    "via_both": "兩者皆可（傳送時選擇）"
   },
   "admin": {
     "title": "管理",

@@ -208,8 +208,14 @@ def create_app(cfg: Config | None = None, transport=None) -> FastAPI:
         """A felhasználó Amazon Send to Kindle kapcsolata (visszafejtve), ha össze van kapcsolva."""
         return sessions.unseal(db.val("SELECT stk_client FROM users WHERE id = ?", (uid,))) if uid else None
 
-    def can_send(user: User) -> bool:
-        return not user.is_guest and (mail_settings(user)[0] is not None or user_stk(user.id) is not None)
+    def send_methods(user: User) -> list[str]:
+        """Mivel küldhet Kindle-re: 'amazon' és/vagy 'mail'. A beállított módok közül a profilban választott;
+        ha kettő marad, a küldés gomb legördülő lesz. Ha a választott mód nincs beállítva, a másik marad."""
+        if user.is_guest:
+            return []
+        have = [m for m, ok in (("amazon", user_stk(user.id) is not None), ("mail", mail_settings(user)[0] is not None)) if ok]
+        want = db.val("SELECT kindle_via FROM users WHERE id = ?", (user.id,))
+        return [want] if want in have else have
 
     def save_mail(form, target: str, uid: int | None = None) -> None:
         """SMTP mezők mentése a közös beállításba (target='global') vagy egy felhasználóhoz."""
@@ -512,7 +518,7 @@ def create_app(cfg: Config | None = None, transport=None) -> FastAPI:
         pos = db.one("SELECT percent FROM reading_pos WHERE user_id = ? AND book_id = ?", (user.id, bid))
         return render(request, "book.html", b=b, read_state=state, more=more, msg=request.query_params.get("msg"),
                       can_read=reader_kind(b) is not None, read_pct=pos["percent"] if pos else None,
-                      can_mail=can_send(user),
+                      send_via=send_methods(user),
                       can_convert=converter.has_convert,
                       history=events.query(book_id=bid, per_page=15)[0] if request.state.user.can("can_edit") else [])
 
@@ -811,12 +817,12 @@ def create_app(cfg: Config | None = None, transport=None) -> FastAPI:
             dst.unlink(missing_ok=True)
         return flash(f"/book/{bid}", "converted")
 
-    async def send_to_kindle(user: User, bid: int) -> str:
-        """Küldés + naplózás; az eredmény egy üzenetkulcs."""
+    async def send_to_kindle(user: User, bid: int, via: str = "") -> str:
+        """Küldés + naplózás; az eredmény egy üzenetkulcs. via: 'amazon' | 'mail' (üresen a felhasználó beállítása)."""
         info: dict = {}
         b = lib.book(bid)
         tid = tasks.create("send", user, subject=b["title"] if b else None, status="running")
-        res = await _send_to_kindle(user, bid, info)
+        res = await _send_to_kindle(user, bid, info, via)
         ok = res in ("mail_sent", "stk_sent")
         to = info.get("to") or user.kindle_email
         tasks.finish(tid, ok, "sent" if ok else "failed", to=to or "–", reason=res, error=info.get("error"))
@@ -839,13 +845,15 @@ def create_app(cfg: Config | None = None, transport=None) -> FastAPI:
         info["to"] = "Amazon – " + amazon.account_name(stk)
         return "stk_sent"
 
-    async def _send_to_kindle(user: User, bid: int, info: dict) -> str:
+    async def _send_to_kindle(user: User, bid: int, info: dict, via: str = "") -> str:
+        methods = send_methods(user)
+        via = via if via in methods else (methods[0] if methods else "")
         s, _src = mail_settings(user)
-        stk = user_stk(user.id)  # ha össze van kapcsolva, az Amazon az elsődleges; az e-mail a tartalék
+        stk = user_stk(user.id) if via == "amazon" else None
         info["via"] = "Amazon Send to Kindle" if stk else (s["smtp_from"] if s else None)
-        if not stk and not s:
+        if not via:
             return "mail_off"
-        if not stk and not user.kindle_email:
+        if via == "mail" and not user.kindle_email:
             return "mail_noaddr"
         b = lib.book(bid)
         # az Amazon EPUB-ot, PDF-et, DOCX-et és TXT-t fogad; MOBI/AZW3-ból EPUB készül
@@ -863,9 +871,7 @@ def create_app(cfg: Config | None = None, transport=None) -> FastAPI:
             res = await send_amazon(stk, b, p, info)
             if res == "stk_sent":
                 db.run("INSERT INTO downloads(user_id, book_id, at) VALUES(?, ?, ?)", (user.id, bid, now()))
-            if res != "stk_error" or not (s and user.kindle_email):
-                return res
-            info["via"] = s["smtp_from"]  # az Amazon nem fogadta: megy e-mailben (a hiba a naplóba kerül)
+            return res
         p = await fit_pdf(bid, p, MAIL_LIMIT, info)
         if p.stat().st_size > MAIL_LIMIT:
             return "mail_toobig"
@@ -879,12 +885,12 @@ def create_app(cfg: Config | None = None, transport=None) -> FastAPI:
         return "mail_sent"
 
     @app.post("/book/{bid}/send")
-    async def send(request: Request, bid: int):
+    async def send(request: Request, bid: int, via: str = Form("")):
         user: User = request.state.user
         if not user.can("can_download"):
             return Response(status_code=403)
         back = "/kindle/book/" if (request.headers.get("referer") or "").find("/kindle/") >= 0 else "/book/"
-        return flash(f"{back}{bid}", await send_to_kindle(user, bid))
+        return flash(f"{back}{bid}", await send_to_kindle(user, bid, via))
 
     @app.post("/book/{bid}/read")
     async def mark_read(request: Request, bid: int, status: str = Form(...)):
@@ -1261,6 +1267,7 @@ def create_app(cfg: Config | None = None, transport=None) -> FastAPI:
     # ------------------------------------------------------------------ saját fiók
     def me_ctx(user: User) -> dict:
         ctx = {"m": user_mail(user.id), "mail_src": mail_settings(user)[1],
+               "kindle_via": db.val("SELECT kindle_via FROM users WHERE id = ?", (user.id,)) or "both",
                "my_events": events.query(user_id=user.id, per_page=20)[0]}
         stk = user_stk(user.id)
         if stk:
@@ -1299,11 +1306,11 @@ def create_app(cfg: Config | None = None, transport=None) -> FastAPI:
 
     @app.post("/me")
     async def me_save(request: Request, display_name: str = Form(""), kindle_email: str = Form(""), language: str = Form(""),
-                      old_password: str = Form(""), new_password: str = Form("")):
+                      old_password: str = Form(""), new_password: str = Form(""), kindle_via: str = Form("")):
         user: User = request.state.user
-        db.run("UPDATE users SET display_name = ?, kindle_email = ?, language = ? WHERE id = ?",
+        db.run("UPDATE users SET display_name = ?, kindle_email = ?, language = ?, kindle_via = ? WHERE id = ?",
                (display_name.strip() or user.username, kindle_email.strip() or None,
-                language if i18n.has(language) else None, user.id))
+                language if i18n.has(language) else None, kindle_via if kindle_via in ("mail", "amazon") else None, user.id))
         resp = flash("/me", "saved")
         if new_password:
             if len(new_password) < 8 or not verify_password(old_password, user.password_hash):
@@ -1799,7 +1806,7 @@ def create_app(cfg: Config | None = None, transport=None) -> FastAPI:
         on_kindle = "Kindle" in request.headers.get("user-agent", "")
         direct = ("mobi", "azw", "prc", "txt") if dev == "old" else ("azw3", "mobi", "azw", "prc", "txt") if on_kindle else FORMATS
         return {"device": dev, "kfmt": "mobi" if dev == "old" else "azw3", "direct": direct,
-                "can_mail": can_send(request.state.user),
+                "send_via": send_methods(request.state.user),
                 "can_convert": converter.has_convert, "msg": request.query_params.get("msg")}
 
     KFACETS = {"authors": "author", "series": "series", "tags": "tag", "publishers": "publisher",

@@ -329,12 +329,15 @@
     "new_password": "Nowe hasło",
     "password_error": "Hasło nie zostało zmienione: obecne hasło jest błędne albo nowe ma mniej niż 8 znaków.",
     "stk_title": "Amazon Send to Kindle",
-    "stk_help": "Wysyła książki bezpośrednio na Twoje konto Amazon, bez e-maila, do 200 MB. Po połączeniu Shelfy używa najpierw tej drogi, a gdy się nie uda, wysyła e-mailem. To nieoficjalne połączenie: Shelfy pojawia się jako urządzenie na Twoim koncie Amazon i może przestać działać, jeśli Amazon zmieni usługę.",
+    "stk_help": "Wysyła książki bezpośrednio na Twoje konto Amazon, bez e-maila, do 200 MB. To nieoficjalne połączenie: Shelfy pojawia się jako urządzenie na Twoim koncie Amazon i może przestać działać, jeśli Amazon zmieni usługę.",
     "stk_open": "1. Otwórz logowanie do Amazon",
     "stk_step2": "2. Po zalogowaniu skopiuj pełny adres strony, na którą przeniósł Cię Amazon, i wklej go tutaj",
     "stk_connect": "Połącz",
     "stk_connected": "Połączono: {name}",
-    "stk_disconnect": "Rozłącz"
+    "stk_disconnect": "Rozłącz",
+    "kindle_via": "Wysyłaj na Kindle przez",
+    "via_mail": "E-mail",
+    "via_both": "Oba – wybieram przy wysyłaniu"
   },
   "admin": {
     "title": "Administracja",

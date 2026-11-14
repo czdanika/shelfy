@@ -31,8 +31,19 @@
           {% if can_convert %}{% for f in ['azw3', 'mobi', 'epub'] if f not in b.formats %}<a href="/book/{{ b.id }}/download/{{ f }}">{{ f|upper }} <span class="small muted">· {{ t('book.dl_' ~ f) }}</span></a>{% endfor %}{% endif %}</div>
       </details>
       {% endif %}
-      {% if can_mail and user.can('can_download') %}
-      <form method="post" action="/book/{{ b.id }}/send"><button class="btn" type="submit">{{ icon('send', 16) }} {{ t('action.send_kindle') }}</button></form>
+      {% if send_via and user.can('can_download') %}
+      {% if send_via|length > 1 %}
+      <details class="menu">
+        <summary class="btn">{{ icon('send', 16) }} {{ t('action.send_kindle') }} {{ icon('chev', 14) }}</summary>
+        <div class="pop">
+          {% for v in send_via %}
+          <form method="post" action="/book/{{ b.id }}/send"><input type="hidden" name="via" value="{{ v }}"><button type="submit">{{ t('me.stk_title') if v == 'amazon' else t('me.via_mail') }}</button></form>
+          {% endfor %}
+        </div>
+      </details>
+      {% else %}
+      <form method="post" action="/book/{{ b.id }}/send"><input type="hidden" name="via" value="{{ send_via[0] }}"><button class="btn" type="submit" title="{{ t('me.stk_title') if send_via[0] == 'amazon' else t('me.via_mail') }}">{{ icon('send', 16) }} {{ t('action.send_kindle') }}</button></form>
+      {% endif %}
       {% endif %}
       {% if can_convert and user.can('can_edit') %}
       <details class="menu">

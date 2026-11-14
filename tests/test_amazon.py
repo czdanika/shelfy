@@ -77,22 +77,51 @@ def test_amazon_takes_pdf_over_the_mail_limit_unchanged(admin, linked, tmp_path)
     assert linked["send"][0][1] == src.stat().st_size and linked["send"][0][4] == "pdf"  # 200 MB alatt nem tömörít
 
 
-def test_falls_back_to_mail_when_amazon_fails(admin, linked, tmp_path, monkeypatch):
-    def boom(*a):
-        raise ValueError("HTTP Error 401")
-    monkeypatch.setattr(m.amazon, "send", boom)
-    bid = add_book(admin, tmp_path)
-    r = admin.post(f"/book/{bid}/send", follow_redirects=False)
-    assert "stk_error" in r.headers["location"]  # e-mail nincs beállítva: marad a hiba
+def mail_on(admin, monkeypatch):
     sent = []
     monkeypatch.setattr(m, "send_mail", lambda s, to, subj, name, data, mime: sent.append((to, name)))
     admin.post("/admin/settings", data={"smtp_host": "smtp.example", "smtp_port": "587", "smtp_from": "a@example.com"})
     admin.post("/me", data={"display_name": "A", "kindle_email": "a@kindle.com"})
-    r = admin.post(f"/book/{bid}/send", follow_redirects=False)
-    assert "mail_sent" in r.headers["location"]
-    assert len(sent) == 1 and sent[0][0] == "a@kindle.com" and sent[0][1].endswith(".epub")
+    return sent
+
+
+def test_both_methods_give_a_dropdown_and_stay_separate(admin, linked, tmp_path, monkeypatch):
+    sent = mail_on(admin, monkeypatch)
+    bid = add_book(admin, tmp_path)
+    html = admin.get(f"/book/{bid}").text
+    assert 'name="via" value="amazon"' in html and 'name="via" value="mail"' in html  # legördülő: mindkét mód
+    r = admin.post(f"/book/{bid}/send", data={"via": "mail"}, follow_redirects=False)
+    assert "mail_sent" in r.headers["location"] and len(sent) == 1 and not linked["send"]
+    r = admin.post(f"/book/{bid}/send", data={"via": "amazon"}, follow_redirects=False)
+    assert "stk_sent" in r.headers["location"] and len(sent) == 1 and len(linked["send"]) == 1
+
+    def boom(*a):
+        raise ValueError("HTTP Error 401")
+    monkeypatch.setattr(m.amazon, "send", boom)
+    r = admin.post(f"/book/{bid}/send", data={"via": "amazon"}, follow_redirects=False)
+    assert "stk_error" in r.headers["location"] and len(sent) == 1  # nincs csendes átváltás e-mailre
     ev = admin.app.state.db.one("SELECT kind, params FROM events ORDER BY id DESC LIMIT 1")
-    assert ev["kind"] == "sent" and "HTTP Error 401" in ev["params"]  # az Amazon hibája a naplóban marad
+    assert ev["kind"] == "send_failed" and "HTTP Error 401" in ev["params"]
+
+
+def test_profile_choice_picks_one_method(admin, linked, tmp_path, monkeypatch):
+    sent = mail_on(admin, monkeypatch)
+    bid = add_book(admin, tmp_path)
+    admin.post("/me", data={"display_name": "A", "kindle_email": "a@kindle.com", "kindle_via": "mail"})
+    html = admin.get(f"/book/{bid}").text
+    assert 'name="via" value="mail"' in html and 'value="amazon"' not in html
+    assert 'value="mail" selected' in admin.get("/me").text
+    # a kikapcsolt mód kérésre sem megy: a beállított marad
+    r = admin.post(f"/book/{bid}/send", data={"via": "amazon"}, follow_redirects=False)
+    assert "mail_sent" in r.headers["location"] and len(sent) == 1 and not linked["send"]
+    admin.post("/me", data={"display_name": "A", "kindle_email": "a@kindle.com", "kindle_via": "amazon"})
+    assert 'value="mail"' not in admin.get(f"/book/{bid}").text
+    r = admin.post(f"/book/{bid}/send", follow_redirects=False)
+    assert "stk_sent" in r.headers["location"] and len(linked["send"]) == 1
+    # a választott mód nincs (már) beállítva: a másik marad használatban
+    admin.post("/me/amazon", data={"action": "disconnect"})
+    r = admin.post(f"/book/{bid}/send", follow_redirects=False)
+    assert "mail_sent" in r.headers["location"] and len(sent) == 2
 
 
 def test_disconnect(admin, linked, tmp_path):

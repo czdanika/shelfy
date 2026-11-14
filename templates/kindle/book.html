@@ -24,9 +24,9 @@
   {% for f in b.formats if f != kfmt and f in direct %}
   <a class="btn" href="/book/{{ b.id }}/download/{{ f }}">{{ f|upper }}</a>
   {% endfor %}
-  {% if can_mail %}
-  <form class="inline" method="post" action="/book/{{ b.id }}/send"><button class="btn" type="submit">{{ t('action.send_kindle') }}</button></form>
-  {% endif %}
+  {% for v in send_via %}
+  <form class="inline" method="post" action="/book/{{ b.id }}/send"><input type="hidden" name="via" value="{{ v }}"><button class="btn" type="submit">{{ t('action.send_kindle') }}{% if send_via|length > 1 %}: {{ t('me.stk_title') if v == 'amazon' else t('me.via_mail') }}{% endif %}</button></form>
+  {% endfor %}
   <div class="muted">{{ t('kindle.device_old') if device == 'old' else t('kindle.device_new') }} · <a href="/kindle/settings">{{ t('kindle.change') }}</a></div>
 </div>
 {% endif %}

@@ -329,12 +329,15 @@
     "new_password": "新しいパスワード",
     "password_error": "パスワードは変更されませんでした。現在のパスワードが違うか、新しいパスワードが 8 文字未満です。",
     "stk_title": "Amazon Send to Kindle",
-    "stk_help": "メールを使わず、本を Amazon アカウントへ直接送信します（200 MB まで）。連携している場合、Shelfy はまずこの方法を使い、失敗したときはメールで送信します。これは非公式の連携です。Shelfy は Amazon アカウントに端末として表示され、Amazon がサービスを変更すると使えなくなることがあります。",
+    "stk_help": "メールを使わず、本を Amazon アカウントへ直接送信します（200 MB まで）。これは非公式の連携です。Shelfy は Amazon アカウントに端末として表示され、Amazon がサービスを変更すると使えなくなることがあります。",
     "stk_open": "1. Amazon のサインインを開く",
     "stk_step2": "2. サインイン後、Amazon が表示したページのアドレス全体をコピーして、ここに貼り付けてください",
     "stk_connect": "連携する",
     "stk_connected": "連携済み: {name}",
-    "stk_disconnect": "連携を解除"
+    "stk_disconnect": "連携を解除",
+    "kindle_via": "Kindle への送信方法",
+    "via_mail": "メール",
+    "via_both": "両方（送信時に選ぶ）"
   },
   "admin": {
     "title": "管理者設定",

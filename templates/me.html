@@ -14,6 +14,12 @@
     <div class="field" style="grid-column: 1 / -1"><label for="ke">{{ t('me.kindle_email') }}</label>
       <input id="ke" name="kindle_email" type="email" value="{{ user.kindle_email or '' }}" placeholder="valami@kindle.com">
       <span class="small muted">{{ t('me.kindle_help') }} <a href="https://www.amazon.com/mycd" target="_blank" rel="noopener">amazon.com/mycd ↗</a></span></div>
+    <div class="field" style="grid-column: 1 / -1"><label for="kv">{{ t('me.kindle_via') }}</label>
+      <select id="kv" name="kindle_via">
+        <option value="both" {% if kindle_via == 'both' %}selected{% endif %}>{{ t('me.via_both') }}</option>
+        <option value="amazon" {% if kindle_via == 'amazon' %}selected{% endif %}>{{ t('me.stk_title') }}</option>
+        <option value="mail" {% if kindle_via == 'mail' %}selected{% endif %}>{{ t('me.via_mail') }}</option>
+      </select></div>
   </div>
   <h2 style="font-size: 18px">{{ t('me.password_title') }}</h2>
   <div class="grid2">
