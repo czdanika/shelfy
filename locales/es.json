@@ -327,7 +327,14 @@
     "password_title": "Cambiar contraseña",
     "old_password": "Contraseña actual",
     "new_password": "Contraseña nueva",
-    "password_error": "No se cambió la contraseña: la actual es incorrecta o la nueva tiene menos de 8 caracteres."
+    "password_error": "No se cambió la contraseña: la actual es incorrecta o la nueva tiene menos de 8 caracteres.",
+    "stk_title": "Amazon Send to Kindle",
+    "stk_help": "Envía los libros directamente a tu cuenta de Amazon, sin correo, hasta 200 MB. Si está conectada, Shelfy usa primero esta vía y envía por correo si falla. Es una conexión no oficial: Shelfy aparece como un dispositivo en tu cuenta de Amazon y puede dejar de funcionar si Amazon cambia el servicio.",
+    "stk_open": "1. Abrir el inicio de sesión de Amazon",
+    "stk_step2": "2. Tras iniciar sesión, copia la dirección completa de la página a la que te lleva Amazon y pégala aquí",
+    "stk_connect": "Conectar",
+    "stk_connected": "Conectado: {name}",
+    "stk_disconnect": "Desconectar"
   },
   "admin": {
     "title": "Administración",
@@ -461,7 +468,11 @@
     "dup_merged": "Los libros se han fusionado.",
     "dup_ignored": "Marcados como no duplicados: no se volverán a proponer.",
     "dup_nothing": "No hay nada que fusionar.",
-    "lookup_nocover": "Datos actualizados, pero no se pudo descargar la portada en línea; inténtalo más tarde o sube una en Editar."
+    "lookup_nocover": "Datos actualizados, pero no se pudo descargar la portada en línea; inténtalo más tarde o sube una en Editar.",
+    "stk_sent": "Enviado a tu cuenta de Amazon. Aparecerá en tu Kindle en unos minutos.",
+    "stk_error": "El envío a través de Amazon ha fallado. Los detalles están en el registro de actividad.",
+    "stk_connect_error": "No se pudo conectar con Amazon. Abre de nuevo el inicio de sesión y pega la dirección completa.",
+    "stk_toobig": "El archivo supera los 200 MB; Amazon no lo acepta."
   },
   "langname": {
     "hu": "Húngaro",

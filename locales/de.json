@@ -327,7 +327,14 @@
     "password_title": "Passwort ändern",
     "old_password": "Aktuelles Passwort",
     "new_password": "Neues Passwort",
-    "password_error": "Passwort nicht geändert: Das aktuelle Passwort ist falsch oder das neue kürzer als 8 Zeichen."
+    "password_error": "Passwort nicht geändert: Das aktuelle Passwort ist falsch oder das neue kürzer als 8 Zeichen.",
+    "stk_title": "Amazon Send to Kindle",
+    "stk_help": "Sendet Bücher ohne E-Mail direkt an dein Amazon-Konto, bis 200 MB. Wenn verbunden, nutzt Shelfy zuerst diesen Weg und sendet per E-Mail, falls er fehlschlägt. Dies ist eine inoffizielle Verbindung: Shelfy erscheint als Gerät in deinem Amazon-Konto und kann ausfallen, wenn Amazon den Dienst ändert.",
+    "stk_open": "1. Amazon-Anmeldung öffnen",
+    "stk_step2": "2. Kopiere nach der Anmeldung die vollständige Adresse der Seite, auf die Amazon dich leitet, und füge sie hier ein",
+    "stk_connect": "Verbinden",
+    "stk_connected": "Verbunden: {name}",
+    "stk_disconnect": "Verbindung trennen"
   },
   "admin": {
     "title": "Administration",
@@ -461,7 +468,11 @@
     "dup_merged": "Die Bücher wurden zusammengeführt.",
     "dup_ignored": "Als „keine Duplikate“ markiert – sie werden nicht mehr vorgeschlagen.",
     "dup_nothing": "Nichts zum Zusammenführen.",
-    "lookup_nocover": "Angaben aktualisiert, aber das Online-Cover konnte nicht geladen werden – versuche es später erneut oder lade eines unter Bearbeiten hoch."
+    "lookup_nocover": "Angaben aktualisiert, aber das Online-Cover konnte nicht geladen werden – versuche es später erneut oder lade eines unter Bearbeiten hoch.",
+    "stk_sent": "An dein Amazon-Konto gesendet. Es erscheint in wenigen Minuten auf deinem Kindle.",
+    "stk_error": "Das Senden über Amazon ist fehlgeschlagen. Details stehen im Aktivitätsprotokoll.",
+    "stk_connect_error": "Die Verbindung mit Amazon ist fehlgeschlagen. Öffne die Anmeldung erneut und füge die vollständige Adresse ein.",
+    "stk_toobig": "Die Datei ist größer als 200 MB; Amazon nimmt sie nicht an."
   },
   "kindle": {
     "settings": "Einstellungen",

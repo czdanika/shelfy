@@ -202,6 +202,9 @@ def restore_backup(path: Path, db, data_dir: Path, library_dir: Path, sessions, 
                     con.execute("UPDATE settings SET value = ? WHERE key = ?", (sessions.seal(old.unseal(v)), k))
                 for uid, v in rows_u:
                     con.execute("UPDATE users SET smtp_password = ? WHERE id = ?", (sessions.seal(old.unseal(v)), uid))
+                if "stk_client" in [c[1] for c in con.execute("PRAGMA table_info(users)")]:
+                    for uid, v in con.execute("SELECT id, stk_client FROM users WHERE stk_client IS NOT NULL").fetchall():
+                        con.execute("UPDATE users SET stk_client = ? WHERE id = ?", (sessions.seal(old.unseal(v)), uid))
                 con.commit()
         finally:
             con.close()

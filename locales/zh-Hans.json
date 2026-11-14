@@ -327,7 +327,14 @@
     "password_title": "修改密码",
     "old_password": "当前密码",
     "new_password": "新密码",
-    "password_error": "密码未修改：当前密码错误，或新密码少于 8 个字符。"
+    "password_error": "密码未修改：当前密码错误，或新密码少于 8 个字符。",
+    "stk_title": "Amazon Send to Kindle",
+    "stk_help": "无需电子邮件，直接将图书发送到你的 Amazon 账户，最大 200 MB。连接后，Shelfy 会优先使用此方式，失败时改用电子邮件发送。这是非官方连接：Shelfy 会作为一台设备显示在你的 Amazon 账户中，如果 Amazon 更改服务，可能会失效。",
+    "stk_open": "1. 打开 Amazon 登录页面",
+    "stk_step2": "2. 登录后，复制 Amazon 跳转到的页面的完整地址并粘贴到这里",
+    "stk_connect": "连接",
+    "stk_connected": "已连接：{name}",
+    "stk_disconnect": "断开连接"
   },
   "admin": {
     "title": "管理",
@@ -461,7 +468,11 @@
     "dup_merged": "已合并。",
     "dup_ignored": "已标记为不是重复，今后不再提示。",
     "dup_nothing": "没有可合并的内容。",
-    "lookup_nocover": "信息已更新，但无法下载在线封面——请稍后重试，或在“编辑”中上传封面。"
+    "lookup_nocover": "信息已更新，但无法下载在线封面——请稍后重试，或在“编辑”中上传封面。",
+    "stk_sent": "已发送到你的 Amazon 账户，几分钟后会出现在 Kindle 上。",
+    "stk_error": "通过 Amazon 发送失败。详情见活动日志。",
+    "stk_connect_error": "连接 Amazon 失败。请重新打开登录页面并粘贴完整地址。",
+    "stk_toobig": "文件超过 200 MB，Amazon 不接受。"
   },
   "langname": {
     "hu": "匈牙利语",

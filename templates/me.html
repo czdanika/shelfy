@@ -1,19 +1,6 @@
 {% extends "base.html" %}
 {% from "macros.html" import icon %}
-{% block title %}{{ t('me.title') }}<section class="card" style="max-width: 760px; padding: 18px 20px">
-  <h2 style="font-size: 18px">{{ t('log.my_title') }}</h2>
-  {% set rows = my_events %}{% set show_user = false %}
-  {% include "_events.html" %}
-</section>
-{% set action = '/me/mail' %}
-{% include "_mailform.html" %}
-{% if mail_src != 'none' %}
-<form class="card row" method="post" action="/me/mail/test" style="max-width: 760px; align-items: flex-end">
-  <div class="field" style="flex: 1 1 260px"><label for="tt">{{ t('mail.test_to') }}</label><input id="tt" name="to" type="email" required value="{{ user.kindle_email or '' }}"></div>
-  <button class="btn" type="submit">{{ icon('send', 16) }} {{ t('mail.test') }}</button>
-</form>
-{% endif %}
-{% endblock %}
+{% block title %}{{ t('me.title') }}{% endblock %}
 {% block content %}
 <h1>{{ t('me.title') }}</h1>
 {% if error %}<div class="flash err" role="alert">{{ error }}</div>{% endif %}
@@ -35,6 +22,26 @@
   </div>
   <div class="row"><button class="btn primary" type="submit">{{ icon('check', 16) }} {{ t('action.save') }}</button></div>
 </form>
+<section class="card" style="max-width: 760px; padding: 18px 20px; display: flex; flex-direction: column; gap: 12px">
+  <div>
+    <h2 style="font-size: 18px">{{ t('me.stk_title') }}</h2>
+    <p class="small muted" style="margin: 4px 0 0">{{ t('me.stk_help') }}</p>
+  </div>
+  {% if stk_name %}
+  <form class="row" method="post" action="/me/amazon" style="align-items: center">
+    <span class="badge ok">{{ t('me.stk_connected', name=stk_name) }}</span>
+    <button class="btn" type="submit" name="action" value="disconnect">{{ icon('x', 16) }} {{ t('me.stk_disconnect') }}</button>
+  </form>
+  {% else %}
+  <div><a class="btn" href="{{ stk_url }}" target="_blank" rel="noopener noreferrer">{{ t('me.stk_open') }} ↗</a></div>
+  <form method="post" action="/me/amazon" style="display: flex; flex-direction: column; gap: 12px">
+    <input type="hidden" name="verifier" value="{{ stk_verifier }}">
+    <div class="field"><label for="su">{{ t('me.stk_step2') }}</label>
+      <input id="su" name="url" type="text" required autocomplete="off" placeholder="https://www.amazon.com/gp/sendtokindle?…"></div>
+    <div class="row"><button class="btn primary" type="submit">{{ icon('check', 16) }} {{ t('me.stk_connect') }}</button></div>
+  </form>
+  {% endif %}
+</section>
 <section class="card" style="max-width: 760px; padding: 18px 20px">
   <h2 style="font-size: 18px">{{ t('log.my_title') }}</h2>
   {% set rows = my_events %}{% set show_user = false %}

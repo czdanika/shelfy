@@ -140,7 +140,7 @@ class Database:
     def _migrate(self) -> None:
         """Új oszlopok felvétele a meglévő adatbázisokba (verzióváltáskor)."""
         cols = {r[1] for r in self.conn.execute("PRAGMA table_info(users)")}
-        for c in USER_MAIL_COLUMNS:
+        for c in USER_MAIL_COLUMNS + ("stk_client",):  # stk_client: Amazon Send to Kindle kapcsolat (titkosítva)
             if c not in cols:
                 self.conn.execute(f"ALTER TABLE users ADD COLUMN {c} TEXT")
         if "hidden" not in {r[1] for r in self.conn.execute("PRAGMA table_info(books)")}:

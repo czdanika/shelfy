@@ -327,7 +327,14 @@
     "password_title": "Parolayı değiştir",
     "old_password": "Mevcut parola",
     "new_password": "Yeni parola",
-    "password_error": "Parola değiştirilmedi: mevcut parola yanlış ya da yeni parola 8 karakterden kısa."
+    "password_error": "Parola değiştirilmedi: mevcut parola yanlış ya da yeni parola 8 karakterden kısa.",
+    "stk_title": "Amazon Send to Kindle",
+    "stk_help": "Kitapları e-posta olmadan doğrudan Amazon hesabınıza gönderir, 200 MB'a kadar. Bağlıysa Shelfy önce bu yolu kullanır, başarısız olursa e-postayla gönderir. Bu resmi olmayan bir bağlantıdır: Shelfy, Amazon hesabınızda bir cihaz olarak görünür ve Amazon hizmeti değiştirirse çalışmayabilir.",
+    "stk_open": "1. Amazon oturum açma sayfasını aç",
+    "stk_step2": "2. Oturum açtıktan sonra Amazon'un sizi götürdüğü sayfanın tam adresini kopyalayıp buraya yapıştırın",
+    "stk_connect": "Bağla",
+    "stk_connected": "Bağlı: {name}",
+    "stk_disconnect": "Bağlantıyı kes"
   },
   "admin": {
     "title": "Yönetim",
@@ -461,7 +468,11 @@
     "dup_merged": "Kitaplar birleştirildi.",
     "dup_ignored": "Kopya değil olarak işaretlendi – bir daha önerilmeyecek.",
     "dup_nothing": "Birleştirilecek bir şey yok.",
-    "lookup_nocover": "Bilgiler güncellendi ancak çevrimiçi kapak indirilemedi – daha sonra yeniden deneyin veya Düzenle’den bir kapak yükleyin."
+    "lookup_nocover": "Bilgiler güncellendi ancak çevrimiçi kapak indirilemedi – daha sonra yeniden deneyin veya Düzenle’den bir kapak yükleyin.",
+    "stk_sent": "Amazon hesabınıza gönderildi. Birkaç dakika içinde Kindle'ınızda görünecek.",
+    "stk_error": "Amazon üzerinden gönderim başarısız oldu. Ayrıntılar etkinlik günlüğünde.",
+    "stk_connect_error": "Amazon'a bağlanılamadı. Oturum açma sayfasını yeniden açın ve tam adresi yapıştırın.",
+    "stk_toobig": "Dosya 200 MB'tan büyük; Amazon kabul etmiyor."
   },
   "langname": {
     "hu": "Macarca",

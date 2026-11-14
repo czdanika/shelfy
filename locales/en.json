@@ -327,7 +327,14 @@
     "password_title": "Change password",
     "old_password": "Current password",
     "new_password": "New password",
-    "password_error": "Password not changed: the current password is wrong or the new one is shorter than 8 characters."
+    "password_error": "Password not changed: the current password is wrong or the new one is shorter than 8 characters.",
+    "stk_title": "Amazon Send to Kindle",
+    "stk_help": "Sends books straight to your Amazon account without e-mail, up to 200 MB. When connected, Shelfy uses this first and sends by e-mail if it fails. This is an unofficial connection: Shelfy appears as a device in your Amazon account, and it may stop working if Amazon changes its service.",
+    "stk_open": "1. Open the Amazon sign-in page",
+    "stk_step2": "2. After signing in, copy the full address of the page Amazon takes you to and paste it here",
+    "stk_connect": "Connect",
+    "stk_connected": "Connected: {name}",
+    "stk_disconnect": "Disconnect"
   },
   "admin": {
     "title": "Administration",
@@ -461,7 +468,11 @@
     "dup_merged": "The books have been merged.",
     "dup_ignored": "Marked as not duplicates – they will not be offered again.",
     "dup_nothing": "Nothing to merge.",
-    "lookup_nocover": "Details updated, but the online cover could not be downloaded – try again later or upload one under Edit."
+    "lookup_nocover": "Details updated, but the online cover could not be downloaded – try again later or upload one under Edit.",
+    "stk_sent": "Sent to your Amazon account. It will appear on your Kindle in a few minutes.",
+    "stk_error": "Sending through Amazon failed. Details are in the activity log.",
+    "stk_connect_error": "Connecting to Amazon failed. Open the sign-in page again and paste the full address.",
+    "stk_toobig": "The file is larger than 200 MB; Amazon does not accept it."
   },
   "langname": {
     "hu": "Hungarian",

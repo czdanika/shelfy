@@ -327,7 +327,14 @@
     "password_title": "修改密碼",
     "old_password": "當前密碼",
     "new_password": "新密碼",
-    "password_error": "密碼未修改：當前密碼錯誤，或新密碼少於 8 個字元。"
+    "password_error": "密碼未修改：當前密碼錯誤，或新密碼少於 8 個字元。",
+    "stk_title": "Amazon Send to Kindle",
+    "stk_help": "無需電子郵件，直接將書籍傳送到你的 Amazon 帳戶，最大 200 MB。連結後，Shelfy 會優先使用此方式，失敗時改用電子郵件傳送。這是非官方連結：Shelfy 會以一部裝置顯示在你的 Amazon 帳戶中，如果 Amazon 變更服務，可能會失效。",
+    "stk_open": "1. 開啟 Amazon 登入頁面",
+    "stk_step2": "2. 登入後，複製 Amazon 導向的頁面的完整網址並貼到這裡",
+    "stk_connect": "連結",
+    "stk_connected": "已連結：{name}",
+    "stk_disconnect": "中斷連結"
   },
   "admin": {
     "title": "管理",
@@ -461,7 +468,11 @@
     "dup_merged": "已合併。",
     "dup_ignored": "已標記為不是重複，今後不再提示。",
     "dup_nothing": "沒有可合併的內容。",
-    "lookup_nocover": "資訊已更新，但無法下載線上封面——請稍後再試，或在「編輯」中上傳封面。"
+    "lookup_nocover": "資訊已更新，但無法下載線上封面——請稍後再試，或在「編輯」中上傳封面。",
+    "stk_sent": "已傳送到你的 Amazon 帳戶，幾分鐘後會出現在 Kindle 上。",
+    "stk_error": "透過 Amazon 傳送失敗。詳情請見活動記錄。",
+    "stk_connect_error": "連結 Amazon 失敗。請重新開啟登入頁面並貼上完整網址。",
+    "stk_toobig": "檔案超過 200 MB，Amazon 不接受。"
   },
   "langname": {
     "hu": "匈牙利語",

@@ -30,7 +30,7 @@ from .db import Database, now
 from .events import GROUPS, KINDS, Events
 from .tasks import Tasks
 from .i18n import REFERENCE, I18n
-from . import pdf
+from . import amazon, pdf
 from .images import thumbnail
 from .ingest import Ingest
 from .library import FORMATS, MIME, SHOW_HIDDEN, SORT_GROUPS, SORTS, Library, Meta, ascii_name
@@ -203,6 +203,13 @@ def create_app(cfg: Config | None = None, transport=None) -> FastAPI:
         if g["smtp_host"] and g["smtp_from"]:
             return g, "global"
         return None, "none"
+
+    def user_stk(uid: int) -> str | None:
+        """A felhasználó Amazon Send to Kindle kapcsolata (visszafejtve), ha össze van kapcsolva."""
+        return sessions.unseal(db.val("SELECT stk_client FROM users WHERE id = ?", (uid,))) if uid else None
+
+    def can_send(user: User) -> bool:
+        return not user.is_guest and (mail_settings(user)[0] is not None or user_stk(user.id) is not None)
 
     def save_mail(form, target: str, uid: int | None = None) -> None:
         """SMTP mezők mentése a közös beállításba (target='global') vagy egy felhasználóhoz."""
@@ -505,7 +512,7 @@ def create_app(cfg: Config | None = None, transport=None) -> FastAPI:
         pos = db.one("SELECT percent FROM reading_pos WHERE user_id = ? AND book_id = ?", (user.id, bid))
         return render(request, "book.html", b=b, read_state=state, more=more, msg=request.query_params.get("msg"),
                       can_read=reader_kind(b) is not None, read_pct=pos["percent"] if pos else None,
-                      can_mail=not user.is_guest and mail_settings(request.state.user)[0] is not None,
+                      can_mail=can_send(user),
                       can_convert=converter.has_convert,
                       history=events.query(book_id=bid, per_page=15)[0] if request.state.user.can("can_edit") else [])
 
@@ -572,21 +579,32 @@ def create_app(cfg: Config | None = None, transport=None) -> FastAPI:
             return
         await converter.convert(src, dst, convert_opts(b, target))
 
-    MAIL_LIMIT = 49 * 1024 * 1024  # az Amazon 50 MB-ig fogad csatolmányt
+    MAIL_LIMIT = 49 * 1024 * 1024   # e-mailben az Amazon 50 MB-ig fogad csatolmányt
+    STK_LIMIT = 195 * 1024 * 1024   # a Send to Kindle saját protokollján 200 MB-ig
 
-    async def small_pdf(bid: int) -> Path | None:
-        """A PDF 50 MB alá tömörített (oldalanként újrakódolt) példánya a gyorsítótárból; None, ha nem megy."""
+    async def small_pdf(bid: int, limit: int) -> Path | None:
+        """A PDF adott méret alá tömörített (oldalanként újrakódolt) példánya a gyorsítótárból; None, ha nem megy."""
         b = lib.book(bid)
-        out = cfg.data_dir / "cache" / "convert" / f"{bid}_{int(b['updated_at'] or 0)}.small.pdf"
+        tag = f"small{limit >> 20}.pdf"
+        out = cfg.data_dir / "cache" / "convert" / f"{bid}_{int(b['updated_at'] or 0)}.{tag}"
         lock = convert_locks.setdefault(out.name, asyncio.Lock())
         async with lock:
             if not out.exists():
                 out.parent.mkdir(parents=True, exist_ok=True)
-                for old in out.parent.glob(f"{bid}_*.small.pdf"):
+                for old in out.parent.glob(f"{bid}_*.{tag}"):
                     old.unlink(missing_ok=True)
-                if not await pdf.shrink_pdf(cfg, lib.file_path(bid, "pdf"), out, MAIL_LIMIT - 3 * 1024 * 1024, b["title"]):
+                if not await pdf.shrink_pdf(cfg, lib.file_path(bid, "pdf"), out, int(limit * 0.94), b["title"]):
                     return None
         return out
+
+    async def fit_pdf(bid: int, p: Path, limit: int, info: dict) -> Path:
+        """Túl nagy PDF: kisebb felbontásban újrakódolva még elküldhető (az eredeti fájl nem változik)."""
+        if p.suffix == ".pdf" and p.stat().st_size > limit and pdf.available(cfg):
+            try:
+                return await small_pdf(bid, limit) or p
+            except RuntimeError as e:
+                info["error"] = str(e)[-200:]
+        return p
 
     async def ensure_format(bid: int, fmt: str) -> Path | None:
         """A könyv fájlja a kért formátumban: ha nincs meg, konvertál és gyorsítótárba teszi (data/cache/convert)."""
@@ -799,19 +817,35 @@ def create_app(cfg: Config | None = None, transport=None) -> FastAPI:
         b = lib.book(bid)
         tid = tasks.create("send", user, subject=b["title"] if b else None, status="running")
         res = await _send_to_kindle(user, bid, info)
-        tasks.finish(tid, res == "mail_sent", "sent" if res == "mail_sent" else "failed",
-                     to=user.kindle_email or "–", reason=res, error=info.get("error"))
-        events.log("sent" if res == "mail_sent" else "send_failed", user, bid, ok=res == "mail_sent",
-                   title=b["title"] if b else None, to=user.kindle_email, fmt=info.get("fmt"),
-                   via=info.get("via"), reason=None if res == "mail_sent" else res, error=info.get("error"))
+        ok = res in ("mail_sent", "stk_sent")
+        to = info.get("to") or user.kindle_email
+        tasks.finish(tid, ok, "sent" if ok else "failed", to=to or "–", reason=res, error=info.get("error"))
+        events.log("sent" if ok else "send_failed", user, bid, ok=ok,
+                   title=b["title"] if b else None, to=to, fmt=info.get("fmt"),
+                   via=info.get("via"), reason=None if ok else res, error=info.get("error"))
         return res
+
+    async def send_amazon(stk: str, b: dict, p: Path, info: dict) -> str:
+        """Küldés az Amazon-fiókba a Send to Kindle saját protokollján (200 MB-ig)."""
+        p = await fit_pdf(b["id"], p, STK_LIMIT, info)
+        if p.stat().st_size > STK_LIMIT:
+            return "stk_toobig"
+        try:
+            await asyncio.to_thread(amazon.send, stk, p, b["title"], ", ".join(a["name"] for a in b["authors"]),
+                                    p.suffix.lstrip("."))
+        except Exception as e:
+            info["error"] = f"Amazon: {e.__class__.__name__}: {e}"[:200]
+            return "stk_error"
+        info["to"] = "Amazon – " + amazon.account_name(stk)
+        return "stk_sent"
 
     async def _send_to_kindle(user: User, bid: int, info: dict) -> str:
         s, _src = mail_settings(user)
-        info["via"] = s["smtp_from"] if s else None
-        if not s:
+        stk = user_stk(user.id)  # ha össze van kapcsolva, az Amazon az elsődleges; az e-mail a tartalék
+        info["via"] = "Amazon Send to Kindle" if stk else (s["smtp_from"] if s else None)
+        if not stk and not s:
             return "mail_off"
-        if not user.kindle_email:
+        if not stk and not user.kindle_email:
             return "mail_noaddr"
         b = lib.book(bid)
         # az Amazon EPUB-ot, PDF-et, DOCX-et és TXT-t fogad; MOBI/AZW3-ból EPUB készül
@@ -825,11 +859,14 @@ def create_app(cfg: Config | None = None, transport=None) -> FastAPI:
             return "mail_nofmt"
         fmt = p.suffix.lstrip(".")
         info["fmt"] = fmt.upper()
-        if fmt == "pdf" and p.stat().st_size > MAIL_LIMIT and pdf.available(cfg):
-            try:  # túl nagy PDF: kisebb felbontásban újrakódolva még elküldhető (az eredeti fájl nem változik)
-                p = await small_pdf(bid) or p
-            except RuntimeError as e:
-                info["error"] = str(e)[-200:]
+        if stk:
+            res = await send_amazon(stk, b, p, info)
+            if res == "stk_sent":
+                db.run("INSERT INTO downloads(user_id, book_id, at) VALUES(?, ?, ?)", (user.id, bid, now()))
+            if res != "stk_error" or not (s and user.kindle_email):
+                return res
+            info["via"] = s["smtp_from"]  # az Amazon nem fogadta: megy e-mailben (a hiba a naplóba kerül)
+        p = await fit_pdf(bid, p, MAIL_LIMIT, info)
         if p.stat().st_size > MAIL_LIMIT:
             return "mail_toobig"
         try:
@@ -1222,11 +1259,43 @@ def create_app(cfg: Config | None = None, transport=None) -> FastAPI:
         return RedirectResponse(f"/upload/{uid}", status_code=303)
 
     # ------------------------------------------------------------------ saját fiók
+    def me_ctx(user: User) -> dict:
+        ctx = {"m": user_mail(user.id), "mail_src": mail_settings(user)[1],
+               "my_events": events.query(user_id=user.id, per_page=20)[0]}
+        stk = user_stk(user.id)
+        if stk:
+            ctx["stk_name"] = amazon.account_name(stk)
+        else:  # az ellenőrző kód titkosítva az űrlapban utazik, így újraindítás után is beváltható
+            url, verifier = amazon.signin()
+            ctx.update(stk_name=None, stk_url=url, stk_verifier=sessions.seal(verifier))
+        return ctx
+
     @app.get("/me", response_class=HTMLResponse)
     async def me(request: Request):
-        return render(request, "me.html", msg=request.query_params.get("msg"), error=None,
-                      m=user_mail(request.state.user.id), mail_src=mail_settings(request.state.user)[1],
-                      my_events=events.query(user_id=request.state.user.id, per_page=20)[0])
+        return render(request, "me.html", msg=request.query_params.get("msg"), error=None, **me_ctx(request.state.user))
+
+    @app.post("/me/amazon")
+    async def me_amazon(request: Request, url: str = Form(""), verifier: str = Form(""), action: str = Form("")):
+        """Amazon Send to Kindle összekapcsolása (a belépés utáni oldal címével) vagy a kapcsolat bontása."""
+        user: User = request.state.user
+        if user.is_guest:
+            return Response(status_code=403)
+        if action == "disconnect":
+            stk = user_stk(user.id)
+            if stk:
+                await asyncio.to_thread(amazon.disconnect, stk)
+            db.run("UPDATE users SET stk_client = NULL WHERE id = ?", (user.id,))
+            return flash("/me", "saved")
+        try:
+            v = sessions.unseal(verifier)
+            if not v or "openid.oa2.authorization_code" not in url:
+                raise ValueError("no authorization code in the pasted address")
+            client = await asyncio.to_thread(amazon.connect, v, url)
+        except Exception as e:
+            print(f"Amazon Send to Kindle: connect failed for {user.username}: {e.__class__.__name__}: {e}"[:400], flush=True)
+            return flash("/me", "stk_connect_error")
+        db.run("UPDATE users SET stk_client = ? WHERE id = ?", (sessions.seal(client), user.id))
+        return flash("/me", "saved")
 
     @app.post("/me")
     async def me_save(request: Request, display_name: str = Form(""), kindle_email: str = Form(""), language: str = Form(""),
@@ -1238,8 +1307,7 @@ def create_app(cfg: Config | None = None, transport=None) -> FastAPI:
         resp = flash("/me", "saved")
         if new_password:
             if len(new_password) < 8 or not verify_password(old_password, user.password_hash):
-                return render(request, "me.html", 400, msg=None, error=tr(request, "me.password_error"),
-                              m=user_mail(user.id), mail_src=mail_settings(user)[1])
+                return render(request, "me.html", 400, msg=None, error=tr(request, "me.password_error"), **me_ctx(user))
             db.run("UPDATE users SET password_hash = ? WHERE id = ?", (hash_password(new_password), user.id))
             u = User.from_row(db.one("SELECT * FROM users WHERE id = ?", (user.id,)))
             save(request, resp, {"uid": u.id, "fp": u.fingerprint})
@@ -1731,7 +1799,7 @@ def create_app(cfg: Config | None = None, transport=None) -> FastAPI:
         on_kindle = "Kindle" in request.headers.get("user-agent", "")
         direct = ("mobi", "azw", "prc", "txt") if dev == "old" else ("azw3", "mobi", "azw", "prc", "txt") if on_kindle else FORMATS
         return {"device": dev, "kfmt": "mobi" if dev == "old" else "azw3", "direct": direct,
-                "can_mail": mail_settings(request.state.user)[0] is not None,
+                "can_mail": can_send(request.state.user),
                 "can_convert": converter.has_convert, "msg": request.query_params.get("msg")}
 
     KFACETS = {"authors": "author", "series": "series", "tags": "tag", "publishers": "publisher",

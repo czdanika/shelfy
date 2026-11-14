@@ -327,7 +327,14 @@
     "password_title": "Alterar palavra-passe",
     "old_password": "Palavra-passe atual",
     "new_password": "Nova palavra-passe",
-    "password_error": "A palavra-passe não foi alterada: a atual está errada ou a nova tem menos de 8 caracteres."
+    "password_error": "A palavra-passe não foi alterada: a atual está errada ou a nova tem menos de 8 caracteres.",
+    "stk_title": "Amazon Send to Kindle",
+    "stk_help": "Envia os livros diretamente para a sua conta Amazon, sem e-mail, até 200 MB. Quando ligada, o Shelfy usa primeiro esta via e envia por e-mail se falhar. É uma ligação não oficial: o Shelfy aparece como um dispositivo na sua conta Amazon e pode deixar de funcionar se a Amazon alterar o serviço.",
+    "stk_open": "1. Abrir o início de sessão da Amazon",
+    "stk_step2": "2. Depois de iniciar sessão, copie o endereço completo da página para onde a Amazon o leva e cole-o aqui",
+    "stk_connect": "Ligar",
+    "stk_connected": "Ligado: {name}",
+    "stk_disconnect": "Desligar"
   },
   "admin": {
     "title": "Administração",
@@ -461,7 +468,11 @@
     "dup_merged": "Os livros foram juntos.",
     "dup_ignored": "Marcados como não duplicados – não voltarão a ser sugeridos.",
     "dup_nothing": "Nada para juntar.",
-    "lookup_nocover": "Dados atualizados, mas não foi possível transferir a capa online – tente mais tarde ou carregue uma em Editar."
+    "lookup_nocover": "Dados atualizados, mas não foi possível transferir a capa online – tente mais tarde ou carregue uma em Editar.",
+    "stk_sent": "Enviado para a sua conta Amazon. Aparecerá no seu Kindle dentro de alguns minutos.",
+    "stk_error": "O envio através da Amazon falhou. Os detalhes estão no registo de atividade.",
+    "stk_connect_error": "A ligação à Amazon falhou. Abra novamente o início de sessão e cole o endereço completo.",
+    "stk_toobig": "O ficheiro tem mais de 200 MB; a Amazon não o aceita."
   },
   "langname": {
     "hu": "Húngaro",

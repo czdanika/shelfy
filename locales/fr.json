@@ -327,7 +327,14 @@
     "password_title": "Changer le mot de passe",
     "old_password": "Mot de passe actuel",
     "new_password": "Nouveau mot de passe",
-    "password_error": "Mot de passe inchangé : le mot de passe actuel est incorrect ou le nouveau fait moins de 8 caractères."
+    "password_error": "Mot de passe inchangé : le mot de passe actuel est incorrect ou le nouveau fait moins de 8 caractères.",
+    "stk_title": "Amazon Send to Kindle",
+    "stk_help": "Envoie les livres directement sur votre compte Amazon, sans e-mail, jusqu'à 200 Mo. Une fois connecté, Shelfy utilise d'abord cette voie et envoie par e-mail en cas d'échec. Il s'agit d'une connexion non officielle : Shelfy apparaît comme un appareil dans votre compte Amazon et peut cesser de fonctionner si Amazon modifie son service.",
+    "stk_open": "1. Ouvrir la connexion Amazon",
+    "stk_step2": "2. Après la connexion, copiez l'adresse complète de la page où Amazon vous amène et collez-la ici",
+    "stk_connect": "Connecter",
+    "stk_connected": "Connecté : {name}",
+    "stk_disconnect": "Déconnecter"
   },
   "admin": {
     "title": "Administration",
@@ -461,7 +468,11 @@
     "dup_merged": "Les livres ont été fusionnés.",
     "dup_ignored": "Marqués comme non-doublons – ils ne seront plus proposés.",
     "dup_nothing": "Rien à fusionner.",
-    "lookup_nocover": "Informations mises à jour, mais la couverture en ligne n’a pas pu être téléchargée – réessayez plus tard ou envoyez-en une dans Modifier."
+    "lookup_nocover": "Informations mises à jour, mais la couverture en ligne n’a pas pu être téléchargée – réessayez plus tard ou envoyez-en une dans Modifier.",
+    "stk_sent": "Envoyé sur votre compte Amazon. Il apparaîtra sur votre Kindle dans quelques minutes.",
+    "stk_error": "L'envoi via Amazon a échoué. Les détails figurent dans le journal d'activité.",
+    "stk_connect_error": "La connexion à Amazon a échoué. Rouvrez la page de connexion et collez l'adresse complète.",
+    "stk_toobig": "Le fichier dépasse 200 Mo ; Amazon ne l'accepte pas."
   },
   "kindle": {
     "settings": "Paramètres",

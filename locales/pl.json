@@ -327,7 +327,14 @@
     "password_title": "Zmiana hasła",
     "old_password": "Obecne hasło",
     "new_password": "Nowe hasło",
-    "password_error": "Hasło nie zostało zmienione: obecne hasło jest błędne albo nowe ma mniej niż 8 znaków."
+    "password_error": "Hasło nie zostało zmienione: obecne hasło jest błędne albo nowe ma mniej niż 8 znaków.",
+    "stk_title": "Amazon Send to Kindle",
+    "stk_help": "Wysyła książki bezpośrednio na Twoje konto Amazon, bez e-maila, do 200 MB. Po połączeniu Shelfy używa najpierw tej drogi, a gdy się nie uda, wysyła e-mailem. To nieoficjalne połączenie: Shelfy pojawia się jako urządzenie na Twoim koncie Amazon i może przestać działać, jeśli Amazon zmieni usługę.",
+    "stk_open": "1. Otwórz logowanie do Amazon",
+    "stk_step2": "2. Po zalogowaniu skopiuj pełny adres strony, na którą przeniósł Cię Amazon, i wklej go tutaj",
+    "stk_connect": "Połącz",
+    "stk_connected": "Połączono: {name}",
+    "stk_disconnect": "Rozłącz"
   },
   "admin": {
     "title": "Administracja",
@@ -461,7 +468,11 @@
     "dup_merged": "Książki zostały scalone.",
     "dup_ignored": "Oznaczono jako nie-duplikaty – nie będą więcej proponowane.",
     "dup_nothing": "Nie ma czego scalać.",
-    "lookup_nocover": "Dane zaktualizowane, ale nie udało się pobrać okładki online – spróbuj później lub prześlij ją w Edycji."
+    "lookup_nocover": "Dane zaktualizowane, ale nie udało się pobrać okładki online – spróbuj później lub prześlij ją w Edycji.",
+    "stk_sent": "Wysłano na Twoje konto Amazon. Za kilka minut pojawi się na Kindle.",
+    "stk_error": "Wysyłanie przez Amazon nie powiodło się. Szczegóły są w dzienniku aktywności.",
+    "stk_connect_error": "Połączenie z Amazon nie powiodło się. Otwórz logowanie ponownie i wklej pełny adres.",
+    "stk_toobig": "Plik jest większy niż 200 MB; Amazon go nie przyjmuje."
   },
   "langname": {
     "hu": "węgierski",

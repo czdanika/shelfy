@@ -14,7 +14,7 @@ from .config import Config
 from .tools import run
 
 # (hosszabbik oldal képpontban, JPEG-minőség) – fentről lefelé az első, ami belefér a keretbe
-LADDER = ((2048, 75), (2048, 62), (1800, 62), (1800, 50), (1800, 42), (1500, 45), (1500, 36), (1280, 36), (1280, 28))
+LADDER = ((2600, 80), (2048, 75), (2048, 62), (1800, 62), (1800, 50), (1800, 42), (1500, 45), (1500, 36), (1280, 36), (1280, 28))
 SAMPLES = 8          # ennyi oldalból becsüli a teljes méretet
 PAGE_DPI = 150       # a kisebb PDF oldalmérete ebből számolódik (csak a megjelenített méretet adja)
 
