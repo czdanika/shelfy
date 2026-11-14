@@ -1,7 +1,7 @@
 FROM python:3.12-slim-bookworm
 
-# ebook-meta (metaadat-olvasás) és ebook-convert (konvertálás)
-RUN apt-get update && apt-get install -y --no-install-recommends calibre fonts-dejavu-core && \
+# ebook-meta (metaadat-olvasás) és ebook-convert (konvertálás); poppler-utils: szkennelt / túl nagy PDF-ek
+RUN apt-get update && apt-get install -y --no-install-recommends calibre poppler-utils fonts-dejavu-core && \
     rm -rf /var/lib/apt/lists/*
 
 WORKDIR /srv

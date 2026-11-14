@@ -61,10 +61,10 @@ class Converter:
             cover = cov.read_bytes() if cov.exists() and cov.stat().st_size > 200 else None
             return meta, cover
 
-    async def convert(self, src: Path, dst: Path, opts: list[str]) -> None:
+    async def convert(self, src: Path, dst: Path, opts: list[str], timeout: int | None = None) -> None:
         async with self.lock:
             tmp = dst.with_name(dst.stem + ".tmp" + dst.suffix)
-            code, out = await run([self.cfg.ebook_convert, str(src), str(tmp), *opts], self.cfg.convert_timeout)
+            code, out = await run([self.cfg.ebook_convert, str(src), str(tmp), *opts], timeout or self.cfg.convert_timeout)
             if code != 0 or not tmp.exists():
                 raise RuntimeError("Konvertálás sikertelen: " + out[-400:])
             tmp.replace(dst)

@@ -23,6 +23,9 @@ class Config:
     ebook_convert: str = "ebook-convert"
     ebook_meta: str = "ebook-meta"
     convert_timeout: int = 300
+    pdftoppm: str = "pdftoppm"   # poppler-utils: szkennelt / túl nagy PDF-ek oldalainak kirajzolása
+    pdfinfo: str = "pdfinfo"
+    pdftotext: str = "pdftotext"
     admin_user: str | None = None
     admin_password: str | None = None
     providers: tuple[str, ...] | None = None  # None: az alapnyelvhez illő kezdő lista (a felületen átállítható)
@@ -58,6 +61,9 @@ def load_config() -> Config:
         ebook_convert=os.environ.get("EBOOK_CONVERT", "ebook-convert"),
         ebook_meta=os.environ.get("EBOOK_META", "ebook-meta"),
         convert_timeout=int(os.environ.get("CONVERT_TIMEOUT", "300")),
+        pdftoppm=os.environ.get("PDFTOPPM", "pdftoppm"),
+        pdfinfo=os.environ.get("PDFINFO", "pdfinfo"),
+        pdftotext=os.environ.get("PDFTOTEXT", "pdftotext"),
         admin_user=os.environ.get("ADMIN_USER") or None,
         admin_password=os.environ.get("ADMIN_PASSWORD") or None,
         providers=providers,

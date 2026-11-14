@@ -18,7 +18,7 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - run: sudo apt-get update && sudo apt-get install -y --no-install-recommends calibre
+      - run: sudo apt-get update && sudo apt-get install -y --no-install-recommends calibre poppler-utils
       - run: pip install -r requirements.txt pytest
       - run: python scripts/check_locales.py
       - run: QT_QPA_PLATFORM=offscreen pytest -q tests

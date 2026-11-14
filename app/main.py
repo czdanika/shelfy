@@ -30,9 +30,10 @@ from .db import Database, now
 from .events import GROUPS, KINDS, Events
 from .tasks import Tasks
 from .i18n import REFERENCE, I18n
+from . import pdf
 from .images import thumbnail
 from .ingest import Ingest
-from .library import MIME, SHOW_HIDDEN, SORT_GROUPS, SORTS, Library, Meta, ascii_name
+from .library import FORMATS, MIME, SHOW_HIDDEN, SORT_GROUPS, SORTS, Library, Meta, ascii_name
 from .providers import PROVIDER_LANGS, PROVIDERS, Lookup, default_providers
 from .tools import Converter, kindle_personal_doc, send_mail, sha256_file
 
@@ -555,6 +556,38 @@ def create_app(cfg: Config | None = None, transport=None) -> FastAPI:
             opts += ["--output-profile", "kindle_pw3"]
         return opts
 
+    async def convert_book(b: dict, src_fmt: str, dst: Path, target: str) -> None:
+        """Konvertálás; a szkennelt (szövegréteg nélküli) PDF-ből oldalképes könyv készül, mert szövege nincs."""
+        src = lib.file_path(b["id"], src_fmt)
+        if src_fmt == "pdf" and target != "pdf" and pdf.available(cfg) and await pdf.is_scanned(cfg, src):
+            cbz = dst.with_name(dst.stem + ".pages.cbz")
+            try:
+                if target == "mobi":  # régi Kindle: kis, szürke kijelző
+                    await pdf.images_cbz(cfg, src, cbz, 1024, 60, gray=True)
+                else:
+                    await pdf.images_cbz(cfg, src, cbz, 1800, 60)
+                await converter.convert(cbz, dst, convert_opts(b, target) + ["--no-process"], cfg.convert_timeout * 4)
+            finally:
+                cbz.unlink(missing_ok=True)
+            return
+        await converter.convert(src, dst, convert_opts(b, target))
+
+    MAIL_LIMIT = 49 * 1024 * 1024  # az Amazon 50 MB-ig fogad csatolmányt
+
+    async def small_pdf(bid: int) -> Path | None:
+        """A PDF 50 MB alá tömörített (oldalanként újrakódolt) példánya a gyorsítótárból; None, ha nem megy."""
+        b = lib.book(bid)
+        out = cfg.data_dir / "cache" / "convert" / f"{bid}_{int(b['updated_at'] or 0)}.small.pdf"
+        lock = convert_locks.setdefault(out.name, asyncio.Lock())
+        async with lock:
+            if not out.exists():
+                out.parent.mkdir(parents=True, exist_ok=True)
+                for old in out.parent.glob(f"{bid}_*.small.pdf"):
+                    old.unlink(missing_ok=True)
+                if not await pdf.shrink_pdf(cfg, lib.file_path(bid, "pdf"), out, MAIL_LIMIT - 3 * 1024 * 1024, b["title"]):
+                    return None
+        return out
+
     async def ensure_format(bid: int, fmt: str) -> Path | None:
         """A könyv fájlja a kért formátumban: ha nincs meg, konvertál és gyorsítótárba teszi (data/cache/convert)."""
         p = lib.file_path(bid, fmt)
@@ -573,7 +606,7 @@ def create_app(cfg: Config | None = None, transport=None) -> FastAPI:
                 out.parent.mkdir(parents=True, exist_ok=True)
                 for old in out.parent.glob(f"{bid}_*.{fmt}"):  # elavult (régebbi adatokkal készült) példány
                     old.unlink(missing_ok=True)
-                await converter.convert(lib.file_path(bid, src_fmt), out, convert_opts(b, fmt))
+                await convert_book(b, src_fmt, out, fmt)
                 if fmt in ("mobi", "azw3"):
                     await asyncio.to_thread(kindle_personal_doc, out)
         return out
@@ -748,7 +781,7 @@ def create_app(cfg: Config | None = None, transport=None) -> FastAPI:
         dst = Path(tempfile.mkstemp(suffix="." + target, dir=cfg.data_dir)[1])
         tid = tasks.create("convert", user, subject=f"{b['title']} → {target.upper()}", status="running")
         try:
-            await converter.convert(lib.file_path(bid, src_fmt), dst, convert_opts(b, target))
+            await convert_book(b, src_fmt, dst, target)
             tasks.finish(tid, True)
             lib.add_file(bid, dst, target, await asyncio.to_thread(sha256_file, dst))
             events.log("converted", user, bid, title=b["title"], fmt=target.upper())
@@ -792,7 +825,12 @@ def create_app(cfg: Config | None = None, transport=None) -> FastAPI:
             return "mail_nofmt"
         fmt = p.suffix.lstrip(".")
         info["fmt"] = fmt.upper()
-        if p.stat().st_size > 49 * 1024 * 1024:
+        if fmt == "pdf" and p.stat().st_size > MAIL_LIMIT and pdf.available(cfg):
+            try:  # túl nagy PDF: kisebb felbontásban újrakódolva még elküldhető (az eredeti fájl nem változik)
+                p = await small_pdf(bid) or p
+            except RuntimeError as e:
+                info["error"] = str(e)[-200:]
+        if p.stat().st_size > MAIL_LIMIT:
             return "mail_toobig"
         try:
             await asyncio.to_thread(send_mail, s, user.kindle_email, s.get("kindle_subject") or "Shelfy",
@@ -1689,7 +1727,10 @@ def create_app(cfg: Config | None = None, transport=None) -> FastAPI:
 
     def kindle_ctx(request: Request) -> dict:
         dev = device_of(request)
-        return {"device": dev, "kfmt": "mobi" if dev == "old" else "azw3",
+        # a Kindle saját böngészője csak ezeket tudja letölteni (PDF-et, EPUB-ot nem); más eszközön minden formátum mehet
+        on_kindle = "Kindle" in request.headers.get("user-agent", "")
+        direct = ("mobi", "azw", "prc", "txt") if dev == "old" else ("azw3", "mobi", "azw", "prc", "txt") if on_kindle else FORMATS
+        return {"device": dev, "kfmt": "mobi" if dev == "old" else "azw3", "direct": direct,
                 "can_mail": mail_settings(request.state.user)[0] is not None,
                 "can_convert": converter.has_convert, "msg": request.query_params.get("msg")}
 

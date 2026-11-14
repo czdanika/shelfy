@@ -21,7 +21,7 @@
   {% if kfmt in b.formats or (can_convert and b.formats) %}
   <a class="btn fo" href="/book/{{ b.id }}/download/{{ kfmt }}">{{ t('kindle.download', fmt=kfmt|upper) }}</a>
   {% endif %}
-  {% for f in b.formats if f != kfmt and (device == 'new' or f in ('mobi', 'azw', 'prc', 'txt')) %}
+  {% for f in b.formats if f != kfmt and f in direct %}
   <a class="btn" href="/book/{{ b.id }}/download/{{ f }}">{{ f|upper }}</a>
   {% endfor %}
   {% if can_mail %}
