@@ -1297,7 +1297,7 @@ def create_app(cfg: Config | None = None, transport=None) -> FastAPI:
             v = sessions.unseal(verifier)
             if not v or "openid.oa2.authorization_code" not in url:
                 raise ValueError("no authorization code in the pasted address")
-            client = await asyncio.to_thread(amazon.connect, v, url)
+            client = await asyncio.to_thread(amazon.connect, v, url, amazon.device_serial(f"{cfg.secret_key}|stk|{user.id}"))
         except Exception as e:
             print(f"Amazon Send to Kindle: connect failed for {user.username}: {e.__class__.__name__}: {e}"[:400], flush=True)
             return flash("/me", "stk_connect_error")

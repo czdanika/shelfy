@@ -25,7 +25,7 @@ def add_book(admin, tmp_path, fmt="epub", path=None):
 def linked(admin, monkeypatch):
     """Összekapcsolt Amazon-fiók; a hálózati hívások helyett felvevő."""
     calls = {"connect": [], "send": []}
-    monkeypatch.setattr(m.amazon, "connect", lambda verifier, url: calls["connect"].append((verifier, url)) or CLIENT)
+    monkeypatch.setattr(m.amazon, "connect", lambda verifier, url, serial: calls["connect"].append((verifier, url, serial)) or CLIENT)
     monkeypatch.setattr(m.amazon, "send", lambda client, path, title, author, fmt:
                         calls["send"].append((client, path.stat().st_size, title, author, fmt)) or 1)
     monkeypatch.setattr(m.amazon, "disconnect", lambda client: calls.setdefault("disconnect", []).append(client))
@@ -36,6 +36,7 @@ def linked(admin, monkeypatch):
     r = admin.post("/me/amazon", data={"url": REDIRECT, "verifier": verifier}, follow_redirects=False)
     assert r.headers["location"] == "/me?msg=saved"
     assert calls["connect"][0][1] == REDIRECT and not calls["connect"][0][0].startswith("enc:")
+    assert re.fullmatch(r"[A-Z0-9]{32}", calls["connect"][0][2])  # saját eszközsorszám, nem a könyvtár közös sorszáma
     return calls
 
 
@@ -47,7 +48,7 @@ def test_connect_is_stored_sealed_and_shown(admin, linked):
 
 
 def test_connect_needs_the_redirect_address(admin, monkeypatch):
-    monkeypatch.setattr(m.amazon, "connect", lambda v, u: pytest.fail("nem szabad az Amazonhoz fordulni"))
+    monkeypatch.setattr(m.amazon, "connect", lambda v, u, s: pytest.fail("nem szabad az Amazonhoz fordulni"))
     verifier = re.search(r'name="verifier" value="([^"]+)"', admin.get("/me").text).group(1)
     r = admin.post("/me/amazon", data={"url": "https://www.amazon.com/", "verifier": verifier}, follow_redirects=False)
     assert "stk_connect_error" in r.headers["location"]
@@ -143,3 +144,30 @@ def test_list_view_offers_each_method(admin, linked, tmp_path, monkeypatch):
         html = admin.get(view).text
         assert 'name="via" value="amazon"' in html and 'name="via" value="mail"' in html
         assert "Küldés Kindle-re: E-mail" in html
+
+
+def test_device_serial_is_own_and_stable():
+    a, b = m.amazon.device_serial("titok|stk|1"), m.amazon.device_serial("titok|stk|2")
+    assert re.fullmatch(r"[A-Z0-9]{32}", a) and a != b and a == m.amazon.device_serial("titok|stk|1")
+    assert a != "ZYSQ37GQ5JQDAIKDZ3WYH6I74MJCVEGG" and m.amazon.device_serial("masik|stk|1") != a
+
+
+def test_register_sends_the_given_serial(monkeypatch):
+    seen = {}
+
+    class Resp:
+        def __enter__(self): return self
+        def __exit__(self, *a): return False
+        def read(self): return (b"<response><adp_token>T</adp_token><device_private_key>K</device_private_key><name>Teszt Elek</name>"
+                                b"<device_type>A</device_type><given_name>Elek</given_name><account_pool>Amazon</account_pool>"
+                                b"<user_directed_id>U</user_directed_id><user_device_name>Shelfy</user_device_name></response>")
+
+    def fake(req):
+        seen.update(url=req.full_url, body=req.data.decode())
+        return Resp()
+    monkeypatch.setattr(m.amazon.urllib.request, "urlopen", fake)
+    info = m.amazon.register("tok<en", "A" * 32)
+    assert info.adp_token == "T" and info.name == "Teszt Elek"
+    assert seen["url"].endswith("/FirsProxy/registerDeviceWithToken")
+    assert f"<deviceSerialNumber>{'A' * 32}</deviceSerialNumber>" in seen["body"] and "<authToken>tok&lt;en</authToken>" in seen["body"]
+    assert "ZYSQ37GQ" not in seen["body"]
