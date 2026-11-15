@@ -5,8 +5,9 @@
 <div class="small muted"><a href="/books">{{ t('view.all') }}</a>{% if b.authors %} › <a href="/books?author={{ b.authors[0].id }}">{{ b.authors[0].name }}</a>{% endif %} › {{ b.title }}</div>
 
 <div class="card detail">
+  {% if b.has_cover %}<div class="detail-bg" style="--cv: url('/book/{{ b.id }}/cover?v={{ (b.updated_at or 0)|int }}&w=320')" aria-hidden="true"></div>{% endif %}
   <div class="big">
-    <div class="lift">{% if b.has_cover %}<img src="/book/{{ b.id }}/cover?v={{ (b.updated_at or 0)|int }}&w=520" alt="">{% else %}{{ placeholder(b) }}{% endif %}</div>
+    <div class="lift" style="view-transition-name: bk-{{ b.id }}{% if b.has_cover %}; background: url('/book/{{ b.id }}/cover?v={{ (b.updated_at or 0)|int }}&w=320') center / cover{% endif %}">{% if b.has_cover %}<img src="/book/{{ b.id }}/cover?v={{ (b.updated_at or 0)|int }}&w=520" alt="">{% else %}{{ placeholder(b) }}{% endif %}</div>
   </div>
   <div class="info">
     <div>

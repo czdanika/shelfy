@@ -2,63 +2,108 @@
 {% from "macros.html" import icon %}
 {% block title %}{{ t('me.title') }}{% endblock %}
 {% block content %}
-<h1>{{ t('me.title') }}</h1>
+<header class="mehead">
+  <span class="avatar big">{{ user.initial }}</span>
+  <div>
+    <h1>{{ user.display_name or user.username }}</h1>
+    <div class="muted">{{ user.username }} · <span class="badge {% if user.role == 'admin' %}ok{% else %}info{% endif %}">{{ t('role.' ~ user.role) }}</span></div>
+  </div>
+</header>
+<nav class="jump" aria-label="{{ t('me.title') }}">
+  <a href="#profile">{{ icon('user', 15) }} {{ t('nav.profile') }}</a>
+  <a href="#look">{{ icon('palette', 15) }} {{ t('theme.label') }}</a>
+  <a href="#kindle">{{ icon('tablet', 15) }} Kindle</a>
+  <a href="#password">{{ icon('key', 15) }} {{ t('me.password_title') }}</a>
+  <a href="#mailbox">{{ icon('mail', 15) }} {{ t('mail.title') }}</a>
+  <a href="#activity">{{ icon('history', 15) }} {{ t('log.my_title') }}</a>
+</nav>
 {% if error %}<div class="flash err" role="alert">{{ error }}</div>{% endif %}
-<form class="card" method="post" action="/me" style="display: flex; flex-direction: column; gap: 16px; max-width: 760px">
-  <div class="grid2">
-    <div class="field"><label>{{ t('login.username') }}</label><input type="text" value="{{ user.username }}" disabled></div>
-    <div class="field"><label>{{ t('admin.role') }}</label><input type="text" value="{{ t('role.' ~ user.role) }}" disabled></div>
-    <div class="field"><label for="dn">{{ t('me.display_name') }}</label><input id="dn" name="display_name" type="text" value="{{ user.display_name }}"></div>
-    <div class="field"><label for="lg">{{ t('me.language') }}</label>
-      <select id="lg" name="language">{% for code, name in languages %}<option value="{{ code }}" {% if code == lang %}selected{% endif %}>{{ name }}</option>{% endfor %}</select></div>
-    <div class="field" style="grid-column: 1 / -1"><label for="ke">{{ t('me.kindle_email') }}</label>
+
+<div class="mecols">
+<form class="mecol" method="post" action="/me">
+  <section class="card sect" id="profile">
+    <h2>{{ icon('user', 18) }} {{ t('nav.profile') }}</h2>
+    <div class="grid2">
+      <div class="field"><label for="dn">{{ t('me.display_name') }}</label><input id="dn" name="display_name" type="text" value="{{ user.display_name }}"></div>
+      <div class="field"><label for="lg">{{ t('me.language') }}</label>
+        <select id="lg" name="language">{% for code, name in languages %}<option value="{{ code }}" {% if code == lang %}selected{% endif %}>{{ name }}</option>{% endfor %}</select></div>
+    </div>
+    <div class="row"><button class="btn primary" type="submit">{{ icon('check', 16) }} {{ t('action.save') }}</button></div>
+  </section>
+
+  <section class="card sect" id="kindle">
+    <h2>{{ icon('tablet', 18) }} Kindle</h2>
+    <div class="field"><label for="ke">{{ t('me.kindle_email') }}</label>
       <input id="ke" name="kindle_email" type="email" value="{{ user.kindle_email or '' }}" placeholder="valami@kindle.com">
       <span class="small muted">{{ t('me.kindle_help') }} <a href="https://www.amazon.com/mycd" target="_blank" rel="noopener">amazon.com/mycd ↗</a></span></div>
-    <div class="field" style="grid-column: 1 / -1"><label for="kv">{{ t('me.kindle_via') }}</label>
+    <div class="field"><label for="kv">{{ t('me.kindle_via') }}</label>
       <select id="kv" name="kindle_via">
         <option value="both" {% if kindle_via == 'both' %}selected{% endif %}>{{ t('me.via_both') }}</option>
         <option value="amazon" {% if kindle_via == 'amazon' %}selected{% endif %}>{{ t('me.stk_title') }}</option>
         <option value="mail" {% if kindle_via == 'mail' %}selected{% endif %}>{{ t('me.via_mail') }}</option>
       </select></div>
-  </div>
-  <h2 style="font-size: 18px">{{ t('me.password_title') }}</h2>
-  <div class="grid2">
-    <div class="field"><label for="op">{{ t('me.old_password') }}</label><input id="op" name="old_password" type="password" autocomplete="current-password"></div>
-    <div class="field"><label for="np">{{ t('me.new_password') }} <span class="muted">({{ t('setup.min8') }})</span></label><input id="np" name="new_password" type="password" autocomplete="new-password" minlength="8"></div>
-  </div>
-  <div class="row"><button class="btn primary" type="submit">{{ icon('check', 16) }} {{ t('action.save') }}</button></div>
+    <div class="row"><button class="btn primary" type="submit">{{ icon('check', 16) }} {{ t('action.save') }}</button>
+      <a class="btn" href="/kindle">{{ icon('tablet', 16) }} {{ t('nav.kindle') }}</a></div>
+  </section>
+
+  <section class="card sect" id="password">
+    <h2>{{ icon('key', 18) }} {{ t('me.password_title') }}</h2>
+    <div class="grid2">
+      <div class="field"><label for="op">{{ t('me.old_password') }}</label><input id="op" name="old_password" type="password" autocomplete="current-password"></div>
+      <div class="field"><label for="np">{{ t('me.new_password') }} <span class="muted">({{ t('setup.min8') }})</span></label><input id="np" name="new_password" type="password" autocomplete="new-password" minlength="8"></div>
+    </div>
+    <div class="row"><button class="btn primary" type="submit">{{ icon('check', 16) }} {{ t('action.save') }}</button></div>
+  </section>
 </form>
-<section class="card" style="max-width: 760px; padding: 18px 20px; display: flex; flex-direction: column; gap: 12px">
-  <div>
-    <h2 style="font-size: 18px">{{ t('me.stk_title') }}</h2>
-    <p class="small muted" style="margin: 4px 0 0">{{ t('me.stk_help') }}</p>
-  </div>
-  {% if stk_name %}
-  <form class="row" method="post" action="/me/amazon" style="align-items: center">
-    <span class="badge ok">{{ t('me.stk_connected', name=stk_name) }}</span>
-    <button class="btn" type="submit" name="action" value="disconnect">{{ icon('x', 16) }} {{ t('me.stk_disconnect') }}</button>
-  </form>
-  {% else %}
-  <div><a class="btn" href="{{ stk_url }}" target="_blank" rel="noopener noreferrer">{{ t('me.stk_open') }} ↗</a></div>
-  <form method="post" action="/me/amazon" style="display: flex; flex-direction: column; gap: 12px">
-    <input type="hidden" name="verifier" value="{{ stk_verifier }}">
-    <div class="field"><label for="su">{{ t('me.stk_step2') }}</label>
-      <input id="su" name="url" type="text" required autocomplete="off" placeholder="https://www.amazon.com/gp/sendtokindle?…"></div>
-    <div class="row"><button class="btn primary" type="submit">{{ icon('check', 16) }} {{ t('me.stk_connect') }}</button></div>
-  </form>
-  {% endif %}
-</section>
-<section class="card" style="max-width: 760px; padding: 18px 20px">
-  <h2 style="font-size: 18px">{{ t('log.my_title') }}</h2>
-  {% set rows = my_events %}{% set show_user = false %}
-  {% include "_events.html" %}
-</section>
+
+<div class="mecol">
+  <section class="card sect" id="look">
+    <h2>{{ icon('palette', 18) }} {{ t('theme.label') }}</h2>
+    <div class="themepick">
+      {% for k in ('auto', 'light', 'dark') %}
+      <a href="/theme/{{ k }}" class="tp tp-{{ k }} {% if theme == k %}on{% endif %}" {% if theme == k %}aria-current="true"{% endif %}>
+        <span class="tp-art" aria-hidden="true"><i></i><i></i><i></i></span>
+        <span>{{ t('theme.' ~ k) }}</span>
+      </a>
+      {% endfor %}
+    </div>
+  </section>
+
+  <section class="card sect" id="amazon">
+    <h2>{{ icon('send', 18) }} {{ t('me.stk_title') }}</h2>
+    <p class="small muted" style="margin: 0">{{ t('me.stk_help') }}</p>
+    {% if stk_name %}
+    <form class="row" method="post" action="/me/amazon" style="align-items: center">
+      <span class="badge ok">{{ t('me.stk_connected', name=stk_name) }}</span>
+      <button class="btn" type="submit" name="action" value="disconnect">{{ icon('x', 16) }} {{ t('me.stk_disconnect') }}</button>
+    </form>
+    {% else %}
+    <div><a class="btn" href="{{ stk_url }}" target="_blank" rel="noopener noreferrer">{{ t('me.stk_open') }} ↗</a></div>
+    <form method="post" action="/me/amazon" style="display: flex; flex-direction: column; gap: 12px">
+      <input type="hidden" name="verifier" value="{{ stk_verifier }}">
+      <div class="field"><label for="su">{{ t('me.stk_step2') }}</label>
+        <input id="su" name="url" type="text" required autocomplete="off" placeholder="https://www.amazon.com/gp/sendtokindle?…"></div>
+      <div class="row"><button class="btn primary" type="submit">{{ icon('check', 16) }} {{ t('me.stk_connect') }}</button></div>
+    </form>
+    {% endif %}
+  </section>
+</div>
+</div>
+
+<div id="mailbox" class="anchor">
 {% set action = '/me/mail' %}
 {% include "_mailform.html" %}
+</div>
 {% if mail_src != 'none' %}
 <form class="card row" method="post" action="/me/mail/test" style="max-width: 760px; align-items: flex-end">
   <div class="field" style="flex: 1 1 260px"><label for="tt">{{ t('mail.test_to') }}</label><input id="tt" name="to" type="email" required value="{{ user.kindle_email or '' }}"></div>
   <button class="btn" type="submit">{{ icon('send', 16) }} {{ t('mail.test') }}</button>
 </form>
 {% endif %}
+
+<section class="card sect" id="activity" style="max-width: 760px">
+  <h2>{{ icon('history', 18) }} {{ t('log.my_title') }}</h2>
+  {% set rows = my_events %}{% set show_user = false %}
+  {% include "_events.html" %}
+</section>
 {% endblock %}

@@ -10,6 +10,7 @@
     "off": "ki"
   },
   "nav": {
+    "home": "Kezdőlap",
     "menu": "Főmenü",
     "library": "Könyvtár",
     "browse": "Böngészés",
@@ -24,6 +25,9 @@
     "kindle": "Kindle-nézet",
     "help": "Súgó",
     "tasks": "Feladatok"
+  },
+  "home": {
+    "hello": "Szia, {name}!"
   },
   "view": {
     "all": "Összes könyv",
@@ -696,7 +700,7 @@
   "about": {
     "title": "Névjegy",
     "version": "Verzió: {v}",
-    "lead": "Saját, otthoni e-könyvtár: feltöltés vizsgálattal és online adatgyűjtéssel, kereshető katalógus, konvertálás, küldés Kindle-re és Kindle-nézet, a családnak.",
+    "lead": "A család saját, otthoni e-könyvtára. Töltsd fel a könyveidet: a Shelfy ellenőrzi a fájlokat, az internetről kiegészíti az adataikat és a borítót, és kereshető katalógusba rendezi őket – olvashatod a böngészőben, vagy elküldheted a Kindle-re.",
     "author": "Készítette",
     "source": "Forráskód",
     "issues": "Hibajelzés, ötletek",

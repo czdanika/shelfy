@@ -19,8 +19,38 @@
   'shelf': '<path d="M4 4v16M20 4v16M4 12h16M4 20h16"/>',
   'chev': '<path d="M6 9l6 6 6-6"/>',
   'mail': '<path d="M3 6h18v12H3zM3 7l9 6 9-6"/>',
+  'books': '<path d="M5 4v16M9 4v16M13 5l4 15M3 20h18"/>',
+  'home': '<path d="M4 11l8-7 8 7M6 10v10h4v-6h4v6h4V10"/>',
+  'users': '<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c0-3.5 2.9-5.5 6.5-5.5s6.5 2 6.5 5.5M16 4.8a3.5 3.5 0 0 1 0 6.4M18 14.8c2.1.7 3.5 2.3 3.5 5.2"/>',
+  'list': '<path d="M8 6h12M8 12h12M8 18h12M4 6h.01M4 12h.01M4 18h.01"/>',
+  'logout': '<path d="M14 4h5v16h-5M10 8l-4 4 4 4M6 12h10"/>',
+  'key': '<circle cx="8" cy="15" r="4"/><path d="M11 12l9-9M16 7l3 3M14 9l2 2"/>',
+  'palette': '<path d="M12 3a9 9 0 0 0 0 18c1.5 0 2-1 2-2 0-1.5 1-2 2.5-2H18a3 3 0 0 0 3-3c0-5-4-9-9-9z"/><circle cx="7.5" cy="11" r="1"/><circle cx="10" cy="7.5" r="1"/><circle cx="15" cy="7.5" r="1"/>',
+  'tablet': '<rect x="5" y="2.5" width="14" height="19" rx="2"/><path d="M10 18.5h4"/>',
+  'history': '<path d="M3 12a9 9 0 1 0 3-6.7L3 8M3 3v5h5M12 7v5l3 2"/>',
+  'clock': '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
+  'flame': '<path d="M12 3c1 3 5 5 5 10a5 5 0 0 1-10 0c0-2 1-3 2-4 0 2 1 3 2 3 0-3-1-6 1-9z"/>',
+  'star': '<path d="M12 3.5l2.6 5.3 5.9.9-4.3 4.1 1 5.8-5.2-2.8-5.2 2.8 1-5.8-4.3-4.1 5.9-.9z"/>',
+  'circle': '<circle cx="12" cy="12" r="8"/>',
+  'compass': '<circle cx="12" cy="12" r="9"/><path d="M15.5 8.5l-2 5-5 2 2-5z"/>',
+  'user': '<circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-6 8-6s8 2 8 6"/>',
+  'layers': '<path d="M12 3l9 5-9 5-9-5zM3 13l9 5 9-5"/>',
+  'tag': '<path d="M3 12V4h8l10 10-8 8z"/><circle cx="8" cy="8" r="1.2"/>',
+  'building': '<path d="M4 21V5l8-2v18M12 9l8 2v10M2 21h20M7 8h2M7 12h2M7 16h2"/>',
+  'globe': '<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.6 3.8 5.6 3.8 9s-1.3 6.4-3.8 9c-2.5-2.6-3.8-5.6-3.8-9S9.5 5.6 12 3z"/>',
+  'file': '<path d="M6 3h8l4 4v14H6zM14 3v4h4"/>',
+  'bookmark': '<path d="M6 3h12v18l-6-4-6 4z"/>',
+  'copy': '<rect x="8" y="8" width="12" height="12" rx="1"/><path d="M16 8V4H4v12h4"/>',
+  'tasks': '<path d="M10 6h10M10 12h10M10 18h10M4 6l1.5 1.5L8 5M4 12l1.5 1.5L8 11M4 18l1.5 1.5L8 17"/>',
+  'sliders': '<path d="M4 6h10M18 6h2M4 12h2M10 12h10M4 18h8M16 18h4"/><circle cx="16" cy="6" r="2"/><circle cx="8" cy="12" r="2"/><circle cx="14" cy="18" r="2"/>',
+  'shield': '<path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/>',
 } -%}
 <svg width="{{ size }}" height="{{ size }}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">{{ paths[name]|safe }}</svg>
+{%- endmacro %}
+
+{# Az animált jel: három könyv a polcra pottyan, a harmadik megdől. A színek és a mozgás a motion.css-ben. #}
+{% macro logo(w=34, cls='') -%}
+<svg class="lg {{ cls }}" width="{{ w }}" height="{{ (w * 0.875)|round|int }}" viewBox="64 96 384 336" aria-hidden="true"><rect class="lg-shelf" x="80" y="392" width="352" height="26" rx="5"/><g class="lg-h lg-h1"><rect class="lg-b lg-b1" x="112" y="120" width="78" height="272" rx="6"/></g><g class="lg-h lg-h2"><rect class="lg-b lg-b2" x="204" y="168" width="78" height="224" rx="6"/></g><g class="lg-h lg-h3"><g class="lg-b lg-b3"><rect class="lg-tip" x="296" y="112" width="78" height="280" rx="6"/></g></g></svg>
 {%- endmacro %}
 
 {% macro placeholder(b) -%}
@@ -32,10 +62,10 @@
 {%- if n %}<span class="stars" aria-label="{{ n }}/5">{{ '★' * n }}{{ '☆' * (5 - n) }}</span>{% endif -%}
 {%- endmacro %}
 
-{% macro bookcard(b, t, user, now_ts, send_via=[]) %}
+{% macro bookcard(b, t, user, now_ts, send_via=[], vt=true) %}
 <article class="book">
   <div class="cover">
-    <a class="lift" href="/book/{{ b.id }}" aria-label="{{ b.title }}">
+    <a class="lift" href="/book/{{ b.id }}" aria-label="{{ b.title }}"{% if vt %} style="view-transition-name: bk-{{ b.id }}"{% endif %}>
       {% if b.has_cover %}<img src="/book/{{ b.id }}/cover?v={{ (b.updated_at or 0)|int }}&w=320" alt="" loading="lazy">{% else %}{{ placeholder(b) }}{% endif %}
     </a>
     {% if b.hidden %}<span class="hid" title="{{ t('book.hidden') }}">{{ icon('eyeoff', 14) }} {{ t('book.hidden') }}</span>
@@ -57,7 +87,7 @@
 
 {% macro bookrow(b, t, user, now_ts, langname, send_via=[]) %}
 <article class="brow">
-  <a class="brow-cover" href="/book/{{ b.id }}" aria-label="{{ b.title }}">
+  <a class="brow-cover" href="/book/{{ b.id }}" aria-label="{{ b.title }}" style="view-transition-name: bk-{{ b.id }}">
     {% if b.has_cover %}<img src="/book/{{ b.id }}/cover?v={{ (b.updated_at or 0)|int }}&w=200" alt="" loading="lazy">{% else %}{{ placeholder(b) }}{% endif %}
   </a>
   <div class="brow-main">

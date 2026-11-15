@@ -1,0 +1,285 @@
+/* Shelfy – mozgás és élet: animált jel, belépő animáció, nyitókép, rámutatási effektek.
+   A style.css után töltődik be; a színeket onnan veszi. Csökkentett mozgásnál (lásd a fájl végét) minden kikapcsol. */
+:root{--ease:cubic-bezier(.2,.8,.2,1);--spring:cubic-bezier(.3,1.5,.5,1)}
+
+/* ================= Animált jel ================= */
+.lg{display:block;flex:none;overflow:visible;--l1:#111827;--l2:#6B7280;--l3:#F59E0B;--l4:#0F766E}
+:root[data-theme="dark"] .lg,.lg.lg-dark{--l1:#F3F4F6;--l2:#9CA3AF;--l4:#14B8A6}
+.lg-b1{fill:var(--l1)} .lg-b2{fill:var(--l2)} .lg-tip{fill:var(--l3)} .lg-shelf{fill:var(--l4)}
+.lg rect,.lg g{transform-box:fill-box}
+.lg-shelf{transform-origin:50% 50%;animation:lg-shelf .4s var(--spring) backwards;animation-delay:var(--lg-d,0s)}
+.lg-b{transform-origin:50% 100%;animation:lg-drop .62s cubic-bezier(.4,.2,.5,1) backwards}
+.lg-b1{animation-delay:calc(var(--lg-d,0s) + .10s)}
+.lg-b2{animation-delay:calc(var(--lg-d,0s) + .22s)}
+.lg-b3{animation-delay:calc(var(--lg-d,0s) + .34s)}
+.lg-tip{transform-origin:100% 100%;transform:rotate(20deg);animation:lg-tip .75s var(--ease) backwards;animation-delay:calc(var(--lg-d,0s) + .80s)}
+@keyframes lg-shelf{from{transform:scaleX(0);opacity:0}}
+@keyframes lg-drop{
+  0%{transform:translateY(-340px);opacity:0}
+  25%{opacity:1}
+  52%{transform:translateY(0)}
+  64%{transform:translateY(0) scale(1.07,.86)}
+  82%{transform:translateY(-38px) scale(.98,1.03)}
+  100%{transform:none}
+}
+@keyframes lg-tip{0%{transform:rotate(0)}40%{transform:rotate(27deg)}68%{transform:rotate(16deg)}86%{transform:rotate(21.5deg)}100%{transform:rotate(20deg)}}
+/* rámutatásra a könyvek sorban felpattannak; a „lg-live” jel magától is megmozdul időnként */
+.lg-h{transform-origin:50% 100%}
+@keyframes lg-hop{0%{transform:none}30%{transform:translateY(-58px) scale(.97,1.04)}60%{transform:translateY(0) scale(1.06,.9)}80%{transform:translateY(-14px)}100%{transform:none}}
+@keyframes lg-idle{0%,86%{transform:none}90%{transform:translateY(-44px) scale(.97,1.04)}94%{transform:translateY(0) scale(1.05,.92)}97%{transform:translateY(-10px)}100%{transform:none}}
+.lg-live .lg-h{animation:lg-idle 9s ease-in-out infinite}
+.lg-live .lg-h1{animation-delay:3s} .lg-live .lg-h2{animation-delay:3.12s} .lg-live .lg-h3{animation-delay:3.24s}
+a:hover>.lg .lg-h,.brandhover:hover .lg-h,.hero-brand:hover .lg-h{animation:lg-hop .6s var(--ease)}
+a:hover>.lg .lg-h2,.brandhover:hover .lg-h2,.hero-brand:hover .lg-h2{animation-delay:.08s}
+a:hover>.lg .lg-h3,.brandhover:hover .lg-h3,.hero-brand:hover .lg-h3{animation-delay:.16s}
+.side .brand span{transition:letter-spacing .3s var(--ease)}
+.side .brand:hover span{letter-spacing:1px}
+.brandhover{display:inline-flex}
+
+/* ================= Belépő animáció: e-könyv-olvasó ================= */
+.splash{display:none}
+html.intro .splash,.splash.out{position:fixed;inset:0;z-index:200;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:22px;
+  background:radial-gradient(60% 50% at 50% 42%,#12403f 0%,#111827 70%);cursor:pointer;transition:opacity .4s ease,visibility .4s}
+.splash.out{opacity:0;visibility:hidden;pointer-events:none}
+.sp-dev{position:relative;width:168px;height:226px;padding:12px 12px 30px;border-radius:18px;background:linear-gradient(160deg,#39414f,#1b212c);
+  box-shadow:0 30px 70px rgba(0,0,0,.55),inset 0 1px 0 rgba(255,255,255,.14);animation:sp-in .5s var(--spring) backwards;transition:transform .45s var(--ease)}
+.splash.out .sp-dev{transform:scale(2.4)}
+.sp-key{position:absolute;left:50%;bottom:11px;width:26px;height:6px;margin-left:-13px;border-radius:3px;background:rgba(255,255,255,.16)}
+.sp-screen{position:relative;height:100%;border-radius:6px;background:#F4F1E8;overflow:hidden;perspective:520px;padding:20px 14px;display:flex;flex-direction:column;gap:11px}
+.sp-line{display:block;height:6px;border-radius:3px;background:#2b3240;opacity:.78;transform-origin:0 50%;
+  animation:sp-line .26s var(--ease) backwards,sp-gone .2s ease .78s forwards;animation-delay:calc(var(--i) * 45ms + .16s),.78s}
+.sp-page{position:absolute;inset:0;background:linear-gradient(90deg,#e9e4d6,#fbf9f2 30%,#f4f1e8);transform-origin:0 50%;transform:rotateY(-92deg);
+  box-shadow:6px 0 18px rgba(0,0,0,.25);animation:sp-flip .5s cubic-bezier(.5,0,.3,1) .5s both}
+.sp-logo{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;--lg-d:.82s}
+.sp-name{font-size:30px;font-weight:600;letter-spacing:.4px;color:#fff;animation:sp-name .5s var(--ease) .95s backwards}
+.splash.out .sp-name{opacity:0;transition:opacity .2s}
+@keyframes sp-in{from{transform:translateY(46px) scale(.82) rotate(-5deg);opacity:0}}
+@keyframes sp-line{from{transform:scaleX(0);opacity:0}}
+@keyframes sp-gone{to{opacity:0}}
+@keyframes sp-flip{0%{transform:rotateY(-92deg)}100%{transform:rotateY(0)}}
+@keyframes sp-name{from{opacity:0;transform:translateY(12px);letter-spacing:8px}}
+/* amíg a belépő megy, a mögötte lévő oldal animációi várnak, hogy utána látszódjanak */
+html.intro .shell *{animation-play-state:paused!important}
+html.entered .side .brand,html.entered .side .label,html.entered .side .item,html.entered .sideuser{animation:slide-in .45s var(--ease) backwards}
+html.entered .side .group:nth-of-type(1) :is(.label,.item){animation-delay:.06s}
+html.entered .side .group:nth-of-type(2) :is(.label,.item){animation-delay:.12s}
+html.entered .side .group:nth-of-type(3) :is(.label,.item){animation-delay:.18s}
+html.entered .side .group:nth-of-type(4) :is(.label,.item){animation-delay:.24s}
+html.entered .side .group:nth-of-type(n+5) :is(.label,.item),html.entered .sideuser{animation-delay:.30s}
+@keyframes slide-in{from{opacity:0;transform:translateX(-18px)}}
+
+/* ================= Nyitókép (bejelentkezés, első beállítás) ================= */
+.auth{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(360px,.85fr);padding:0;align-items:stretch;justify-content:stretch;min-height:100vh;min-height:100dvh}
+.hero{position:relative;overflow:hidden;background:#111827;color:#fff;display:flex;flex-direction:column;justify-content:space-between;gap:28px;padding:clamp(28px,5vw,64px) clamp(24px,5vw,64px) 0}
+.hero-glow{position:absolute;inset:-20%;background:radial-gradient(38% 34% at 22% 24%,rgba(20,184,166,.38),transparent 70%),radial-gradient(34% 30% at 82% 62%,rgba(245,158,11,.22),transparent 70%),radial-gradient(40% 40% at 60% 8%,rgba(47,102,144,.45),transparent 70%);animation:glow 14s ease-in-out infinite alternate}
+@keyframes glow{to{transform:translate(4%,3%) rotate(8deg) scale(1.08)}}
+.hero-text{position:relative;display:flex;flex-direction:column;gap:18px;max-width:520px}
+.hero-brand{display:flex;align-items:center;gap:18px;align-self:flex-start}
+.hero-brand strong{font-size:clamp(40px,5vw,60px);font-weight:600;letter-spacing:.3px;line-height:1;animation:rise .6s var(--ease) .5s backwards}
+.hero-lead{margin:0;font-size:clamp(17px,1.6vw,21px);font-weight:300;line-height:1.5;color:#D1D5DB;animation:rise .6s var(--ease) .65s backwards}
+.hero-shelves{position:relative;display:flex;flex-direction:column;gap:22px;margin:0 calc(clamp(24px,5vw,64px) * -1);-webkit-mask-image:linear-gradient(90deg,transparent,#000 12%,#000 88%,transparent);mask-image:linear-gradient(90deg,transparent,#000 12%,#000 88%,transparent)}
+.hs-row{display:flex;align-items:flex-end;justify-content:center;gap:5px;height:clamp(84px,13vh,128px);border-bottom:9px solid #0F766E;box-shadow:0 14px 22px -12px rgba(0,0,0,.6)}
+.hs-row:nth-child(2){border-bottom-color:#14B8A6}
+.hs-row i{flex:none;width:var(--w);height:var(--h);background:var(--c);border-radius:3px 3px 0 0;box-shadow:inset -3px 0 0 rgba(0,0,0,.16),inset 0 12px 0 -9px rgba(255,255,255,.35);transform-origin:50% 100%;
+  animation:hs-grow .6s var(--spring) backwards;animation-delay:calc(var(--i) * 32ms + .25s);transition:transform .3s var(--spring),filter .3s}
+.hs-row i.lean{transform:rotate(10deg);transform-origin:100% 100%;margin-left:10px;animation-name:hs-lean}
+.hs-row i:hover{transform:translateY(-12px);filter:brightness(1.15)}
+.hs-row i.lean:hover{transform:rotate(3deg) translateY(-8px)}
+@keyframes hs-grow{from{transform:scaleY(0);opacity:0}}
+@keyframes hs-lean{0%{transform:scaleY(0) rotate(0);opacity:0}60%{transform:rotate(0)}100%{transform:rotate(10deg)}}
+.auth-side{display:flex;align-items:center;justify-content:center;padding:28px 20px;background:var(--bg)}
+.auth .card{max-width:400px;border:0;background:none;padding:0;animation:rise .55s var(--ease) .15s backwards}
+.auth .card h1{font-size:30px!important}
+.auth .card .btn.primary{min-height:44px}
+@media (max-width:860px){
+  .auth{grid-template-columns:1fr;grid-template-rows:auto 1fr}
+  .hero{padding-top:28px;gap:20px}
+  .hero-lead{font-size:16px}
+  .hs-row{height:70px}
+  .hs-row:nth-child(n+2){display:none}
+  .auth-side{align-items:flex-start;padding-top:32px}
+}
+
+/* ================= Oldalváltás ================= */
+@view-transition{navigation:auto}
+::view-transition-old(root),::view-transition-new(root){animation-duration:.2s}
+::view-transition-group(*){animation-duration:.38s;animation-timing-function:var(--ease)}
+.side{view-transition-name:shelfy-side}
+::view-transition-old(shelfy-side),::view-transition-new(shelfy-side){animation:none}
+@keyframes rise{from{opacity:0;transform:translateY(14px)}}
+.content>*{animation:rise .4s var(--ease) backwards}
+.content>*:nth-child(2){animation-delay:.04s} .content>*:nth-child(3){animation-delay:.08s}
+.content>*:nth-child(4){animation-delay:.12s} .content>*:nth-child(n+5){animation-delay:.16s}
+.flash{animation:flash-in .45s var(--spring) backwards!important}
+@keyframes flash-in{from{opacity:0;transform:translateY(-12px) scale(.98)}}
+
+/* ================= Oldalsáv: rámutatás ================= */
+.side a.item{position:relative;justify-content:flex-start;gap:9px;transition:background .2s,color .2s,transform .25s var(--ease)}
+.side a.item .tx{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.side a.item svg{flex:none;color:var(--side-muted);transition:color .2s,transform .35s var(--spring)}
+.side a.item::before{content:"";position:absolute;left:0;top:50%;width:3px;height:0;border-radius:0 3px 3px 0;background:var(--amber);transform:translateY(-50%);transition:height .25s var(--ease)}
+.side a.item.on{box-shadow:none;background:linear-gradient(90deg,rgba(245,158,11,.14),var(--side-2) 55%)}
+.side a.item.on::before{height:100%}
+.side a.item.on svg{color:var(--amber)}
+.side a.item .n{padding:0 7px;border-radius:999px;background:rgba(255,255,255,.07);transition:background .2s,color .2s}
+@media (hover:hover){
+  .side a.item:hover{background:var(--side-2);color:#fff;transform:translateX(4px)}
+  .side a.item:hover::before{height:62%}
+  .side a.item.on:hover::before{height:100%}
+  .side a.item:hover svg{color:var(--amber);transform:scale(1.22) rotate(-8deg)}
+  .side a.item:hover .n{background:var(--amber);color:#1F1300}
+}
+.side a.item:active{transform:translateX(4px) scale(.98)}
+.side-theme a{transition:border-color .2s,color .2s,background .2s}
+.side-theme a:hover{background:var(--side-2);color:#fff}
+
+/* ================= Felső sáv, gombok, apróságok ================= */
+@media (min-width:1024px){
+  .top{position:sticky;top:0;z-index:30;background:color-mix(in srgb,var(--card) 84%,transparent);-webkit-backdrop-filter:saturate(1.4) blur(12px);backdrop-filter:saturate(1.4) blur(12px)}
+}
+.search{transition:border-color .2s,box-shadow .2s}
+.search:focus-within{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-l)}
+.search input:focus{outline:none}
+.search button svg{transition:transform .3s var(--spring)}
+.search button:hover svg{transform:scale(1.2) rotate(-10deg)}
+.btn{transition:background .2s,border-color .2s,color .2s,transform .2s var(--ease),box-shadow .2s}
+.btn svg{transition:transform .3s var(--spring)}
+.btn:hover svg{transform:translateY(-2px)}
+.btn.primary:hover,.btn.dark:hover{transform:translateY(-1px);box-shadow:0 6px 16px color-mix(in srgb,var(--accent) 35%,transparent)}
+.btn:active{transform:translateY(0) scale(.97)!important;box-shadow:none!important}
+.avatar{transition:transform .3s var(--spring),box-shadow .2s;cursor:pointer}
+.avatar:hover{transform:scale(1.1) rotate(-6deg);box-shadow:0 0 0 3px var(--amber-l)}
+.theme a,.helpbtn,.layout a{transition:color .2s,transform .3s var(--spring)}
+.theme a:hover,.helpbtn:hover,.layout a:hover{transform:translateY(-2px) scale(1.12)}
+details.menu[open]>.pop{animation:pop-in .2s var(--ease)}
+@keyframes pop-in{from{opacity:0;transform:translateY(-8px) scale(.97)}}
+details.menu .pop{transform-origin:top right}
+details.menu .pop a,details.menu .pop button{transition:background .15s,padding-left .2s var(--ease)}
+details.menu .pop a:hover,details.menu .pop button:hover{padding-left:17px}
+.sortgrp a,.pp a{transition:color .2s,box-shadow .2s}
+.sortgrp a:not(.on):hover,.pp a:not(.on):hover{box-shadow:inset 0 -2px 0 var(--line-3)}
+.pager a{transition:transform .2s var(--ease),border-color .2s,color .2s}
+.pager a:hover{transform:translateY(-2px);border-color:var(--accent);color:var(--accent);text-decoration:none}
+.pill{transition:background .2s,color .2s,transform .2s var(--ease)}
+a.pill:hover{background:var(--accent);color:#fff;text-decoration:none;transform:translateY(-1px)}
+:root[data-theme="dark"] a.pill:hover{color:#0D1B2A}
+.facets a{transition:padding-left .2s var(--ease),color .2s,border-color .2s}
+.facets a:hover{padding-left:10px;color:var(--accent);border-bottom-color:var(--accent);text-decoration:none}
+.drop{transition:border-color .2s,background .2s,transform .25s var(--ease)}
+.drop:hover,.drop.over{border-color:var(--accent);transform:scale(1.005)}
+.bar i,.pbar i{transition:width .5s var(--ease)}
+
+/* ================= Könyvek: belépés és rámutatás ================= */
+.books>.book,.blist>.brow{animation:rise .45s var(--ease) backwards}
+.books>.book:nth-child(1),.blist>.brow:nth-child(1){animation-delay:.05s}
+.books>.book:nth-child(2),.blist>.brow:nth-child(2){animation-delay:.08s}
+.books>.book:nth-child(3),.blist>.brow:nth-child(3){animation-delay:.11s}
+.books>.book:nth-child(4),.blist>.brow:nth-child(4){animation-delay:.14s}
+.books>.book:nth-child(5),.blist>.brow:nth-child(5){animation-delay:.17s}
+.books>.book:nth-child(6),.blist>.brow:nth-child(6){animation-delay:.20s}
+.books>.book:nth-child(7){animation-delay:.23s} .books>.book:nth-child(8){animation-delay:.26s}
+.books>.book:nth-child(9){animation-delay:.29s} .books>.book:nth-child(10){animation-delay:.32s}
+.books>.book:nth-child(11){animation-delay:.35s} .books>.book:nth-child(12){animation-delay:.38s}
+.books>.book:nth-child(n+13),.blist>.brow:nth-child(n+7){animation-delay:.41s}
+
+.book .cover{perspective:900px}
+/* a borító mögötti lapok: akkor látszanak, amikor a fedél kinyílik */
+.book .cover::before{content:"";position:absolute;inset:3px 1px 3px 7px;border-radius:2px 5px 5px 2px;
+  background:repeating-linear-gradient(90deg,#fdfcf8 0 2px,#d8d4c8 2px 3px);box-shadow:0 10px 22px rgba(17,24,39,.2);opacity:0;transition:opacity .25s,transform .45s var(--ease)}
+.book .cover .lift{position:relative;transform-origin:0 50%;transition:transform .5s var(--spring),box-shadow .3s}
+.book .cover .lift::after{content:"";position:absolute;inset:0;background:linear-gradient(105deg,transparent 32%,rgba(255,255,255,.34) 50%,transparent 68%);transform:translateX(-130%);pointer-events:none}
+.book .title{transition:color .2s}
+.cover .new,.cover .hid{transition:transform .4s var(--spring)}
+.quick>*{opacity:0;transform:translateY(10px) scale(.7);transition:opacity .2s,transform .35s var(--spring)}
+.quick a,.quick button{transition:color .2s,transform .25s var(--spring)}
+.cover:focus-within .quick>*{opacity:1;transform:none}
+@media (hover:hover){
+  .book .cover:hover::before{opacity:1;transform:translateY(-6px)}
+  .book .cover:hover .lift{transform:translateY(-6px) rotateY(-26deg)}
+  .book .cover:hover .lift::after{transform:translateX(130%);transition:transform .8s var(--ease)}
+  .book:hover .title{color:var(--accent);text-decoration:none}
+  .cover:hover .new,.cover:hover .hid{transform:translate(-14px,-10px) rotate(-6deg) scale(1.08)}
+  .cover:hover .quick>*{opacity:1;transform:none}
+  .cover:hover .quick>*:nth-child(2){transition-delay:.05s}
+  .cover:hover .quick>*:nth-child(3){transition-delay:.10s}
+  .cover:hover .quick>*:nth-child(4){transition-delay:.15s}
+  .cover:hover .quick>*:nth-child(5){transition-delay:.20s}
+  .quick a:hover,.quick button:hover{transform:translateY(-3px) scale(1.12)}
+  /* lista nézet */
+  .brow{transition:background .25s,box-shadow .25s}
+  .brow:hover{background:linear-gradient(90deg,var(--accent-soft),transparent 70%);box-shadow:inset 3px 0 0 var(--amber)}
+  .brow-cover{transition:transform .45s var(--spring),box-shadow .3s}
+  .brow:hover .brow-cover{transform:translateX(10px) rotate(-3deg) scale(1.04)}
+  .brow-main,.brow-side{transition:transform .35s var(--ease)}
+  .brow:hover .brow-main{transform:translateX(8px)}
+  .brow-actions a,.brow-actions button{transition:color .2s,border-color .2s,transform .25s var(--spring)}
+  .brow-actions a:hover,.brow-actions button:hover{transform:translateY(-2px) scale(1.1)}
+  /* adatlap: a nagy borító finoman az egér felé fordul */
+  .detail .big{perspective:1000px}
+  .detail .big .lift{transition:transform .6s var(--spring),box-shadow .3s;transform-origin:0 50%}
+  .detail .big:hover .lift{transform:rotateY(-14deg) translateY(-4px)}
+  .cand,.covopt,.dupbook,.qitem{transition:border-color .2s,box-shadow .2s,transform .25s var(--ease)}
+  .cand:hover,.covopt:hover,.dupbook:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(17,24,39,.1)}
+}
+.brow{padding-left:10px;padding-right:10px;margin:0 -10px}
+.detail .info>*{animation:rise .45s var(--ease) backwards}
+.detail .info>*:nth-child(2){animation-delay:.06s} .detail .info>*:nth-child(3){animation-delay:.12s}
+.detail .info>*:nth-child(n+4){animation-delay:.18s}
+
+/* ================= Kezdőlap, menücsoportok, admin, fiók, feltöltés ================= */
+.cont{animation:rise .5s var(--ease) backwards}
+.cont-bg{animation:glow 16s ease-in-out infinite alternate}
+.cont-bar i{animation:bar-grow 1s var(--ease) .35s backwards}
+@keyframes bar-grow{from{width:0}}
+.railnav button{transition:border-color .2s,color .2s,transform .25s var(--spring)}
+.railnav button:hover{border-color:var(--accent);color:var(--accent);transform:scale(1.12)}
+.side .group.anim .gi{transition:grid-template-rows .32s var(--ease)}
+.side button.label{transition:color .2s}
+.side button.label svg{transition:transform .3s var(--ease),opacity .2s}
+.side button.label:hover svg{opacity:1}
+.su-me,.su-out{transition:background .2s,color .2s}
+.su-me .avatar{transition:transform .35s var(--spring)}
+.su-out svg{transition:transform .3s var(--spring)}
+.jump a{transition:border-color .2s,color .2s,transform .25s var(--ease),background .2s}
+.adminnav a{transition:background .2s,border-color .2s,color .2s,transform .25s var(--ease)}
+.adminnav a svg,.jump a svg{transition:transform .35s var(--spring)}
+.tp{transition:border-color .2s,box-shadow .2s,transform .3s var(--spring),color .2s}
+.tp-art i{transition:transform .35s var(--spring)}
+.card:target,.settings-main>form:target,.anchor:target>.card{animation:target 1.4s var(--ease)}
+@keyframes target{0%,30%{box-shadow:0 0 0 3px var(--accent-l),0 0 0 4px var(--accent)}100%{box-shadow:0 0 0 3px transparent}}
+table.list tbody tr,.tasktable tbody tr,.srctable tr{transition:background .2s}
+.mehead .avatar.big{animation:pop-av .6s var(--spring) backwards}
+@keyframes pop-av{from{transform:scale(.4) rotate(-20deg);opacity:0}}
+.stats div{transition:transform .3s var(--spring),background .2s}
+.qitem{animation:rise .45s var(--ease) backwards}
+.qitem:nth-child(2){animation-delay:.05s} .qitem:nth-child(3){animation-delay:.1s} .qitem:nth-child(n+4){animation-delay:.15s}
+.steps li{animation:step-in .4s var(--spring) backwards}
+.steps li:nth-child(2){animation-delay:.07s} .steps li:nth-child(3){animation-delay:.14s} .steps li:nth-child(4){animation-delay:.21s}
+.steps li:nth-child(5){animation-delay:.28s} .steps li:nth-child(n+6){animation-delay:.35s}
+@keyframes step-in{from{opacity:0;transform:scale(.6)}}
+.drop>span:first-child svg{transition:transform .4s var(--spring)}
+.drop:hover>span:first-child svg{transform:translateY(-6px)}
+.drop.over>span:first-child svg{animation:bob .5s ease-in-out infinite alternate}
+@keyframes bob{from{transform:translateY(2px)}to{transform:translateY(-12px) scale(1.12)}}
+@media (hover:hover){
+  .cont-cover{transition:transform .5s var(--spring),box-shadow .3s}
+  .cont-cover:hover{transform:translateY(-5px) rotate(-2deg) scale(1.03)}
+  .cont-mini .cm-cover{transition:transform .4s var(--spring)}
+  .cont-mini:hover .cm-cover{transform:translateY(-6px) scale(1.06)}
+  .su-me:hover .avatar{transform:scale(1.12) rotate(-8deg)}
+  .su-out:hover svg{transform:translateX(-3px)}
+  .jump a:hover,.adminnav a:not(.on):hover{transform:translateY(-2px)}
+  .jump a:hover svg,.adminnav a:hover svg{transform:scale(1.2) rotate(-8deg)}
+  .tp:hover{transform:translateY(-3px)}
+  .tp:hover .tp-art i:nth-child(1){transform:translateY(-5px)}
+  .tp:hover .tp-art i:nth-child(2){transform:translateY(-8px)}
+  table.list tbody tr:hover,.tasktable tbody tr:hover,.srctable tr:hover{background:var(--accent-soft)}
+  .stats div:hover{transform:translateY(-3px);background:var(--accent-soft)}
+}
+
+/* ================= Csökkentett mozgás ================= */
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation:none!important;transition:none!important}
+  @view-transition{navigation:none}
+  .splash{display:none!important}
+}

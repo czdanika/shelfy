@@ -2,7 +2,13 @@
 {% from "macros.html" import icon %}
 {% block title %}{{ t('admin.nav_settings') }}{% endblock %}
 {% block content %}
-<h1>{{ t('admin.nav_settings') }}</h1>
+{% set section = 'settings' %}
+{% include "_adminnav.html" %}
+<nav class="jump" aria-label="{{ t('admin.nav_settings') }}">
+  <a href="#general">{{ icon('sliders', 15) }} {{ t('admin.general_title') }}</a>
+  <a href="#sources">{{ icon('search', 15) }} {{ t('admin.sources_title') }}</a>
+  <a href="#mail">{{ icon('mail', 15) }} {{ t('admin.mail_title') }}</a>
+</nav>
 <div class="settings-wrap">
 <div class="settings-main">
   <form id="general" class="card" method="post" action="/admin/settings/general">

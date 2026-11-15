@@ -10,6 +10,7 @@
     "off": "kapalı"
   },
   "nav": {
+    "home": "Ana sayfa",
     "menu": "Ana menü",
     "library": "Kitaplık",
     "browse": "Göz at",
@@ -24,6 +25,9 @@
     "kindle": "Kindle görünümü",
     "help": "Yardım",
     "tasks": "Görevler"
+  },
+  "home": {
+    "hello": "Merhaba, {name}!"
   },
   "view": {
     "all": "Tüm kitaplar",
@@ -696,7 +700,7 @@
   "about": {
     "title": "Hakkında",
     "version": "Sürüm {v}",
-    "lead": "Aile için kendi sunucunuzda çalışan bir e-kitap kitaplığı: denetimli yükleme ve çevrimiçi üst veriler, aranabilir katalog, dönüştürme, Kindle'a gönderme ve Kindle görünümü.",
+    "lead": "Ailenizin evdeki e-kitap kitaplığı. Kitaplarınızı yükleyin: Shelfy dosyaları denetler, bilgileri ve kapağı internetten tamamlar ve aranabilir bir katalogda düzenler; tarayıcıda okuyabilir veya Kindle'ınıza gönderebilirsiniz.",
     "author": "Geliştirici",
     "source": "Kaynak kod",
     "issues": "Hatalar ve fikirler",

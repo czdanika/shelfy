@@ -1,4 +1,4 @@
-{% from "macros.html" import icon %}<!doctype html>
+{% from "macros.html" import icon, logo %}<!doctype html>
 <html lang="{{ lang }}"{% if theme in ('light', 'dark') %} data-theme="{{ theme }}"{% endif %}>
 <head>
 <meta charset="utf-8">
@@ -14,6 +14,7 @@
 <title>{% block title %}{{ t('app.name') }}{% endblock %} · {{ t('app.name') }}</title>
 <link rel="stylesheet" href="/static/fonts.css?v={{ version }}">
 <link rel="stylesheet" href="/static/style.css?v={{ version }}">
+<link rel="stylesheet" href="/static/motion.css?v={{ version }}">
 <link rel="icon" href="/static/icon.svg" type="image/svg+xml">
 <link rel="icon" href="/static/icons/shelfy-icon-32.png" sizes="32x32" type="image/png">
 <link rel="apple-touch-icon" href="/static/icons/apple-touch-icon.png">
@@ -26,48 +27,110 @@
 </head>
 <body>
 {% block body %}
+<script>
+// belépő animáció: böngésző-munkamenetenként egyszer, illetve minden bejelentkezés után
+(function () {
+  try {
+    if (sessionStorage.getItem('shelfy-in') || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    sessionStorage.setItem('shelfy-in', '1');
+    document.documentElement.classList.add('intro');
+  } catch (e) {}
+})();
+</script>
+<div class="splash" id="splash" aria-hidden="true">
+  <div class="sp-dev">
+    <div class="sp-screen">
+      <i class="sp-line" style="--i:0;width:58%"></i><i class="sp-line" style="--i:1;width:86%"></i><i class="sp-line" style="--i:2;width:78%"></i><i class="sp-line" style="--i:3;width:90%"></i><i class="sp-line" style="--i:4;width:64%"></i><i class="sp-line" style="--i:5;width:82%"></i>
+      <div class="sp-page"></div>
+      <div class="sp-logo">{{ logo(74) }}</div>
+    </div>
+    <i class="sp-key"></i>
+  </div>
+  <div class="sp-name">{{ t('app.name') }}</div>
+</div>
+<script>
+(function () {
+  var r = document.documentElement, s = document.getElementById('splash');
+  if (!r.classList.contains('intro')) { s.remove(); return; }
+  var done = false;
+  function out() {
+    if (done) return; done = true;
+    r.classList.remove('intro'); r.classList.add('entered'); s.classList.add('out');
+    setTimeout(function () { s.remove(); }, 450);
+  }
+  s.addEventListener('click', out);
+  setTimeout(out, 1550);
+})();
+</script>
 <div class="shell">
   <nav class="side" id="sidenav" aria-label="{{ t('nav.menu') }}">
     <a class="brand" href="/">
-      <img src="/static/icons/shelfy-mark-dark.svg" width="34" height="30" alt="" aria-hidden="true">
+      {{ logo(34, 'lg-dark lg-live') }}
       <span>{{ t('app.name') }}</span>
     </a>
-    {% set v = query.get('view', 'all') if path in ('/', '/books') else '' %}
-    <div class="group">
-      <div class="label">{{ t('nav.library') }}</div>
-      {% for key in (['all', 'new', 'hot', 'top', 'discover'] if user.is_guest else ['all', 'new', 'hot', 'top', 'reading', 'read', 'unread', 'discover']) %}
-      <a class="item {% if v == key and not query.get('author') and not query.get('tag') and not query.get('series') and not query.get('shelf') and not query.get('q') %}on{% endif %}" href="/books{% if key != 'all' %}?view={{ key }}{% endif %}">
-        <span>{{ t('view.' ~ key) }}</span>{% if key == 'all' %}<span class="n">{{ nav_counts.books }}</span>{% endif %}
+    {% set v = query.get('view', 'all') if path == '/books' else '' %}
+    {% set plain = not query.get('author') and not query.get('tag') and not query.get('series') and not query.get('shelf') and not query.get('q') %}
+    {% set vicons = {'all': 'books', 'new': 'clock', 'hot': 'flame', 'top': 'star', 'reading': 'read', 'read': 'check', 'unread': 'circle', 'discover': 'compass'} %}
+    {% set bicons = {'authors': 'user', 'series': 'layers', 'tags': 'tag', 'publishers': 'building', 'languages': 'globe', 'formats': 'file', 'ratings': 'star'} %}
+    {% macro grouphead(key, label) %}<button class="label" type="button" aria-expanded="true" data-group="{{ key }}"><span>{{ label }}</span>{{ icon('chev', 13) }}</button>{% endmacro %}
+    <a class="item home {% if path == '/' %}on{% endif %}" href="/">{{ icon('home', 15) }}<span class="tx">{{ t('nav.home') }}</span></a>
+    <div class="group" data-g="library">
+      {{ grouphead('library', t('nav.library')) }}
+      <div class="gi"><div>
+      {% for key in ['all', 'new', 'hot', 'top', 'discover'] %}
+      <a class="item {% if v == key and plain %}on{% endif %}" href="/books{% if key != 'all' %}?view={{ key }}{% endif %}">
+        {{ icon(vicons[key], 15) }}<span class="tx">{{ t('view.' ~ key) }}</span>{% if key == 'all' %}<span class="n">{{ nav_counts.books }}</span>{% endif %}
       </a>
       {% endfor %}
-    </div>
-    <div class="group">
-      <div class="label">{{ t('nav.browse') }}</div>
-      {% for kind in ['authors', 'series', 'tags', 'publishers', 'languages', 'formats', 'ratings'] %}
-      <a class="item {% if path == '/browse/' ~ kind %}on{% endif %}" href="/browse/{{ kind }}">{{ t('browse.' ~ kind) }}</a>
-      {% endfor %}
+      </div></div>
     </div>
     {% if not user.is_guest %}
-    <div class="group">
-      <div class="label">{{ t('nav.shelves') }}</div>
-      {% for s in shelves %}<a class="item {% if query.get('shelf') == s.id|string %}on{% endif %}" href="/books?shelf={{ s.id }}">{{ s.name }}</a>{% endfor %}
-      {% if not shelves %}<span class="item" style="color: var(--side-muted)">{{ t('nav.no_shelves') }}</span>{% endif %}
-    </div>
-    <div class="group">
-      <div class="label">{{ t('nav.maintenance') }}</div>
-      {% if user.can('can_upload') %}<a class="item {% if path.startswith('/upload') %}on{% endif %}" href="/upload"><span>{{ t('nav.upload') }}</span>{% if pending %}<span class="n">{{ pending }}</span>{% endif %}</a>{% endif %}
-      <a class="item {% if v == 'incomplete' %}on{% endif %}" href="/books?view=incomplete">{{ t('view.incomplete') }}</a>
-      <a class="item {% if v == 'archived' %}on{% endif %}" href="/books?view=archived"><span>{{ t('view.archived') }}</span>{% if nav_counts.archived %}<span class="n">{{ nav_counts.archived }}</span>{% endif %}</a>
-      {% if user.is_admin %}<a class="item {% if path == '/admin/duplicates' %}on{% endif %}" href="/admin/duplicates"><span>{{ t('dup.title') }}</span>{% if nav_counts.dups %}<span class="n">{{ nav_counts.dups }}</span>{% endif %}</a>{% endif %}
-      {% if user.is_admin %}<a class="item {% if v == 'hidden' %}on{% endif %}" href="/books?view=hidden"><span>{{ t('view.hidden') }}</span>{% if nav_counts.hidden %}<span class="n">{{ nav_counts.hidden }}</span>{% endif %}</a>{% endif %}
-      <a class="item {% if path == '/tasks' %}on{% endif %}" href="/tasks"><span>{{ t('nav.tasks') }}</span>{% if active_tasks %}<span class="n">{{ active_tasks }}</span>{% endif %}</a>
-      {% if user.is_admin %}<a class="item {% if path == '/admin/settings' %}on{% endif %}" href="/admin/settings">{{ t('admin.nav_settings') }}</a>
-      <a class="item {% if path.startswith('/admin') and path not in ('/admin/settings', '/admin/duplicates') %}on{% endif %}" href="/admin">{{ t('nav.admin') }}</a>{% endif %}
+    <div class="group" data-g="shelves">
+      {{ grouphead('shelves', t('nav.shelves')) }}
+      <div class="gi"><div>
+      {% for key in ['reading', 'read', 'unread'] %}
+      <a class="item {% if v == key and plain %}on{% endif %}" href="/books?view={{ key }}">{{ icon(vicons[key], 15) }}<span class="tx">{{ t('view.' ~ key) }}</span></a>
+      {% endfor %}
+      {% for s in shelves %}<a class="item {% if query.get('shelf') == s.id|string %}on{% endif %}" href="/books?shelf={{ s.id }}">{{ icon('bookmark', 15) }}<span class="tx">{{ s.name }}</span></a>{% endfor %}
+      </div></div>
     </div>
     {% endif %}
+    <div class="group" data-g="browse">
+      {{ grouphead('browse', t('nav.browse')) }}
+      <div class="gi"><div>
+      {% for kind in ['authors', 'series', 'tags', 'publishers', 'languages', 'formats', 'ratings'] %}
+      <a class="item {% if path == '/browse/' ~ kind %}on{% endif %}" href="/browse/{{ kind }}">{{ icon(bicons[kind], 15) }}<span class="tx">{{ t('browse.' ~ kind) }}</span></a>
+      {% endfor %}
+      </div></div>
+    </div>
+    {% if not user.is_guest %}
+    <div class="group" data-g="maint">
+      {{ grouphead('maint', t('nav.maintenance')) }}
+      <div class="gi"><div>
+      {% if user.can('can_upload') %}<a class="item {% if path.startswith('/upload') %}on{% endif %}" href="/upload">{{ icon('upload', 15) }}<span class="tx">{{ t('nav.upload') }}</span>{% if pending %}<span class="n hot">{{ pending }}</span>{% endif %}</a>{% endif %}
+      <a class="item {% if path == '/tasks' %}on{% endif %}" href="/tasks">{{ icon('tasks', 15) }}<span class="tx">{{ t('nav.tasks') }}</span>{% if active_tasks %}<span class="n hot">{{ active_tasks }}</span>{% endif %}</a>
+      <a class="item {% if v == 'incomplete' %}on{% endif %}" href="/books?view=incomplete">{{ icon('warn', 15) }}<span class="tx">{{ t('view.incomplete') }}</span></a>
+      <a class="item {% if v == 'archived' %}on{% endif %}" href="/books?view=archived">{{ icon('archive', 15) }}<span class="tx">{{ t('view.archived') }}</span>{% if nav_counts.archived %}<span class="n">{{ nav_counts.archived }}</span>{% endif %}</a>
+      {% if user.is_admin %}<a class="item {% if path == '/admin/duplicates' %}on{% endif %}" href="/admin/duplicates">{{ icon('copy', 15) }}<span class="tx">{{ t('dup.title') }}</span>{% if nav_counts.dups %}<span class="n hot">{{ nav_counts.dups }}</span>{% endif %}</a>
+      <a class="item {% if v == 'hidden' %}on{% endif %}" href="/books?view=hidden">{{ icon('eyeoff', 15) }}<span class="tx">{{ t('view.hidden') }}</span>{% if nav_counts.hidden %}<span class="n">{{ nav_counts.hidden }}</span>{% endif %}</a>{% endif %}
+      </div></div>
+    </div>
+    {% if user.is_admin %}
+    <div class="group" data-g="admin">
+      {{ grouphead('admin', t('nav.admin')) }}
+      <div class="gi"><div>
+      <a class="item {% if path == '/admin' or path.startswith('/admin/users') %}on{% endif %}" href="/admin">{{ icon('users', 15) }}<span class="tx">{{ t('admin.nav_users') }}</span></a>
+      <a class="item {% if path == '/admin/settings' %}on{% endif %}" href="/admin/settings">{{ icon('sliders', 15) }}<span class="tx">{{ t('admin.nav_settings') }}</span></a>
+      <a class="item {% if path.startswith('/admin/languages') %}on{% endif %}" href="/admin/languages">{{ icon('globe', 15) }}<span class="tx">{{ t('admin.nav_languages') }}</span></a>
+      <a class="item {% if path == '/admin/log' %}on{% endif %}" href="/admin/log">{{ icon('list', 15) }}<span class="tx">{{ t('admin.nav_log') }}</span></a>
+      <a class="item {% if path == '/admin/backup' %}on{% endif %}" href="/admin/backup">{{ icon('shield', 15) }}<span class="tx">{{ t('admin.nav_backup') }}</span></a>
+      </div></div>
+    </div>
+    {% endif %}
+    {% endif %}
     <div class="side-extra">
-      <a class="item" href="/help">{{ t('nav.help') }}</a>
-      <a class="item" href="#" data-install-link hidden onclick="shelfyInstall();document.body.classList.remove('nav-open');return false">{{ t('install.menu') }}</a>
+      <a class="item" href="/help">{{ icon('info', 15) }}<span class="tx">{{ t('nav.help') }}</span></a>
+      <a class="item" href="#" data-install-link hidden onclick="shelfyInstall();document.body.classList.remove('nav-open');return false">{{ icon('download', 15) }}<span class="tx">{{ t('install.menu') }}</span></a>
       <div class="side-theme">
         <a href="/theme/auto" class="{% if theme == 'auto' %}on{% endif %}">{{ t('theme.auto') }}</a>
         <a href="/theme/light" class="{% if theme == 'light' %}on{% endif %}">{{ t('theme.light') }}</a>
@@ -75,13 +138,40 @@
       </div>
       {% include "_langpick.html" %}
     </div>
+    {% if not user.is_guest %}
+    <div class="sideuser">
+      <a class="su-me {% if path == '/me' %}on{% endif %}" href="/me" title="{{ t('nav.profile') }}">
+        <span class="avatar">{{ user.initial }}</span>
+        <span class="su-tx"><b>{{ user.display_name or user.username }}</b><small>{{ t('role.' ~ user.role) }}</small></span>
+      </a>
+      <a class="su-out" href="/logout" title="{{ t('nav.logout') }}" aria-label="{{ t('nav.logout') }}">{{ icon('logout', 17) }}</a>
+    </div>
+    {% endif %}
     <div class="sidestats">{{ t('library.count', n=nav_counts.books) }} · {{ nav_counts.size|filesize }}<br><a href="/about">Shelfy {{ version }}</a></div>
   </nav>
+  <script>
+  // összecsukható menücsoportok: az állapotot a böngésző megjegyzi; az éppen nyitott oldal csoportja mindig látszik
+  (function () {
+    var KEY = 'shelfy-nav', shut = {admin: 1};
+    try { shut = JSON.parse(localStorage.getItem(KEY)) || shut; } catch (e) {}
+    document.querySelectorAll('#sidenav .group').forEach(function (g) {
+      var k = g.dataset.g, b = g.querySelector('.label');
+      function set(closed) { g.classList.toggle('shut', closed); b.setAttribute('aria-expanded', String(!closed)); }
+      set(!!shut[k] && !g.querySelector('.item.on'));
+      b.addEventListener('click', function () {
+        var closed = !g.classList.contains('shut');
+        g.classList.add('anim'); set(closed);
+        if (closed) shut[k] = 1; else delete shut[k];
+        try { localStorage.setItem(KEY, JSON.stringify(shut)); } catch (e) {}
+      });
+    });
+  })();
+  </script>
 
   <div class="main">
     <header class="top">
       <button class="menubtn" type="button" aria-label="{{ t('nav.menu') }}" aria-controls="sidenav" aria-expanded="false" onclick="document.body.classList.toggle('nav-open');this.setAttribute('aria-expanded',document.body.classList.contains('nav-open'))"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
-      <a class="topbrand" href="/" aria-label="{{ t('app.name') }}"><img class="mark-light" src="/static/icons/shelfy-mark-light.svg" width="30" height="26" alt=""><img class="mark-dark-only" src="/static/icons/shelfy-mark-dark.svg" width="30" height="26" alt=""></a>
+      <a class="topbrand" href="/" aria-label="{{ t('app.name') }}">{{ logo(30) }}</a>
       <form class="search" role="search" action="/books">
         <label for="q" class="sr">{{ t('search.label') }}</label>
         <input id="q" name="q" type="search" value="{{ query.get('q', '') }}" placeholder="{{ t('search.placeholder') }}">

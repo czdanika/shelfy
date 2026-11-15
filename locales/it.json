@@ -10,6 +10,7 @@
     "off": "disattivo"
   },
   "nav": {
+    "home": "Home",
     "menu": "Menu principale",
     "library": "Biblioteca",
     "browse": "Sfoglia",
@@ -24,6 +25,9 @@
     "kindle": "Vista Kindle",
     "help": "Guida",
     "tasks": "Attività"
+  },
+  "home": {
+    "hello": "Ciao, {name}!"
   },
   "view": {
     "all": "Tutti i libri",
@@ -696,7 +700,7 @@
   "about": {
     "title": "Informazioni",
     "version": "Versione {v}",
-    "lead": "Una biblioteca di ebook self-hosted per la famiglia: caricamento con controllo e metadati online, catalogo ricercabile, conversione, invio a Kindle e vista Kindle.",
+    "lead": "La biblioteca di ebook della famiglia, a casa tua. Carica i tuoi libri: Shelfy controlla i file, completa i dati e la copertina da internet e li ordina in un catalogo ricercabile, da leggere nel browser o inviare al Kindle.",
     "author": "Autore",
     "source": "Codice sorgente",
     "issues": "Bug e idee",

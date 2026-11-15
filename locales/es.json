@@ -10,6 +10,7 @@
     "off": "desactivado"
   },
   "nav": {
+    "home": "Inicio",
     "menu": "Menú principal",
     "library": "Biblioteca",
     "browse": "Explorar",
@@ -24,6 +25,9 @@
     "kindle": "Vista Kindle",
     "help": "Ayuda",
     "tasks": "Tareas"
+  },
+  "home": {
+    "hello": "¡Hola, {name}!"
   },
   "view": {
     "all": "Todos los libros",
@@ -696,7 +700,7 @@
   "about": {
     "title": "Acerca de",
     "version": "Versión {v}",
-    "lead": "Una biblioteca de libros electrónicos autoalojada para la familia: subida con revisión y metadatos en línea, catálogo con búsqueda, conversión, envío a Kindle y vista Kindle.",
+    "lead": "La biblioteca de libros electrónicos de tu familia, en casa. Sube tus libros: Shelfy revisa los archivos, completa los datos y la portada desde internet y los ordena en un catálogo con búsqueda, para leerlos en el navegador o enviarlos a tu Kindle.",
     "author": "Autor",
     "source": "Código fuente",
     "issues": "Errores e ideas",

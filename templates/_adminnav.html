@@ -1,6 +1,7 @@
+{% from "macros.html" import icon %}
 <h1>{{ t('admin.title') }}</h1>
 <nav class="adminnav" aria-label="{{ t('admin.title') }}">
-  {% for key, href in [('users', '/admin'), ('languages', '/admin/languages'), ('log', '/admin/log'), ('backup', '/admin/backup')] %}
-  <a href="{{ href }}" {% if section == key %}class="on" aria-current="page"{% endif %}>{{ t('admin.nav_' ~ key) }}</a>
+  {% for key, href, ic in [('users', '/admin', 'users'), ('settings', '/admin/settings', 'sliders'), ('languages', '/admin/languages', 'globe'), ('log', '/admin/log', 'list'), ('backup', '/admin/backup', 'shield')] %}
+  <a href="{{ href }}" {% if section == key %}class="on" aria-current="page"{% endif %}>{{ icon(ic, 16) }} {{ t('admin.nav_' ~ key) }}</a>
   {% endfor %}
 </nav>

@@ -26,6 +26,8 @@ A felület **14 nyelven** érhető el – angol, magyar, német, francia, olasz,
 - **Információk letöltése**: Moly.hu, Google Books, Open Library, Hardcover (saját ingyenes API-kulccsal; sok önkiadott Kindle-könyv) és nemzeti könyvtárak (német DNB, francia BnF, lengyel BN, japán NDL); a forrásokat és a sorrendjüket a Beállításokban választod ki. A leírás, a sorozat, a kiadás éve, a címkék és a borító egyetlen kattintással átvehető. A találatok közül te választasz, és az adatok jóváhagyás előtt szerkeszthetők. Az ISBN helyett Amazon-azonosító (ASIN) vagy Amazon-link is megadható, az egybeírt „Szerző - Cím” alakot pedig a Shelfy maga bontja szét.
 - **Automatikus kategorizálás** a címkékből és a leírásból (krimi, fantasy, sci-fi, történelmi regény…).
 - **Böngészés és rendezés**: szerzők, sorozatok, címkék, kiadók, nyelvek, formátumok és értékelés szerint, valamint a saját polcaid és olvasási állapot.
+- **Kezdőlap**: a félbehagyott könyved haladásjelzővel és folytatás gombbal, alatta lapozható sorokban a nemrég hozzáadott és a népszerű könyvek.
+- **Élő felület**: animált logó és nyitókép, e-olvasós belépő animáció, rámutatásra kinyíló borítók, összecsukható menücsoportok ikonokkal, lágy oldalváltások. Ha a rendszerben a csökkentett mozgás be van kapcsolva, az animációk kimaradnak.
 - **Rács és lista nézet**: csúszkával állítható, hány borító férjen egy sorba, és választható, hány könyv legyen egy oldalon. Listában a borító mellett az adatok és a leírás eleje is látszik.
 - **Online adatfrissítés** a már felvett könyveknél: adatonként összeveti a jelenlegit és az online értéket, és csak azt veszi át, amit kijelölsz.
 - **Konvertálás** az e-könyv formátumok között. Letöltéskor a hiányzó Kindle-formátumot (MOBI/AZW3/EPUB) magától elkészíti.

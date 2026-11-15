@@ -1,15 +1,26 @@
 {% extends "base.html" %}
+{% from "macros.html" import logo %}
 {% block body %}
+<script>try { sessionStorage.removeItem('shelfy-in'); } catch (e) {}</script>
+{# nyitókép: sötét panel, benépesülő könyvespolcokkal #}
+{% set cols = ['#14B8A6', '#F59E0B', '#F3F4F6', '#9CA3AF', '#2F6690', '#B4532A', '#5B5FA8', '#0F766E'] %}
+{% set hs = [78, 92, 64, 88, 70, 96, 58, 84, 74, 90, 66, 80, 94, 60] %}
 <main class="auth">
-  <div class="card">
-    <div class="row between">
-      <span class="row" style="gap: 10px">
-        <img class="mark-light" src="/static/icons/shelfy-mark-light.svg" width="40" height="35" alt="" aria-hidden="true"><img class="mark-dark-only" src="/static/icons/shelfy-mark-dark.svg" width="40" height="35" alt="" aria-hidden="true">
-        <strong style="font-family: var(--serif); font-size: 26px">{{ t('app.name') }}</strong>
-      </span>
-      {% include "_langpick.html" %}
+  <section class="hero">
+    <div class="hero-glow" aria-hidden="true"></div>
+    <div class="hero-text">
+      <div class="hero-brand">{{ logo(68, 'lg-dark lg-live') }}<strong>{{ t('app.name') }}</strong></div>
+      <p class="hero-lead">{{ t('about.lead') }}</p>
     </div>
-    {% block form %}{% endblock %}
+    <div class="hero-shelves" aria-hidden="true">
+      {% for r in range(3) %}<div class="hs-row">{% for i in range(22) %}<i{% if (i + r * 2) % 7 == 5 %} class="lean"{% endif %} style="--h:{{ hs[(i * 5 + r * 3) % 14] }}%;--c:{{ cols[(i * 3 + r * 5 + i // 4) % 8] }};--w:{{ 14 + (i * 7 + r * 4) % 5 * 4 }}px;--i:{{ i + r * 5 }}"></i>{% endfor %}</div>{% endfor %}
+    </div>
+  </section>
+  <div class="auth-side">
+    <div class="card">
+      <div class="row" style="justify-content: flex-end">{% include "_langpick.html" %}</div>
+      {% block form %}{% endblock %}
+    </div>
   </div>
 </main>
 {% endblock %}

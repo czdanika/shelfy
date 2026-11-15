@@ -10,6 +10,7 @@
     "off": "wył."
   },
   "nav": {
+    "home": "Start",
     "menu": "Menu główne",
     "library": "Biblioteka",
     "browse": "Przeglądaj",
@@ -24,6 +25,9 @@
     "kindle": "Widok Kindle",
     "help": "Pomoc",
     "tasks": "Zadania"
+  },
+  "home": {
+    "hello": "Cześć, {name}!"
   },
   "view": {
     "all": "Wszystkie książki",
@@ -696,7 +700,7 @@
   "about": {
     "title": "O programie",
     "version": "Wersja {v}",
-    "lead": "Samodzielnie hostowana biblioteka e-booków dla rodziny: przesyłanie ze sprawdzaniem i metadanymi online, katalog z wyszukiwaniem, konwersja, wysyłka na Kindle i widok Kindle.",
+    "lead": "Domowa biblioteka e-booków dla całej rodziny. Prześlij swoje książki: Shelfy sprawdzi pliki, uzupełni dane i okładkę z internetu i ułoży je w katalogu z wyszukiwaniem – do czytania w przeglądarce lub wysłania na Kindle.",
     "author": "Autor",
     "source": "Kod źródłowy",
     "issues": "Błędy i pomysły",

@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% from "macros.html" import icon, placeholder, bookcard %}
+{% block title %}{{ t('nav.home') }}{% endblock %}
+{% block content %}
+<div class="hello">
+  <h1>{% if user.is_guest %}{{ t('app.name') }}{% else %}{{ t('home.hello', name=user.display_name or user.username) }}{% endif %}</h1>
+  <div class="small muted">{{ t('library.count', n=nav_counts.books) }} · {{ nav_counts.size|filesize }}</div>
+</div>
+
+{% if reading %}
+{% set r = reading[0] %}
+<section class="cont">
+  {% if r.has_cover %}<div class="cont-bg" style="background-image: url('/book/{{ r.id }}/cover?v={{ (r.updated_at or 0)|int }}&w=320')" aria-hidden="true"></div>{% endif %}
+  <a class="cont-cover" href="/book/{{ r.id }}" aria-label="{{ r.title }}" style="view-transition-name: bk-{{ r.id }}">
+    {% if r.has_cover %}<img src="/book/{{ r.id }}/cover?v={{ (r.updated_at or 0)|int }}&w=320" alt="">{% else %}{{ placeholder(r) }}{% endif %}
+  </a>
+  <div class="cont-info">
+    <div class="cont-kicker">{{ icon('read', 15) }} {{ t('view.reading') }}</div>
+    <a class="cont-title" href="/book/{{ r.id }}">{{ r.title }}</a>
+    <div class="cont-author">{% for a in r.authors %}{{ a.name }}{% if not loop.last %}, {% endif %}{% endfor %}</div>
+    <div class="cont-bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="{{ r.pct }}"><i style="--p: {{ r.pct }}%"></i></div>
+    <div class="row"><a class="btn primary" href="/book/{{ r.id }}/reader">{{ icon('read', 16) }} {{ t('reader.continue', pct=r.pct) }}</a></div>
+  </div>
+  {% if reading|length > 1 %}
+  <div class="cont-more">
+    {% for o in reading[1:] %}
+    <a class="cont-mini" href="/book/{{ o.id }}/reader" title="{{ o.title }} · {{ o.pct }}%" aria-label="{{ o.title }}, {{ o.pct }}%">
+      <span class="cm-cover">{% if o.has_cover %}<img src="/book/{{ o.id }}/cover?v={{ (o.updated_at or 0)|int }}&w=200" alt="" loading="lazy">{% else %}{{ placeholder(o) }}{% endif %}</span>
+      <span class="cont-bar"><i style="--p: {{ o.pct }}%"></i></span>
+    </a>
+    {% endfor %}
+  </div>
+  {% endif %}
+</section>
+{% endif %}
+
+{% set seen = namespace(ids=[reading[0].id] if reading else []) %}
+{% for rail in rails %}
+<section class="railsec">
+  <div class="railhead">
+    <h2>{{ t('view.' ~ rail.view) }}</h2>
+    <span class="railnav">
+      <button type="button" data-rail="-1" aria-label="‹">{{ icon('chev', 18) }}</button>
+      <button type="button" data-rail="1" aria-label="›">{{ icon('chev', 18) }}</button>
+    </span>
+    <a class="small" href="/books?view={{ rail.view }}">{{ t('book.see_all') }} ›</a>
+  </div>
+  <div class="rail books">{% for b in rail.books %}{{ bookcard(b, t, user, now, send_via, vt=b.id not in seen.ids) }}{% set _ = seen.ids.append(b.id) %}{% endfor %}</div>
+</section>
+{% else %}
+<div class="card" style="text-align: center; padding: 48px">
+  <h2>{{ t('library.empty_title') }}</h2>
+  <p class="muted">{{ t('library.empty_text') }}</p>
+  {% if user.can('can_upload') %}<p><a class="btn primary" href="/upload">{{ icon('upload', 16) }} {{ t('nav.upload') }}</a></p>{% endif %}
+</div>
+{% endfor %}
+{% endblock %}
+{% block scripts %}
+<script>
+// a sorok lapozása a nyilakkal; a nyilak csak akkor látszanak, ha van hová görgetni
+document.querySelectorAll('.railsec').forEach(function (sec) {
+  var rail = sec.querySelector('.rail'), nav = sec.querySelector('.railnav');
+  function upd() { nav.hidden = rail.scrollWidth <= rail.clientWidth + 4; }
+  nav.querySelectorAll('button').forEach(function (b) {
+    b.onclick = function () { rail.scrollBy({left: +b.dataset.rail * rail.clientWidth * 0.85, behavior: 'smooth'}); };
+  });
+  upd(); window.addEventListener('resize', upd);
+});
+</script>
+{% endblock %}

@@ -10,6 +10,7 @@
     "off": "desligado"
   },
   "nav": {
+    "home": "Início",
     "menu": "Menu principal",
     "library": "Biblioteca",
     "browse": "Explorar",
@@ -24,6 +25,9 @@
     "kindle": "Vista Kindle",
     "help": "Ajuda",
     "tasks": "Tarefas"
+  },
+  "home": {
+    "hello": "Olá, {name}!"
   },
   "view": {
     "all": "Todos os livros",
@@ -696,7 +700,7 @@
   "about": {
     "title": "Acerca de",
     "version": "Versão {v}",
-    "lead": "Uma biblioteca de livros digitais auto-alojada para a família: carregamento com verificação e metadados online, catálogo pesquisável, conversão, envio para o Kindle e vista Kindle.",
+    "lead": "A biblioteca de livros digitais da família, em casa. Carregue os seus livros: o Shelfy verifica os ficheiros, completa os dados e a capa a partir da internet e organiza-os num catálogo pesquisável – para ler no navegador ou enviar para o Kindle.",
     "author": "Autor",
     "source": "Código-fonte",
     "issues": "Erros e ideias",

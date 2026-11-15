@@ -10,6 +10,7 @@
     "off": "off"
   },
   "nav": {
+    "home": "Home",
     "menu": "Main menu",
     "library": "Library",
     "browse": "Browse",
@@ -24,6 +25,9 @@
     "kindle": "Kindle view",
     "help": "Help",
     "tasks": "Tasks"
+  },
+  "home": {
+    "hello": "Hello, {name}!"
   },
   "view": {
     "all": "All books",
@@ -696,7 +700,7 @@
   "about": {
     "title": "About",
     "version": "Version {v}",
-    "lead": "A self-hosted ebook library for the family: upload with inspection and online metadata, a searchable catalogue, conversion, Send to Kindle and a Kindle view.",
+    "lead": "Your family's own ebook library at home. Upload your books and Shelfy checks the files, fills in the details and cover from the internet, and puts them in a searchable catalogue – to read in the browser or send to your Kindle.",
     "author": "Author",
     "source": "Source code",
     "issues": "Bugs and ideas",

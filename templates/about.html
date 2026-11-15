@@ -1,10 +1,10 @@
 {% extends "base.html" %}
+{% from "macros.html" import logo %}
 {% block title %}{{ t('about.title') }}{% endblock %}
 {% block content %}
 <div class="about card">
   <div class="about-logo">
-    <img class="mark-light" src="/static/icons/shelfy-mark-light.svg" width="72" height="63" alt="">
-    <img class="mark-dark-only" src="/static/icons/shelfy-mark-dark.svg" width="72" height="63" alt="">
+    <span class="brandhover">{{ logo(72) }}</span>
     <div>
       <h1 style="margin: 0">Shelfy</h1>
       <div class="muted">{{ t('about.version', v=version) }}</div>

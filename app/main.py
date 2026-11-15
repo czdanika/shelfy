@@ -445,7 +445,23 @@ def create_app(cfg: Config | None = None, transport=None) -> FastAPI:
     # ------------------------------------------------------------------ könyvtár
     @app.get("/", response_class=HTMLResponse)
     async def home(request: Request):
-        return await books(request)
+        """Kezdőlap: a félbehagyott olvasmányok, majd vízszintesen görgethető sorok (újak, népszerűek, felfedezés)."""
+        if request.query_params.get("q") or request.query_params.get("view"):
+            return await books(request)
+        user: User = request.state.user
+        reading = []
+        if not user.is_guest:
+            for r in db.q("""SELECT book_id, percent FROM reading_pos WHERE user_id = ? AND percent > 0 AND percent < 0.98
+                             ORDER BY updated_at DESC LIMIT 9""", (user.id,)):
+                b = lib.book(r["book_id"])
+                if b and not b["archived"] and reader_kind(b) is not None:
+                    reading.append({**b, "pct": round(r["percent"] * 100)})
+        rails = []
+        for view in ("new", "hot", "discover"):
+            rows, total = lib.list_books(view=view, user_id=user.id, per_page=14)
+            if rows and not (view == "discover" and total <= 14):  # kis könyvtárban a felfedezés csak ismétlés volna
+                rails.append({"view": view, "books": rows})
+        return render(request, "home.html", reading=reading, rails=rails, msg=request.query_params.get("msg"))
 
     @app.get("/books", response_class=HTMLResponse)
     async def books(request: Request):

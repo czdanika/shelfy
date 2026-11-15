@@ -10,6 +10,7 @@
     "off": "aus"
   },
   "nav": {
+    "home": "Start",
     "menu": "Hauptmenü",
     "library": "Bibliothek",
     "browse": "Durchsuchen",
@@ -24,6 +25,9 @@
     "kindle": "Kindle-Ansicht",
     "help": "Hilfe",
     "tasks": "Aufgaben"
+  },
+  "home": {
+    "hello": "Hallo, {name}!"
   },
   "view": {
     "all": "Alle Bücher",
@@ -696,7 +700,7 @@
   "about": {
     "title": "Über",
     "version": "Version {v}",
-    "lead": "Eine E-Book-Bibliothek für die Familie zu Hause: Hochladen mit Prüfung und Online-Metadaten, durchsuchbarer Katalog, Konvertierung, An Kindle senden und eine Kindle-Ansicht.",
+    "lead": "Die eigene E-Book-Bibliothek der Familie für zu Hause. Lade deine Bücher hoch: Shelfy prüft die Dateien, ergänzt Angaben und Cover aus dem Internet und ordnet alles in einen durchsuchbaren Katalog – zum Lesen im Browser oder zum Senden an den Kindle.",
     "author": "Autor",
     "source": "Quellcode",
     "issues": "Fehler und Ideen",

@@ -38,11 +38,11 @@
 
 {% if books %}
 {% if layout == 'list' %}
-<div class="blist" id="books" style="--card: {{ zoom }}px">
+<div class="blist" id="books" style="--cardw: {{ zoom }}px">
   {% for b in books %}{{ bookrow(b, t, user, now, langname, send_via) }}{% endfor %}
 </div>
 {% else %}
-<div class="books {% if zoom <= 120 %}dense{% endif %}" id="books" style="--card: {{ zoom }}px">
+<div class="books {% if zoom <= 120 %}dense{% endif %}" id="books" style="--cardw: {{ zoom }}px">
   {% for b in books %}{{ bookcard(b, t, user, now, send_via) }}{% endfor %}
 </div>
 {% endif %}
@@ -61,7 +61,7 @@
 (function () {
   var r = document.getElementById('zoom'), g = document.getElementById('books');
   if (!r || !g) return;
-  function apply() { g.style.setProperty('--card', r.value + 'px'); g.classList.toggle('dense', +r.value <= 120); }
+  function apply() { g.style.setProperty('--cardw', r.value + 'px'); g.classList.toggle('dense', +r.value <= 120); }
   r.addEventListener('input', apply);
   r.addEventListener('change', function () { document.cookie = 'shelfy_zoom=' + r.value + ';path=/;max-age=31536000;samesite=lax'; });
 })();

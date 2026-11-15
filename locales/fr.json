@@ -10,6 +10,7 @@
     "off": "désactivé"
   },
   "nav": {
+    "home": "Accueil",
     "menu": "Menu principal",
     "library": "Bibliothèque",
     "browse": "Parcourir",
@@ -24,6 +25,9 @@
     "kindle": "Vue Kindle",
     "help": "Aide",
     "tasks": "Tâches"
+  },
+  "home": {
+    "hello": "Bonjour, {name} !"
   },
   "view": {
     "all": "Tous les livres",
@@ -696,7 +700,7 @@
   "about": {
     "title": "À propos",
     "version": "Version {v}",
-    "lead": "Une bibliothèque de livres numériques pour la famille : import avec inspection et métadonnées en ligne, catalogue consultable, conversion, envoi sur Kindle et vue Kindle.",
+    "lead": "La bibliothèque de livres numériques de la famille, à la maison. Importez vos livres : Shelfy vérifie les fichiers, complète les informations et la couverture depuis Internet et les range dans un catalogue consultable – à lire dans le navigateur ou à envoyer sur votre Kindle.",
     "author": "Auteur",
     "source": "Code source",
     "issues": "Bogues et idées",
