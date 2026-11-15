@@ -12,7 +12,9 @@ Saját, otthoni e-könyvtár: feltöltés, automatikus vizsgálat és adatgyűjt
 
 A felület **14 nyelven** érhető el – angol, magyar, német, francia, olasz, spanyol, portugál, lengyel, orosz, török, japán, koreai, egyszerűsített és hagyományos kínai –, mindegyikhez beépített használati útmutatóval; a nyelv a felső sávban egy legördülő listából választható. Minden felirat a `locales/*.json` fájlokban van, és a felületről is fordítható. Világos és sötét téma is van.
 
-![Könyvtár](docs/hu/library.png)
+📖 **[Kézikönyv](MANUAL.hu.md)** – minden, amit a Shelfy tud, képernyőképekkel.
+
+![Kezdőlap](docs/hu/home.png)
 
 ## Mit tud
 
@@ -45,6 +47,14 @@ A felület **14 nyelven** érhető el – angol, magyar, német, francia, olasz,
 - **Beépített súgó** minden nyelven, a megfelelő oldalakról linkelve.
 - **Telefonra telepíthető** (webalkalmazás-leíró és ikonok).
 
+| Bejelentkezés | Könyvtár – rámutatásra kinyíló borítók |
+|---|---|
+| ![](docs/hu/login.png) | ![](docs/hu/library.png) |
+
+| A könyv oldala | Saját fiók |
+|---|---|
+| ![](docs/hu/book.png) | ![](docs/hu/account.png) |
+
 | Feltöltés | Vizsgálat eredménye |
 |---|---|
 | ![](docs/hu/upload.png) | ![](docs/hu/review.png) |
@@ -57,9 +67,9 @@ A felület **14 nyelven** érhető el – angol, magyar, német, francia, olasz,
 |---|---|
 | ![](docs/hu/log.png) | ![](docs/hu/help.png) |
 
-| Háttérfeladatok | |
+| Háttérfeladatok | Telefonon |
 |---|---|
-| ![](docs/tasks.png) | |
+| ![](docs/hu/tasks.png) | <img src="docs/hu/mobile.png" width="260"> |
 
 | Kindle lista | Kindle adatlap |
 |---|---|

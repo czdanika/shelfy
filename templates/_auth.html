@@ -21,6 +21,7 @@
       <div class="row" style="justify-content: flex-end">{% include "_langpick.html" %}</div>
       {% block form %}{% endblock %}
     </div>
+    <p class="copy">© {{ year }} {{ author }} · <a href="{{ repo_url }}" target="_blank" rel="noopener">Shelfy {{ version }}</a></p>
   </div>
 </main>
 {% endblock %}

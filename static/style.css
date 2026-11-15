@@ -619,3 +619,10 @@ html{scroll-behavior:smooth}
 .detail-bg{position:absolute;inset:0;overflow:hidden;border-radius:inherit;pointer-events:none}
 .detail-bg::before{content:"";position:absolute;inset:-70px;background:var(--cv) center/cover;filter:blur(56px) saturate(1.7);opacity:.26;-webkit-mask-image:linear-gradient(115deg,#000 10%,transparent 72%);mask-image:linear-gradient(115deg,#000 10%,transparent 72%)}
 .detail>.big,.detail>.info{position:relative}
+
+/* bejelentkező oldal: apró betűs szerzői sor az űrlap alatt */
+.auth-side{flex-direction:column;align-items:center;gap:28px}
+.auth-side .card{margin:auto 0}
+.copy{margin:0;font-size:12px;letter-spacing:.3px;color:var(--muted);text-align:center}
+.copy a{color:inherit;text-decoration:underline;text-decoration-color:var(--line-2);text-underline-offset:3px}
+.copy a:hover{color:var(--accent)}

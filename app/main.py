@@ -277,7 +277,7 @@ def create_app(cfg: Config | None = None, transport=None) -> FastAPI:
         base = {
             "langname": langname,
             "t": partial(i18n.t, lang), "lang": lang, "languages": [(c, i18n.names[c]) for c in i18n.languages],
-            "user": user, "version": __version__, "path": request.url.path,
+            "user": user, "version": __version__, "author": __author__, "repo_url": __url__, "year": _dt.datetime.now().year, "path": request.url.path,
             "query": dict(request.query_params), "qs": qs, "now": now(),
             "event_text": partial(event_text, lang),
             "sources": [p.name for p in lookup.providers],

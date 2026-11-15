@@ -97,7 +97,8 @@ html.entered .side .group:nth-of-type(n+5) :is(.label,.item),html.entered .sideu
   .hero-lead{font-size:16px}
   .hs-row{height:70px}
   .hs-row:nth-child(n+2){display:none}
-  .auth-side{align-items:flex-start;padding-top:32px}
+  .auth-side{padding-top:32px}
+  .auth-side .card{margin:0 0 auto}
 }
 
 /* ================= Oldalváltás ================= */

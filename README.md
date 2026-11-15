@@ -11,7 +11,9 @@ A self-hosted ebook library for your home and family. You upload books, Shelfy i
 
 The interface ships in **14 languages** – English, Hungarian, German, French, Italian, Spanish, Portuguese, Polish, Russian, Turkish, Japanese, Korean, Simplified and Traditional Chinese – with a built-in user guide in each, and a language picker in the top bar. Every label lives in a translation file, and you can add or edit languages from the admin interface. Light and dark themes are included.
 
-![Library](docs/library.png)
+📖 **[User manual](MANUAL.md)** – everything Shelfy can do, with screenshots.
+
+![Home page](docs/home.png)
 
 ## Features
 
@@ -44,6 +46,14 @@ The interface ships in **14 languages** – English, Hungarian, German, French, 
 - **Built-in help** in every language, with links from the relevant pages.
 - **Installable on phones** (web app manifest and icons).
 
+| Sign-in | Library – covers open on hover |
+|---|---|
+| ![](docs/login.png) | ![](docs/library.png) |
+
+| Book page | My account |
+|---|---|
+| ![](docs/book.png) | ![](docs/account.png) |
+
 | Upload | Inspection result |
 |---|---|
 | ![](docs/upload.png) | ![](docs/review.png) |
@@ -56,9 +66,9 @@ The interface ships in **14 languages** – English, Hungarian, German, French, 
 |---|---|
 | ![](docs/log.png) | ![](docs/help.png) |
 
-| Background tasks | |
+| Background tasks | On a phone |
 |---|---|
-| ![](docs/tasks.png) | |
+| ![](docs/tasks.png) | <img src="docs/mobile.png" width="260"> |
 
 | Kindle list | Kindle book page |
 |---|---|
