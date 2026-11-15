@@ -12,9 +12,9 @@
 })();
 </script>{% endif %}
 <title>{% block title %}{{ t('app.name') }}{% endblock %} · {{ t('app.name') }}</title>
-<link rel="stylesheet" href="/static/fonts.css?v={{ version }}">
-<link rel="stylesheet" href="/static/style.css?v={{ version }}">
-<link rel="stylesheet" href="/static/motion.css?v={{ version }}">
+<link rel="stylesheet" href="/static/fonts.css?v={{ asset_v }}">
+<link rel="stylesheet" href="/static/style.css?v={{ asset_v }}">
+<link rel="stylesheet" href="/static/motion.css?v={{ asset_v }}">
 <link rel="icon" href="/static/icon.svg" type="image/svg+xml">
 <link rel="icon" href="/static/icons/shelfy-icon-32.png" sizes="32x32" type="image/png">
 <link rel="apple-touch-icon" href="/static/icons/apple-touch-icon.png">
@@ -34,20 +34,12 @@
     if (sessionStorage.getItem('shelfy-in') || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
     sessionStorage.setItem('shelfy-in', '1');
     document.documentElement.classList.add('intro');
+    // bejelentkezésből érkezve a tablet már a helyén áll (a login képernyő abba húzódott össze)
+    if (sessionStorage.getItem('shelfy-from-login')) { sessionStorage.removeItem('shelfy-from-login'); document.documentElement.classList.add('intro-login'); }
   } catch (e) {}
 })();
 </script>
-<div class="splash" id="splash" aria-hidden="true">
-  <div class="sp-dev">
-    <div class="sp-screen">
-      <i class="sp-line" style="--i:0;width:58%"></i><i class="sp-line" style="--i:1;width:86%"></i><i class="sp-line" style="--i:2;width:78%"></i><i class="sp-line" style="--i:3;width:90%"></i><i class="sp-line" style="--i:4;width:64%"></i><i class="sp-line" style="--i:5;width:82%"></i>
-      <div class="sp-page"></div>
-      <div class="sp-logo">{{ logo(74) }}</div>
-    </div>
-    <i class="sp-key"></i>
-  </div>
-  <div class="sp-name">{{ t('app.name') }}</div>
-</div>
+{% set hold = false %}{% include "_splash.html" %}
 <script>
 (function () {
   var r = document.documentElement, s = document.getElementById('splash');
@@ -55,11 +47,15 @@
   var done = false;
   function out() {
     if (done) return; done = true;
+    // a tablet kijelzője ránagyít a képernyőre: innen "lépünk be" a főoldalra
+    var dev = s.querySelector('.sp-dev'), scr = s.querySelector('.sp-screen').getBoundingClientRect(), dr = dev.getBoundingClientRect();
+    dev.style.transformOrigin = (scr.left + scr.width / 2 - dr.left) + 'px ' + (scr.top + scr.height / 2 - dr.top) + 'px';
+    s.style.setProperty('--zoom', Math.max(innerWidth / scr.width, innerHeight / scr.height) * 1.05);
     r.classList.remove('intro'); r.classList.add('entered'); s.classList.add('out');
-    setTimeout(function () { s.remove(); }, 450);
+    setTimeout(function () { s.remove(); r.classList.remove('intro-login'); }, 750);
   }
   s.addEventListener('click', out);
-  setTimeout(out, 1550);
+  setTimeout(out, r.classList.contains('intro-login') ? 1400 : 1550);
 })();
 </script>
 <div class="shell">

@@ -1,0 +1,12 @@
+{# Az e-könyv-olvasós belépő: a keret (base.html) és a bejelentkező oldal (_auth.html) is ezt használja #}
+<div class="splash{% if hold %} hold{% endif %}" id="splash" aria-hidden="true">
+  <div class="sp-dev">
+    <div class="sp-screen">
+      <i class="sp-line" style="--i:0;width:58%"></i><i class="sp-line" style="--i:1;width:86%"></i><i class="sp-line" style="--i:2;width:78%"></i><i class="sp-line" style="--i:3;width:90%"></i><i class="sp-line" style="--i:4;width:64%"></i><i class="sp-line" style="--i:5;width:82%"></i>
+      <div class="sp-page"></div>
+      <div class="sp-logo">{{ logo(74) }}</div>
+    </div>
+    <i class="sp-key"></i>
+  </div>
+  <div class="sp-name">{{ t('app.name') }}</div>
+</div>

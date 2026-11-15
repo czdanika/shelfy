@@ -24,4 +24,60 @@
     <p class="copy">© {{ year }} {{ author }} · <a href="{{ repo_url }}" target="_blank" rel="noopener">Shelfy {{ version }}</a></p>
   </div>
 </main>
+{% set hold = true %}{% include "_splash.html" %}
+<script>
+// Belépés átmenettel: az űrlap a háttérben megy el; siker esetén a bejelentkező képernyő összehúzódik
+// az e-könyv-olvasó kijelzőjébe, és onnan folytatódik a belépő animáció. Hibánál csak a kártya frissül.
+(function () {
+  var main = document.querySelector('main.auth'), sp = document.getElementById('splash');
+  if (!window.fetch || !main.animate || !window.DOMParser || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  var busy = false;
+  function enter(next) {
+    try { sessionStorage.setItem('shelfy-from-login', '1'); } catch (e) {}
+    var vw = innerWidth, vh = innerHeight;
+    window.scrollTo(0, 0); main.style.height = vh + 'px'; main.style.minHeight = '0'; main.style.overflow = 'hidden';
+    sp.classList.add('go');
+    var dev = sp.querySelector('.sp-dev'), scr = sp.querySelector('.sp-screen').getBoundingClientRect(), dr = dev.getBoundingClientRect();
+    if (!scr.width || !scr.height) { location.href = next; return; }
+    var K = Math.min(vw / scr.width, vh / scr.height), cx = scr.left + scr.width / 2, cy = scr.top + scr.height / 2;
+    var ix = Math.max(0, (vw - scr.width * K) / 2), iy = Math.max(0, (vh - scr.height * K) / 2);
+    var o = {duration: 800, easing: 'cubic-bezier(.65,0,.2,1)', fill: 'forwards'};
+    dev.style.transformOrigin = (cx - dr.left) + 'px ' + (cy - dr.top) + 'px';
+    sp.animate([{opacity: 0}, {opacity: 1}], {duration: 260, fill: 'forwards'});
+    dev.animate([{transform: 'scale(' + K + ')'}, {transform: 'scale(1)'}], o);
+    // a kivágás gyorsan felveszi a kijelző arányát, utána a képernyő pontosan a kijelzővel együtt zsugorodik
+    main.animate([{clipPath: 'inset(0px 0px round 0px)'}, {clipPath: 'inset(' + iy + 'px ' + ix + 'px round ' + (6 * K) + 'px)'}],
+                 {duration: 300, easing: 'ease-out', fill: 'forwards'});
+    main.animate([
+      {transform: 'none', opacity: 1},
+      {opacity: 1, offset: .72},
+      {transform: 'translate(' + (cx - vw / 2) + 'px,' + (cy - vh / 2) + 'px) scale(' + (1 / K) + ')', opacity: 0}
+    ], o).onfinish = function () { location.href = next; };
+  }
+  document.addEventListener('submit', function (ev) {
+    var form = ev.target;
+    if (!form.closest || !form.closest('.auth .card') || (form.method || '').toLowerCase() !== 'post') return;
+    ev.preventDefault();
+    if (busy) return; busy = true;
+    var btn = form.querySelector('button[type=submit]'), user = (form.elements.username || {}).value || '';
+    if (btn) btn.classList.add('busy');
+    var next = form.elements.next ? form.elements.next.value : '/';
+    if (!/^\/(?!\/)/.test(next)) next = '/';
+    fetch(form.action, {method: 'POST', body: new URLSearchParams(new FormData(form)), credentials: 'same-origin', redirect: 'manual'})
+      .then(function (res) {
+        if (res.type === 'opaqueredirect') { enter(next); return; }
+        return res.text().then(function (html) {
+          var card = new DOMParser().parseFromString(html, 'text/html').querySelector('.auth .card'), cur = document.querySelector('.auth .card');
+          if (!card) { location.reload(); return; }
+          cur.innerHTML = card.innerHTML; busy = false;
+          var u = cur.querySelector('[name=username]'), p = cur.querySelector('[name=password]');
+          if (u && user) u.value = user;
+          if (p && user) p.focus();
+          cur.classList.remove('shake'); void cur.offsetWidth; cur.classList.add('shake');
+        });
+      })
+      .catch(function () { form.submit(); });
+  });
+})();
+</script>
 {% endblock %}

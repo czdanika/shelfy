@@ -266,6 +266,15 @@ def create_app(cfg: Config | None = None, transport=None) -> FastAPI:
             return Response(status_code=404)
         return await call_next(request)
 
+    def asset_version() -> str:
+        """A stíluslapok és szkriptek címébe kerülő jelölő: verzió + a legfrissebb fájl ideje, hogy módosítás után
+        a böngésző ne a gyorsítótárból vegye a régit (a verziószám kiadások között nem változik)."""
+        try:
+            newest = max(int(f.stat().st_mtime) for f in (BASE / "static").glob("*.*s"))  # *.css, *.js
+        except ValueError:
+            newest = 0
+        return f"{__version__}-{newest:x}"
+
     def render(request: Request, name: str, status: int = 200, **ctx) -> HTMLResponse:
         user = getattr(request.state, "user", None)
         lang = lang_of(request, user)
@@ -277,7 +286,7 @@ def create_app(cfg: Config | None = None, transport=None) -> FastAPI:
         base = {
             "langname": langname,
             "t": partial(i18n.t, lang), "lang": lang, "languages": [(c, i18n.names[c]) for c in i18n.languages],
-            "user": user, "version": __version__, "author": __author__, "repo_url": __url__, "year": _dt.datetime.now().year, "path": request.url.path,
+            "user": user, "version": __version__, "asset_v": asset_version(), "author": __author__, "repo_url": __url__, "year": _dt.datetime.now().year, "path": request.url.path,
             "query": dict(request.query_params), "qs": qs, "now": now(),
             "event_text": partial(event_text, lang),
             "sources": [p.name for p in lookup.providers],
