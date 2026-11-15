@@ -2,96 +2,96 @@
 name = "Shelfy"
 auth = "Czibolya Dániel"
 descript = "面向家庭的自托管电子书库。上传任意格式的电子书,Shelfy 会检查文件,并从 Moly.hu、Google Books 和 Open Library 在线补全元数据。提供可搜索的目录、格式转换、通过邮件发送到 Kindle、适合墨水屏的 Kindle 视图、多用户和权限、备份与恢复。界面支持 14 种语言。"
-release_note = "0.7.0：新首页（继续阅读、可翻动的图书行），动态界面（动画标志、开场画面、悬停时翻开的封面），重新整理的菜单和全新的账户页面。 0.6.0：更智能的在线查找（“作者 - 书名”连写、仅主标题、自由文本），支持亚马逊编号（ASIN）和亚马逊链接，新增来源 Hardcover，查找并合并重复书籍。"
+release_note = "0.7.2：开场画面的渐变光晕延伸到整个界面，登录后画面平滑缩入电子书阅读器，改进手机上的布局。 0.7.0：新首页（继续阅读、可翻动的图书行），动态界面（动画标志、开场画面、悬停时翻开的封面），重新整理的菜单和全新的账户页面。"
 important = "首次打开时请创建管理员账户。发送到 Kindle 需要在 “设置”中配置 SMTP。"
 
 [zh-hk]
 name = "Shelfy"
 auth = "Czibolya Dániel"
 descript = "為家庭而設的自架電子書庫。上傳任何格式的電子書,Shelfy 會檢查檔案,並從 Moly.hu、Google Books 和 Open Library 線上補全中繼資料。提供可搜尋的目錄、格式轉換、透過電子郵件傳送到 Kindle、適合電子墨水螢幕的 Kindle 檢視、多使用者與權限、備份與還原。介面支援 14 種語言。"
-release_note = "0.7.0：新首頁（繼續閱讀、可翻動的書籍列），動態介面（動畫標誌、開場畫面、懸停時翻開的封面），重新整理的選單和全新的帳戶頁面。 0.6.0：更聰明的線上查找（「作者 - 書名」連寫、僅主標題、自由文字），支援亞馬遜編號（ASIN）和亞馬遜連結，新增來源 Hardcover，尋找並合併重複書籍。"
+release_note = "0.7.2：開場畫面的漸層光暈延伸到整個介面，登入後畫面平滑縮入電子書閱讀器，改進手機上的版面。 0.7.0：新首頁（繼續閱讀、可翻動的書籍列），動態介面（動畫標誌、開場畫面、懸停時翻開的封面），重新整理的選單和全新的帳戶頁面。"
 important = "首次開啟時請建立管理員帳戶。傳送到 Kindle 需要在 「設定」中設定 SMTP。"
 
 [en-us]
 name = "Shelfy"
 auth = "Czibolya Dániel"
 descript = "A self-hosted ebook library for the family. Upload books in any format; Shelfy inspects them and completes their metadata online from Moly.hu, Google Books and Open Library. Searchable catalogue, format conversion, Send to Kindle by e-mail, an e-ink friendly Kindle view, multiple users with permissions, backup and restore. The interface is available in 14 languages."
-release_note = "0.7.0: new home page (continue reading, scrollable rows of books), a lively interface (animated logo, opening screen, covers that open on hover), reorganised menu and a redesigned account page. 0.6.0: smarter online lookup (combined “Author - Title”, main title only, free text), Amazon IDs (ASIN) and Amazon links, new Hardcover source, find and merge duplicate books."
+release_note = "0.7.2: the opening screen’s gradient glow across the whole interface, a smooth transition from sign-in into the e-reader, phone layout fixes. 0.7.0: new home page (continue reading, scrollable rows of books), a lively interface (animated logo, opening screen, covers that open on hover), reorganised menu and a redesigned account page."
 important = "Create the administrator account the first time you open it. Send to Kindle needs SMTP settings under Settings."
 
 [fr-fr]
 name = "Shelfy"
 auth = "Czibolya Dániel"
 descript = "Une bibliothèque de livres numériques auto-hébergée pour la famille. Importez des livres dans n'importe quel format : Shelfy les analyse et complète leurs métadonnées en ligne depuis Moly.hu, Google Books et Open Library. Catalogue avec recherche, conversion de formats, envoi vers Kindle par e-mail, vue Kindle adaptée à l'encre électronique, plusieurs utilisateurs avec droits, sauvegarde et restauration. Interface disponible en 14 langues."
-release_note = "0.7.0 : nouvelle page d’accueil (reprendre la lecture, rangées de livres défilantes), interface animée (logo animé, écran d’ouverture, couvertures qui s’ouvrent au survol), menu réorganisé et page de compte repensée. 0.6.0 : recherche en ligne plus intelligente (« Auteur - Titre » combinés, titre principal seul, texte libre), identifiants Amazon (ASIN) et liens Amazon, nouvelle source Hardcover, recherche et fusion des doublons."
+release_note = "0.7.2 : le halo dégradé de l’écran d’ouverture dans toute l’interface, transition fluide de la connexion vers la liseuse, corrections de mise en page sur téléphone. 0.7.0 : nouvelle page d’accueil (reprendre la lecture, rangées de livres défilantes), interface animée (logo animé, écran d’ouverture, couvertures qui s’ouvrent au survol), menu réorganisé et page de compte repensée."
 important = "Créez le compte administrateur à la première ouverture. L'envoi vers Kindle nécessite les réglages SMTP dans Paramètres."
 
 [de-de]
 name = "Shelfy"
 auth = "Czibolya Dániel"
 descript = "Eine selbst gehostete E-Book-Bibliothek für die Familie. Bücher in jedem Format hochladen; Shelfy prüft sie und ergänzt die Metadaten online aus Moly.hu, Google Books und Open Library. Durchsuchbarer Katalog, Formatkonvertierung, Senden an Kindle per E-Mail, E-Ink-freundliche Kindle-Ansicht, mehrere Benutzer mit Rechten, Sicherung und Wiederherstellung. Die Oberfläche gibt es in 14 Sprachen."
-release_note = "0.7.0: neue Startseite (Weiterlesen, blätterbare Buchreihen), lebendige Oberfläche (animiertes Logo, Startbild, Cover, die sich beim Überfahren öffnen), neu geordnetes Menü und überarbeitete Kontoseite. 0.6.0: klügere Online-Suche (zusammengeschriebenes „Autor - Titel“, nur Haupttitel, Freitext), Amazon-Kennungen (ASIN) und Amazon-Links, neue Quelle Hardcover, doppelte Bücher finden und zusammenführen."
+release_note = "0.7.2: der Farbverlauf des Startbilds in der ganzen Oberfläche, fließender Übergang von der Anmeldung in den E-Reader, Layout-Korrekturen auf dem Handy. 0.7.0: neue Startseite (Weiterlesen, blätterbare Buchreihen), lebendige Oberfläche (animiertes Logo, Startbild, Cover, die sich beim Überfahren öffnen), neu geordnetes Menü und überarbeitete Kontoseite."
 important = "Beim ersten Öffnen das Administratorkonto anlegen. Für „An Kindle senden“ unter Einstellungen SMTP einrichten."
 
 [it-it]
 name = "Shelfy"
 auth = "Czibolya Dániel"
 descript = "Una biblioteca di ebook self-hosted per la famiglia. Carica libri in qualsiasi formato: Shelfy li controlla e ne completa i metadati online da Moly.hu, Google Books e Open Library. Catalogo ricercabile, conversione di formato, invio a Kindle via e-mail, vista Kindle adatta all'inchiostro elettronico, più utenti con permessi, backup e ripristino. Interfaccia disponibile in 14 lingue."
-release_note = "0.7.0: nuova pagina iniziale (continua a leggere, righe di libri scorrevoli), interfaccia animata (logo animato, schermata di apertura, copertine che si aprono al passaggio del mouse), menu riorganizzato e pagina dell’account ridisegnata. 0.6.0: ricerca online più intelligente («Autore - Titolo» insieme, solo titolo principale, testo libero), identificativi Amazon (ASIN) e link Amazon, nuova fonte Hardcover, ricerca e unione dei libri doppi."
+release_note = "0.7.2: l’alone sfumato della schermata di apertura in tutta l’interfaccia, transizione fluida dall’accesso al lettore di ebook, correzioni al layout su telefono. 0.7.0: nuova pagina iniziale (continua a leggere, righe di libri scorrevoli), interfaccia animata (logo animato, schermata di apertura, copertine che si aprono al passaggio del mouse), menu riorganizzato e pagina dell’account ridisegnata."
 important = "Al primo avvio crea l'account amministratore. Per l'invio a Kindle configura l'SMTP in Impostazioni."
 
 [es-es]
 name = "Shelfy"
 auth = "Czibolya Dániel"
 descript = "Una biblioteca de libros electrónicos autoalojada para la familia. Sube libros en cualquier formato: Shelfy los revisa y completa sus metadatos en línea desde Moly.hu, Google Books y Open Library. Catálogo con búsqueda, conversión de formatos, envío a Kindle por correo, vista Kindle adaptada a tinta electrónica, varios usuarios con permisos, copia de seguridad y restauración. Interfaz disponible en 14 idiomas."
-release_note = "0.7.0: nueva página de inicio (seguir leyendo, filas de libros desplazables), interfaz animada (logotipo animado, pantalla de apertura, portadas que se abren al pasar el ratón), menú reorganizado y página de cuenta rediseñada. 0.6.0: búsqueda en línea más inteligente («Autor - Título» juntos, solo título principal, texto libre), identificadores de Amazon (ASIN) y enlaces de Amazon, nueva fuente Hardcover, buscar y fusionar libros duplicados."
+release_note = "0.7.2: el resplandor degradado de la pantalla de apertura en toda la interfaz, transición suave del inicio de sesión al lector de libros, correcciones de diseño en el móvil. 0.7.0: nueva página de inicio (seguir leyendo, filas de libros desplazables), interfaz animada (logotipo animado, pantalla de apertura, portadas que se abren al pasar el ratón), menú reorganizado y página de cuenta rediseñada."
 important = "Crea la cuenta de administrador la primera vez que la abras. El envío a Kindle requiere configurar SMTP en Ajustes."
 
 [hu-hu]
 name = "Shelfy"
 auth = "Czibolya Dániel"
 descript = "Saját szerveren futó e-könyvtár a családnak. Bármilyen formátumú könyvet feltölthetsz: a Shelfy átvizsgálja, és online kiegészíti az adatait a Moly.hu, a Google Books és az Open Library alapján. Kereshető katalógus, formátumkonvertálás, küldés Kindle-re e-mailben, e-tinta-barát Kindle nézet, több felhasználó jogosultságokkal, mentés és visszaállítás. A felület 14 nyelven érhető el."
-release_note = "0.7.0: új kezdőlap (olvasás folytatása, lapozható könyvsorok), élő felület (animált logó, nyitókép, rámutatásra kinyíló borítók), átrendezett menü és újratervezett Saját fiók oldal. 0.6.0: okosabb online keresés (egybeírt „Szerző - Cím”, csak főcím, szabad szavas keresés), Amazon-azonosító (ASIN) és Amazon-link, új forrás: Hardcover, duplikált könyvek keresése és egyesítése."
+release_note = "0.7.2: a nyitókép színátmenetes derengése az egész felületen, sima átmenet a bejelentkezésből az e-könyv-olvasóba, javítások a telefonos elrendezésben. 0.7.0: új kezdőlap (olvasás folytatása, lapozható könyvsorok), élő felület (animált logó, nyitókép, rámutatásra kinyíló borítók), átrendezett menü és újratervezett Saját fiók oldal."
 important = "Első megnyitáskor hozd létre az adminisztrátori fiókot. A Kindle-re küldéshez a Beállítások oldalon add meg az SMTP-adatokat."
 
 [ja-jp]
 name = "Shelfy"
 auth = "Czibolya Dániel"
 descript = "家族のためのセルフホスト型電子書籍ライブラリ。どの形式の本でもアップロードでき、Shelfy がファイルを検査して Moly.hu、Google Books、Open Library からメタデータをオンラインで補完します。検索できる目録、形式の変換、メールでの Kindle への送信、電子ペーパー向けの Kindle 表示、権限付きの複数ユーザー、バックアップと復元に対応。画面は 14 言語に対応しています。"
-release_note = "0.7.0：新しいホーム画面（続きから読む、横にめくれる本の列）、動きのあるインターフェース（アニメーションするロゴ、オープニング画面、カーソルを合わせると開く表紙）、整理し直したメニューと新しいアカウントページ。 0.6.0：よりスマートなオンライン検索（「著者 - タイトル」の連結、メインタイトルのみ、フリーテキスト）、Amazon の識別子（ASIN）と Amazon リンク、新しいソース Hardcover、重複した本の検出と統合。"
+release_note = "0.7.2：オープニング画面のグラデーションをインターフェース全体に適用、サインインから電子書籍リーダーへの滑らかな切り替え、スマートフォンでのレイアウトを修正。 0.7.0：新しいホーム画面（続きから読む、横にめくれる本の列）、動きのあるインターフェース（アニメーションするロゴ、オープニング画面、カーソルを合わせると開く表紙）、整理し直したメニューと新しいアカウントページ。"
 important = "初回起動時に管理者アカウントを作成してください。Kindle への送信には 「設定」で SMTP の設定が必要です。"
 
 [ko-kr]
 name = "Shelfy"
 auth = "Czibolya Dániel"
 descript = "가족을 위한 자체 호스팅 전자책 서재입니다. 어떤 형식의 책이든 업로드하면 Shelfy가 파일을 검사하고 Moly.hu, Google Books, Open Library에서 메타데이터를 온라인으로 보완합니다. 검색 가능한 목록, 형식 변환, 이메일로 Kindle에 보내기, 전자잉크에 맞춘 Kindle 보기, 권한이 있는 여러 사용자, 백업과 복원을 지원합니다. 인터페이스는 14개 언어로 제공됩니다."
-release_note = "0.7.0: 새 홈 화면(이어 읽기, 넘겨 보는 책 줄), 생동감 있는 인터페이스(움직이는 로고, 시작 화면, 마우스를 올리면 펼쳐지는 표지), 새로 정리한 메뉴와 새 계정 페이지. 0.6.0: 더 똑똑한 온라인 검색(붙여 쓴 “저자 - 제목”, 주 제목만, 자유 텍스트), 아마존 식별자(ASIN)와 아마존 링크, 새 소스 Hardcover, 중복 책 찾기와 병합."
+release_note = "0.7.2: 시작 화면의 그러데이션 빛을 인터페이스 전체에 적용, 로그인 화면에서 전자책 단말기로 이어지는 부드러운 전환, 휴대폰 레이아웃 수정. 0.7.0: 새 홈 화면(이어 읽기, 넘겨 보는 책 줄), 생동감 있는 인터페이스(움직이는 로고, 시작 화면, 마우스를 올리면 펼쳐지는 표지), 새로 정리한 메뉴와 새 계정 페이지."
 important = "처음 열 때 관리자 계정을 만드세요. Kindle로 보내려면 설정에서 SMTP를 설정해야 합니다."
 
 [pl-pl]
 name = "Shelfy"
 auth = "Czibolya Dániel"
 descript = "Samodzielnie hostowana biblioteka e-booków dla rodziny. Prześlij książki w dowolnym formacie – Shelfy je sprawdzi i uzupełni metadane online z Moly.hu, Google Books i Open Library. Katalog z wyszukiwaniem, konwersja formatów, wysyłka na Kindle e-mailem, widok Kindle przyjazny dla e-papieru, wielu użytkowników z uprawnieniami, kopia zapasowa i przywracanie. Interfejs dostępny w 14 językach."
-release_note = "0.7.0: nowa strona startowa (czytaj dalej, przewijane rzędy książek), żywy interfejs (animowane logo, ekran powitalny, okładki otwierające się po najechaniu), uporządkowane menu i przeprojektowana strona konta. 0.6.0: mądrzejsze wyszukiwanie online (zapisane razem „Autor - Tytuł”, sam tytuł główny, pełny tekst), identyfikatory Amazon (ASIN) i linki Amazon, nowe źródło Hardcover, wyszukiwanie i scalanie duplikatów."
+release_note = "0.7.2: gradientowa poświata ekranu powitalnego w całym interfejsie, płynne przejście z logowania do czytnika, poprawki układu na telefonie. 0.7.0: nowa strona startowa (czytaj dalej, przewijane rzędy książek), żywy interfejs (animowane logo, ekran powitalny, okładki otwierające się po najechaniu), uporządkowane menu i przeprojektowana strona konta."
 important = "Przy pierwszym uruchomieniu utwórz konto administratora. Wysyłka na Kindle wymaga ustawień SMTP w Ustawieniach."
 
 [ru-ru]
 name = "Shelfy"
 auth = "Czibolya Dániel"
 descript = "Библиотека электронных книг на собственном сервере для всей семьи. Загружайте книги в любом формате: Shelfy проверит их и дополнит метаданные из Moly.hu, Google Books и Open Library. Каталог с поиском, конвертация форматов, отправка на Kindle по электронной почте, вид для Kindle с электронными чернилами, несколько пользователей с правами, резервное копирование и восстановление. Интерфейс доступен на 14 языках."
-release_note = "0.7.0: новая главная страница (продолжить чтение, прокручиваемые ряды книг), живой интерфейс (анимированный логотип, заставка, обложки, раскрывающиеся при наведении), перестроенное меню и обновлённая страница учётной записи. 0.6.0: более умный онлайн-поиск (слитные «Автор - Название», только основное название, свободный текст), идентификаторы Amazon (ASIN) и ссылки Amazon, новый источник Hardcover, поиск и объединение дубликатов."
+release_note = "0.7.2: градиентное свечение заставки во всём интерфейсе, плавный переход от входа к электронной книге, исправления вёрстки на телефоне. 0.7.0: новая главная страница (продолжить чтение, прокручиваемые ряды книг), живой интерфейс (анимированный логотип, заставка, обложки, раскрывающиеся при наведении), перестроенное меню и обновлённая страница учётной записи."
 important = "При первом открытии создайте учётную запись администратора. Для отправки на Kindle настройте SMTP в разделе «Настройки»."
 
 [tr-tr]
 name = "Shelfy"
 auth = "Czibolya Dániel"
 descript = "Aile için kendi sunucunuzda çalışan bir e-kitap kitaplığı. Her biçimde kitap yükleyin; Shelfy onları denetler ve üst verilerini Moly.hu, Google Books ve Open Library üzerinden çevrimiçi tamamlar. Aranabilir katalog, biçim dönüştürme, e-postayla Kindle'a gönderme, e-mürekkebe uygun Kindle görünümü, izinli çoklu kullanıcı, yedekleme ve geri yükleme. Arayüz 14 dilde kullanılabilir."
-release_note = "0.7.0: yeni ana sayfa (okumaya devam et, kaydırılabilir kitap sıraları), canlı arayüz (hareketli logo, açılış ekranı, üzerine gelince açılan kapaklar), yeniden düzenlenen menü ve yenilenen hesap sayfası. 0.6.0: daha akıllı çevrimiçi arama (bitişik “Yazar - Başlık”, yalnızca ana başlık, serbest metin), Amazon kimlikleri (ASIN) ve Amazon bağlantıları, yeni kaynak Hardcover, yinelenen kitapları bulma ve birleştirme."
+release_note = "0.7.2: açılış ekranının renk geçişli ışıltısı tüm arayüzde, oturum açmadan e-kitap okuyucuya yumuşak geçiş, telefonda düzen düzeltmeleri. 0.7.0: yeni ana sayfa (okumaya devam et, kaydırılabilir kitap sıraları), canlı arayüz (hareketli logo, açılış ekranı, üzerine gelince açılan kapaklar), yeniden düzenlenen menü ve yenilenen hesap sayfası."
 important = "İlk açılışta yönetici hesabını oluşturun. Kindle'a gönderme için Ayarlar bölümünde SMTP ayarlarını yapın."
 
 [pt-pt]
 name = "Shelfy"
 auth = "Czibolya Dániel"
 descript = "Uma biblioteca de livros digitais auto-alojada para a família. Carregue livros em qualquer formato: o Shelfy verifica-os e completa os metadados online a partir de Moly.hu, Google Books e Open Library. Catálogo pesquisável, conversão de formatos, envio para o Kindle por e-mail, vista Kindle adequada a tinta eletrónica, vários utilizadores com permissões, cópia de segurança e restauro. Interface disponível em 14 idiomas."
-release_note = "0.7.0: nova página inicial (continuar a ler, filas de livros deslizantes), interface animada (logótipo animado, ecrã de abertura, capas que se abrem ao passar o rato), menu reorganizado e página de conta redesenhada. 0.6.0: pesquisa online mais inteligente («Autor - Título» juntos, só o título principal, texto livre), identificadores da Amazon (ASIN) e ligações da Amazon, nova fonte Hardcover, encontrar e fundir livros duplicados."
+release_note = "0.7.2: o brilho em gradiente do ecrã de abertura em toda a interface, transição suave do início de sessão para o leitor de livros, correções de disposição no telemóvel. 0.7.0: nova página inicial (continuar a ler, filas de livros deslizantes), interface animada (logótipo animado, ecrã de abertura, capas que se abrem ao passar o rato), menu reorganizado e página de conta redesenhada."
 important = "Crie a conta de administrador na primeira abertura. O envio para o Kindle requer as definições SMTP em Definições."

@@ -29,7 +29,7 @@ A felület **14 nyelven** érhető el – angol, magyar, német, francia, olasz,
 - **Automatikus kategorizálás** a címkékből és a leírásból (krimi, fantasy, sci-fi, történelmi regény…).
 - **Böngészés és rendezés**: szerzők, sorozatok, címkék, kiadók, nyelvek, formátumok és értékelés szerint, valamint a saját polcaid és olvasási állapot.
 - **Kezdőlap**: a félbehagyott könyved haladásjelzővel és folytatás gombbal, alatta lapozható sorokban a nemrég hozzáadott és a népszerű könyvek.
-- **Élő felület**: animált logó és nyitókép, e-olvasós belépő animáció, rámutatásra kinyíló borítók, összecsukható menücsoportok ikonokkal, lágy oldalváltások. Ha a rendszerben a csökkentett mozgás be van kapcsolva, az animációk kimaradnak.
+- **Élő felület**: animált logó és színátmenetes nyitókép, amelynek derengése az egész felületen megjelenik, e-olvasós belépő animáció, rámutatásra kinyíló borítók, összecsukható menücsoportok ikonokkal, lágy oldalváltások. Ha a rendszerben a csökkentett mozgás be van kapcsolva, az animációk kimaradnak.
 - **Rács és lista nézet**: csúszkával állítható, hány borító férjen egy sorba, és választható, hány könyv legyen egy oldalon. Listában a borító mellett az adatok és a leírás eleje is látszik.
 - **Online adatfrissítés** a már felvett könyveknél: adatonként összeveti a jelenlegit és az online értéket, és csak azt veszi át, amit kijelölsz.
 - **Konvertálás** az e-könyv formátumok között. Letöltéskor a hiányzó Kindle-formátumot (MOBI/AZW3/EPUB) magától elkészíti.
