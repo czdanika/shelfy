@@ -626,3 +626,69 @@ html{scroll-behavior:smooth}
 .copy{margin:0;font-size:12px;letter-spacing:.3px;color:var(--muted);text-align:center}
 .copy a{color:inherit;text-decoration:underline;text-decoration-color:var(--line-2);text-underline-offset:3px}
 .copy a:hover{color:var(--accent)}
+
+/* ================= Színátmenetek: a nyitókép derengése az alkalmazásban is ================= */
+/* oldalsáv: sötét alap, rajta türkiz, kék és borostyán derengés (lassan vándorol – lásd motion.css) */
+.side{background:
+  radial-gradient(70% 28% at 0% 0%,rgba(20,184,166,.30),transparent 72%),
+  radial-gradient(80% 26% at 100% 12%,rgba(47,102,144,.42),transparent 72%),
+  radial-gradient(90% 30% at 100% 100%,rgba(245,158,11,.16),transparent 72%),
+  var(--side);background-size:100% 135%;background-repeat:no-repeat}
+.side a.item:hover,.side a.item.on,.su-me:hover,.su-me.on,.su-out:hover{background-color:rgba(255,255,255,.08)}
+.side a.item.on{background:linear-gradient(90deg,rgba(245,158,11,.20),rgba(255,255,255,.07) 60%)}
+.side .brand span{background:linear-gradient(90deg,#fff 40%,#99F6E4);-webkit-background-clip:text;background-clip:text;color:transparent}
+.sideuser,.side-extra{border-top-color:rgba(255,255,255,.10)}
+/* tartalom: halvány derengés az oldal tetején, a felső sáv mögött is átüt */
+.main{position:relative;isolation:isolate;overflow-x:clip}
+.main::before{content:"";position:absolute;z-index:-1;top:0;left:0;right:0;height:560px;pointer-events:none;background:
+  radial-gradient(46% 78% at 8% 0%,rgba(20,184,166,var(--glow-a,.17)),transparent 70%),
+  radial-gradient(42% 70% at 92% 4%,rgba(245,158,11,var(--glow-b,.13)),transparent 70%),
+  radial-gradient(56% 92% at 52% -12%,rgba(47,102,144,var(--glow-c,.20)),transparent 70%)}
+:root[data-theme="dark"] .main{--glow-a:.20;--glow-b:.10;--glow-c:.34}
+@media (min-width:1024px){.top{background:color-mix(in srgb,var(--card) 66%,transparent)}}
+/* címek: a szöveg színéből a kiemelő színbe hajló átmenet */
+.content>h1,.content>div>h1,.hello h1,.mehead h1{background:linear-gradient(95deg,var(--text) 20%,var(--accent) 70%,#14B8A6);-webkit-background-clip:text;background-clip:text;color:transparent;width:fit-content;max-width:100%}
+.content>h1 a,.content>div>h1 a{-webkit-text-fill-color:currentColor}
+/* fő gombok, kereső, kijelölt elemek */
+.btn.primary,.search button,.pager span.cur,.chip input:checked+span,.keep-tag{background-image:linear-gradient(135deg,var(--accent),color-mix(in srgb,var(--accent) 62%,#14B8A6))}
+.btn.primary:hover,.search button:hover{background-image:linear-gradient(135deg,var(--accent-d),color-mix(in srgb,var(--accent-d) 55%,#14B8A6))}
+.avatar{background:linear-gradient(135deg,#FDE68A,#F8B84E)}
+:root[data-theme="dark"] .avatar{background:linear-gradient(135deg,#5C4713,#8C5E0C)}
+.bar i,.pbar i{background-image:linear-gradient(90deg,var(--accent),#14B8A6)}
+/* kártyák: leheletnyi mélység, hogy elváljanak a derengő háttértől */
+.card,.cont{box-shadow:0 1px 2px rgba(17,24,39,.04),0 10px 28px -16px rgba(17,24,39,.18)}
+:root[data-theme="dark"] .card,:root[data-theme="dark"] .cont{box-shadow:0 10px 30px -14px rgba(0,0,0,.6)}
+.auth .card{box-shadow:none}
+.cont:not(:has(.cont-bg)){background:linear-gradient(120deg,color-mix(in srgb,#14B8A6 14%,var(--card)),var(--card) 55%,color-mix(in srgb,#F59E0B 10%,var(--card)))}
+.sechead::before{background:linear-gradient(90deg,transparent,var(--line-2))} .sechead::after{background:linear-gradient(90deg,var(--line-2),transparent)}
+
+/* ================= Telefon: finomítások ================= */
+/* a kártya alatti sorok soha ne lógjanak át a szomszéd könyvre */
+.book>*{max-width:100%}
+.book .title,.book .small{overflow-wrap:anywhere}
+.book .meta{flex-wrap:wrap;justify-content:center;row-gap:3px}
+@media (max-width:760px){
+  /* „Olvasom” kártya: a borító mellett a cím és a gomb, alatta a többi félbehagyott könyv */
+  .cont{gap:14px 16px;align-items:flex-start}
+  .cont-info{flex:1 1 170px}
+  .cont-title{font-size:21px}
+  .cont-author{font-size:15px}
+  .cont .btn{padding:0 12px;font-size:13px}
+  /* kezdőlapi sorok: keskeny kártyán csak a cím és a szerző */
+  .rail .book .meta,.rail .book a.small.muted{display:none}
+  .rail .book .title{font-size:14px}
+  /* rendezés: egyetlen, ujjal húzható sor */
+  .sortbar{flex-wrap:nowrap;overflow-x:auto;gap:4px 18px;scrollbar-width:none;margin:0 -14px;padding:4px 14px 10px;-webkit-mask-image:linear-gradient(90deg,#000 88%,transparent);mask-image:linear-gradient(90deg,#000 88%,transparent)}
+  .sortbar::-webkit-scrollbar{display:none}
+  .sortgrp{flex:none;white-space:nowrap}
+  /* adatlap: a borító középen, alatta az adatok */
+  .detail{gap:20px;justify-content:center}
+  .detail .big{width:min(190px,56%)}
+  .detail .info>div:first-child{text-align:center}
+  .detail .info>div:first-child .row{justify-content:center}
+  .detail .info>.row{justify-content:center}
+  .jump,.adminnav{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;margin:0 -14px;padding:0 14px 2px}
+  .jump::-webkit-scrollbar,.adminnav::-webkit-scrollbar{display:none}
+  .jump a,.adminnav a{flex:none;white-space:nowrap}
+  .hello{align-items:center}
+}

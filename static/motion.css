@@ -131,12 +131,12 @@ html.entered .side .group:nth-of-type(n+5) :is(.label,.item),html.entered .sideu
 .side a.item .tx{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .side a.item svg{flex:none;color:var(--side-muted);transition:color .2s,transform .35s var(--spring)}
 .side a.item::before{content:"";position:absolute;left:0;top:50%;width:3px;height:0;border-radius:0 3px 3px 0;background:var(--amber);transform:translateY(-50%);transition:height .25s var(--ease)}
-.side a.item.on{box-shadow:none;background:linear-gradient(90deg,rgba(245,158,11,.14),var(--side-2) 55%)}
+.side a.item.on{box-shadow:none;background:linear-gradient(90deg,rgba(245,158,11,.20),rgba(255,255,255,.07) 60%)}
 .side a.item.on::before{height:100%}
 .side a.item.on svg{color:var(--amber)}
 .side a.item .n{padding:0 7px;border-radius:999px;background:rgba(255,255,255,.07);transition:background .2s,color .2s}
 @media (hover:hover){
-  .side a.item:hover{background:var(--side-2);color:#fff;transform:translateX(4px)}
+  .side a.item:hover{background:rgba(255,255,255,.08);color:#fff;transform:translateX(4px)}
   .side a.item:hover::before{height:62%}
   .side a.item.on:hover::before{height:100%}
   .side a.item:hover svg{color:var(--amber);transform:scale(1.22) rotate(-8deg)}
@@ -289,6 +289,12 @@ table.list tbody tr,.tasktable tbody tr,.srctable tr{transition:background .2s}
   table.list tbody tr:hover,.tasktable tbody tr:hover,.srctable tr:hover{background:var(--accent-soft)}
   .stats div:hover{transform:translateY(-3px);background:var(--accent-soft)}
 }
+
+/* a derengés lassan vándorol az oldalsávon és a tartalom tetején */
+.side{animation:side-glow 22s ease-in-out infinite alternate}
+@keyframes side-glow{from{background-position:0 0}to{background-position:0 100%}}
+.main::before{animation:main-glow 18s ease-in-out infinite alternate;transform-origin:50% 0}
+@keyframes main-glow{to{transform:translateX(3%) scale(1.12)}}
 
 /* ================= Csökkentett mozgás ================= */
 @media (prefers-reduced-motion:reduce){
