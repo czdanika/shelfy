@@ -692,3 +692,18 @@ html{scroll-behavior:smooth}
   .jump a,.adminnav a{flex:none;white-space:nowrap}
   .hello{align-items:center}
 }
+
+/* súgó telefonon: a hosszú parancssorok ne tolják szét az oldalt, a tartalomjegyzék egy húzható sor */
+.help{min-width:0;overflow-wrap:anywhere}
+.help pre{max-width:100%;white-space:pre;overflow-x:auto}
+.help code{overflow-wrap:anywhere}
+@media (max-width:900px){
+  .helpwrap{grid-template-columns:minmax(0,1fr);gap:14px}
+  .helptoc{flex-wrap:nowrap;overflow-x:auto;gap:6px;scrollbar-width:none;margin:0 -14px;padding:0 14px 2px}
+  .helptoc::-webkit-scrollbar{display:none}
+  .helptoc a{flex:none;white-space:nowrap;padding:6px 13px;border:1px solid var(--line);border-radius:999px;background:var(--card)}
+  .helptoc a:hover{border-color:var(--accent)}
+  .help.card{padding:16px}
+  .help h2{font-size:19px;scroll-margin-top:12px}
+  .help ul,.help ol{padding-left:18px}
+}
